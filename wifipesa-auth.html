@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WifiPesa - Ingia / Jisajili</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;800&family=Sora:wght@300;400;600;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --green: #00c853;
+      --green-dark: #009624;
+      --green-glow: #00c85333;
+      --bg: #050f0a;
+      --bg2: #0a1a10;
+      --card: #0d2016;
+      --border: #1a3a28;
+      --text: #e8f5e9;
+      --muted: #7aad8a;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Sora', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 100;
+      padding: 18px 5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(5, 15, 10, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 800;
+      font-size: 1.5rem;
+      letter-spacing: -1px;
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .logo span { color: var(--green); }
+
+    .nav-right {
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    .nav-right a {
+      color: var(--green);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    /* LAYOUT */
+    .auth-wrapper {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 100vh;
+    }
+
+    /* LEFT PANEL */
+    .left-panel {
+      background: linear-gradient(160deg, var(--bg2) 0%, var(--card) 100%);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 120px 60px 60px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .left-glow {
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, var(--green-glow) 0%, transparent 70%);
+      bottom: -100px;
+      left: -100px;
+      pointer-events: none;
+      animation: pulse 5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.5; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.08); }
+    }
+
+    .left-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 200, 83, 0.12);
+      border: 1px solid var(--green);
+      border-radius: 100px;
+      padding: 6px 16px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--green);
+      margin-bottom: 32px;
+      width: fit-content;
+    }
+
+    .left-badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: blink 1.5s ease infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.2; }
+    }
+
+    .left-panel h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2.8rem;
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      line-height: 1.1;
+      margin-bottom: 20px;
+    }
+
+    .left-panel h1 em {
+      font-style: normal;
+      color: var(--green);
+    }
+
+    .left-panel p {
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.7;
+      margin-bottom: 48px;
+      max-width: 380px;
+    }
+
+    .benefits {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .benefit {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+
+    .benefit-icon {
+      width: 36px;
+      height: 36px;
+      background: rgba(0, 200, 83, 0.12);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    /* RIGHT PANEL */
+    .right-panel {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 120px 60px 60px;
+      background: var(--bg);
+    }
+
+    .auth-box {
+      width: 100%;
+      max-width: 420px;
+    }
+
+    /* TABS */
+    .auth-tabs {
+      display: flex;
+      gap: 0;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 4px;
+      margin-bottom: 36px;
+    }
+
+    .auth-tab {
+      flex: 1;
+      padding: 11px;
+      border-radius: 9px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-family: 'Sora', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .auth-tab.active {
+      background: var(--green);
+      color: #000;
+    }
+
+    /* FORM */
+    .auth-form { display: none; }
+    .auth-form.active { display: block; animation: fadeUp 0.3s ease; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+
+    .form-subtitle {
+      color: var(--muted);
+      font-size: 0.88rem;
+      margin-bottom: 28px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 8px;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1rem;
+      pointer-events: none;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 13px 14px 13px 42px;
+      color: var(--text);
+      font-family: 'Sora', sans-serif;
+      font-size: 0.93rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(0, 200, 83, 0.12);
+    }
+
+    .form-group input::placeholder { color: #3a5a45; }
+
+    .form-group select option { background: var(--card); }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .password-wrap {
+      position: relative;
+    }
+
+    .toggle-pass {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.9rem;
+      padding: 0;
+      transition: color 0.2s;
+    }
+
+    .toggle-pass:hover { color: var(--text); }
+
+    .password-strength {
+      margin-top: 8px;
+      display: flex;
+      gap: 4px;
+    }
+
+    .strength-bar {
+      flex: 1;
+      height: 3px;
+      background: var(--border);
+      border-radius: 10px;
+      transition: background 0.3s;
+    }
+
+    .strength-bar.weak { background: #f44336; }
+    .strength-bar.medium { background: #ff9800; }
+    .strength-bar.strong { background: var(--green); }
+
+    .form-check {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 20px;
+      margin-top: 4px;
+    }
+
+    .form-check input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--green);
+      margin-top: 2px;
+      flex-shrink: 0;
+      padding: 0;
+    }
+
+    .form-check label {
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.5;
+      cursor: pointer;
+    }
+
+    .form-check label a {
+      color: var(--green);
+      text-decoration: none;
+    }
+
+    .forgot-link {
+      display: block;
+      text-align: right;
+      font-size: 0.82rem;
+      color: var(--green);
+      text-decoration: none;
+      margin-bottom: 20px;
+      margin-top: -8px;
+    }
+
+    .btn-submit {
+      width: 100%;
+      background: var(--green);
+      color: #000;
+      padding: 15px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.97rem;
+      border: none;
+      cursor: pointer;
+      font-family: 'Sora', sans-serif;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-submit:hover {
+      background: #00e564;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(0, 200, 83, 0.3);
+    }
+
+    .btn-submit:active { transform: translateY(0); }
+
+    .btn-submit.loading {
+      opacity: 0.7;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(0,0,0,0.3);
+      border-top-color: #000;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      display: none;
+    }
+
+    .btn-submit.loading .spinner { display: block; }
+    .btn-submit.loading .btn-text { display: none; }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 20px 0;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ALERT */
+    .alert {
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      margin-bottom: 16px;
+      display: none;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .alert.success {
+      background: rgba(0, 200, 83, 0.12);
+      border: 1px solid var(--green);
+      color: var(--green);
+      display: flex;
+    }
+
+    .alert.error {
+      background: rgba(244, 67, 54, 0.1);
+      border: 1px solid #f44336;
+      color: #ef9a9a;
+      display: flex;
+    }
+
+    /* STEP INDICATOR */
+    .step-indicator {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .step-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--border);
+      transition: all 0.3s;
+    }
+
+    .step-dot.active {
+      background: var(--green);
+      width: 24px;
+      border-radius: 4px;
+    }
+
+    .step-dot.done { background: var(--green-dark); }
+
+    /* REGISTER STEPS */
+    .reg-step { display: none; }
+    .reg-step.active { display: block; animation: fadeUp 0.3s ease; }
+
+    .step-nav {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .btn-back {
+      flex: 1;
+      background: transparent;
+      color: var(--muted);
+      padding: 14px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      font-family: 'Sora', sans-serif;
+      transition: all 0.2s;
+    }
+
+    .btn-back:hover {
+      border-color: var(--muted);
+      color: var(--text);
+    }
+
+    .btn-next {
+      flex: 2;
+      background: var(--green);
+      color: #000;
+      padding: 14px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      border: none;
+      cursor: pointer;
+      font-family: 'Sora', sans-serif;
+      transition: all 0.2s;
+    }
+
+    .btn-next:hover {
+      background: #00e564;
+      transform: translateY(-1px);
+    }
+
+    /* PACKAGE SELECTOR */
+    .package-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .package-option {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .package-option:hover { border-color: var(--green); }
+
+    .package-option.selected {
+      border-color: var(--green);
+      background: rgba(0, 200, 83, 0.08);
+    }
+
+    .package-option input[type="radio"] {
+      display: none;
+    }
+
+    .pkg-info h4 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .pkg-info p {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .pkg-price {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 800;
+      font-size: 1rem;
+      color: var(--green);
+    }
+
+    .pkg-badge {
+      font-size: 0.65rem;
+      background: var(--green);
+      color: #000;
+      padding: 2px 8px;
+      border-radius: 100px;
+      font-weight: 700;
+      margin-left: 6px;
+    }
+
+    /* SUCCESS STATE */
+    .success-state {
+      text-align: center;
+      padding: 20px 0;
+      display: none;
+    }
+
+    .success-state.active { display: block; animation: fadeUp 0.4s ease; }
+
+    .success-icon {
+      width: 72px;
+      height: 72px;
+      background: rgba(0, 200, 83, 0.15);
+      border: 2px solid var(--green);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      margin: 0 auto 24px;
+      animation: scaleIn 0.4s ease;
+    }
+
+    @keyframes scaleIn {
+      from { transform: scale(0.5); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .success-state h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 10px;
+    }
+
+    .success-state p {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+
+    .success-state p strong {
+      color: var(--green);
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .auth-wrapper { grid-template-columns: 1fr; }
+      .left-panel { display: none; }
+      .right-panel { padding: 100px 24px 40px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="wifipesa-landing.html" class="logo">Wifi<span>Pesa</span></a>
+    <div class="nav-right" id="navHint">Una akaunti? <a href="#" onclick="switchTab('login')">Ingia</a></div>
+  </nav>
+
+  <div class="auth-wrapper">
+
+    <!-- LEFT PANEL -->
+    <div class="left-panel">
+      <div class="left-glow"></div>
+      <div class="left-badge">Mfumo wa Tanzania</div>
+      <h1>Karibu<br>kwenye <em>WifiPesa</em></h1>
+      <p>Jisajili leo na uanze kupata mapato kutoka hotspot yako. Hakuna kadi ya benki. Hakuna ada ya ziada.</p>
+      <div class="benefits">
+        <div class="benefit">
+          <div class="benefit-icon">📱</div>
+          <span>STK Push ya M-Pesa na Airtel Money</span>
+        </div>
+        <div class="benefit">
+          <div class="benefit-icon">📊</div>
+          <span>Dashboard ya kuona mapato yako yote</span>
+        </div>
+        <div class="benefit">
+          <div class="benefit-icon">⚡</div>
+          <span>Anza kupata pesa ndani ya dakika 5</span>
+        </div>
+        <div class="benefit">
+          <div class="benefit-icon">🔒</div>
+          <span>Data yako iko salama kabisa</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="right-panel">
+      <div class="auth-box">
+
+        <!-- TABS -->
+        <div class="auth-tabs">
+          <button class="auth-tab active" id="tab-register" onclick="switchTab('register')">Jisajili</button>
+          <button class="auth-tab" id="tab-login" onclick="switchTab('login')">Ingia</button>
+        </div>
+
+        <!-- ALERT -->
+        <div class="alert" id="authAlert"></div>
+
+        <!-- ============ REGISTER FORM ============ -->
+        <div class="auth-form active" id="form-register">
+
+          <!-- STEP INDICATOR -->
+          <div class="step-indicator">
+            <div class="step-dot active" id="dot-1"></div>
+            <div class="step-dot" id="dot-2"></div>
+            <div class="step-dot" id="dot-3"></div>
+          </div>
+
+          <!-- SUCCESS STATE -->
+          <div class="success-state" id="successState">
+            <div class="success-icon">🎉</div>
+            <h2>Umefanikiwa!</h2>
+            <p>Akaunti yako ya WifiPesa imefunguliwa. Angalia simu yako <strong id="successPhone"></strong> kwa ujumbe wa uthibitisho.</p>
+            <button class="btn-submit" onclick="window.location.href='wifipesa-dashboard.html'">
+              <span class="btn-text">Nenda Dashboard →</span>
+            </button>
+          </div>
+
+          <!-- STEP 1: Personal Info -->
+          <div class="reg-step active" id="step-1">
+            <div class="form-title">Habari Zako</div>
+            <div class="form-subtitle">Tuanze na maelezo yako ya msingi.</div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Jina la Kwanza</label>
+                <div class="input-wrap">
+                  <span class="input-icon">👤</span>
+                  <input type="text" id="firstName" placeholder="John" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Jina la Mwisho</label>
+                <div class="input-wrap">
+                  <span class="input-icon">👤</span>
+                  <input type="text" id="lastName" placeholder="Mbwana" />
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Namba ya Simu</label>
+              <div class="input-wrap">
+                <span class="input-icon">📞</span>
+                <input type="tel" id="phone" placeholder="+255 7XX XXX XXX" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Mtandao wa Simu</label>
+              <div class="input-wrap">
+                <span class="input-icon">📡</span>
+                <select id="network">
+                  <option value="">Chagua mtandao...</option>
+                  <option value="mpesa">M-Pesa (Vodacom)</option>
+                  <option value="airtel">Airtel Money</option>
+                  <option value="both">Zote Mbili</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Nenosiri</label>
+              <div class="input-wrap password-wrap">
+                <span class="input-icon">🔒</span>
+                <input type="password" id="regPassword" placeholder="Angalau herufi 8" oninput="checkStrength(this.value)" />
+                <button class="toggle-pass" onclick="togglePassword('regPassword', this)" type="button">👁</button>
+              </div>
+              <div class="password-strength">
+                <div class="strength-bar" id="sb1"></div>
+                <div class="strength-bar" id="sb2"></div>
+                <div class="strength-bar" id="sb3"></div>
+              </div>
+            </div>
+
+            <button class="btn-next" onclick="goStep(2)">Endelea →</button>
+          </div>
+
+          <!-- STEP 2: Business Info -->
+          <div class="reg-step" id="step-2">
+            <div class="form-title">Biashara Yako</div>
+            <div class="form-subtitle">Sasa tuandike maelezo ya hotspot yako.</div>
+
+            <div class="form-group">
+              <label>Jina la Biashara</label>
+              <div class="input-wrap">
+                <span class="input-icon">🏪</span>
+                <input type="text" id="bizName" placeholder="Mfano: Hotspot Mwanza Center" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Mkoa / Wilaya</label>
+              <div class="input-wrap">
+                <span class="input-icon">📍</span>
+                <select id="region">
+                  <option value="">Chagua mkoa...</option>
+                  <option>Dar es Salaam</option>
+                  <option>Dodoma</option>
+                  <option>Mwanza</option>
+                  <option>Arusha</option>
+                  <option>Moshi</option>
+                  <option>Morogoro</option>
+                  <option>Tanga</option>
+                  <option>Mbeya</option>
+                  <option>Zanzibar</option>
+                  <option>Mkoa Mwingine</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Aina ya Router</label>
+              <div class="input-wrap">
+                <span class="input-icon">📶</span>
+                <select id="routerType">
+                  <option value="">Chagua aina...</option>
+                  <option>ZLT X17U</option>
+                  <option>Mikrotik</option>
+                  <option>TP-Link</option>
+                  <option>Huawei</option>
+                  <option>Sijui / Nyingine</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Mahali pa Biashara</label>
+              <div class="input-wrap">
+                <span class="input-icon">🗺️</span>
+                <input type="text" id="location" placeholder="Mfano: Karibu na stendi ya Mwanza" />
+              </div>
+            </div>
+
+            <div class="step-nav">
+              <button class="btn-back" onclick="goStep(1)">← Rudi</button>
+              <button class="btn-next" onclick="goStep(3)">Endelea →</button>
+            </div>
+          </div>
+
+          <!-- STEP 3: Package -->
+          <div class="reg-step" id="step-3">
+            <div class="form-title">Chagua Mpango</div>
+            <div class="form-subtitle">Unaweza kubadilisha wakati wowote baadaye.</div>
+
+            <div class="package-options">
+              <label class="package-option" onclick="selectPackage(this, 'free')">
+                <input type="radio" name="pkg" value="free" />
+                <div class="pkg-info">
+                  <h4>Mwanzo</h4>
+                  <p>Hotspot 1, Watumiaji 50/mwezi</p>
+                </div>
+                <div class="pkg-price">BURE</div>
+              </label>
+
+              <label class="package-option" onclick="selectPackage(this, 'business')">
+                <input type="radio" name="pkg" value="business" />
+                <div class="pkg-info">
+                  <h4>Biashara <span class="pkg-badge">MAARUFU</span></h4>
+                  <p>Hotspots 5, Watumiaji wasiokoma</p>
+                </div>
+                <div class="pkg-price">20k/mwezi</div>
+              </label>
+
+              <label class="package-option" onclick="selectPackage(this, 'pro')">
+                <input type="radio" name="pkg" value="pro" />
+                <div class="pkg-info">
+                  <h4>Mtaalamu</h4>
+                  <p>Hotspots zisizo na mipaka, API</p>
+                </div>
+                <div class="pkg-price">50k/mwezi</div>
+              </label>
+            </div>
+
+            <div class="form-check">
+              <input type="checkbox" id="terms" />
+              <label for="terms">Nimekubali <a href="#">Masharti ya Matumizi</a> na <a href="#">Sera ya Faragha</a> ya WifiPesa.</label>
+            </div>
+
+            <div class="step-nav">
+              <button class="btn-back" onclick="goStep(2)">← Rudi</button>
+              <button class="btn-next" id="submitBtn" onclick="submitRegister()" style="flex:2;">
+                <span>Tengeneza Akaunti</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ============ LOGIN FORM ============ -->
+        <div class="auth-form" id="form-login">
+          <div class="form-title">Karibu Tena</div>
+          <div class="form-subtitle">Ingia kwenye akaunti yako ya WifiPesa.</div>
+
+          <div class="form-group">
+            <label>Namba ya Simu</label>
+            <div class="input-wrap">
+              <span class="input-icon">📞</span>
+              <input type="tel" id="loginPhone" placeholder="+255 7XX XXX XXX" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Nenosiri</label>
+            <div class="input-wrap password-wrap">
+              <span class="input-icon">🔒</span>
+              <input type="password" id="loginPassword" placeholder="Nenosiri lako" />
+              <button class="toggle-pass" onclick="togglePassword('loginPassword', this)" type="button">👁</button>
+            </div>
+          </div>
+
+          <a href="#" class="forgot-link">Umesahau nenosiri?</a>
+
+          <button class="btn-submit" id="loginBtn" onclick="submitLogin()">
+            <div class="spinner"></div>
+            <span class="btn-text">Ingia →</span>
+          </button>
+
+          <div class="divider">au</div>
+
+          <button class="btn-submit" style="background: var(--card); color: var(--text); border: 1px solid var(--border);" onclick="switchTab('register')">
+            <span class="btn-text">Tengeneza Akaunti Mpya</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentStep = 1;
+    let selectedPkg = '';
+
+    function switchTab(tab) {
+      document.getElementById('form-register').classList.remove('active');
+      document.getElementById('form-login').classList.remove('active');
+      document.getElementById('tab-register').classList.remove('active');
+      document.getElementById('tab-login').classList.remove('active');
+      document.getElementById('form-' + tab).classList.add('active');
+      document.getElementById('tab-' + tab).classList.add('active');
+      clearAlert();
+
+      if (tab === 'login') {
+        document.getElementById('navHint').innerHTML = 'Huna akaunti? <a href="#" onclick="switchTab(\'register\')">Jisajili</a>';
+      } else {
+        document.getElementById('navHint').innerHTML = 'Una akaunti? <a href="#" onclick="switchTab(\'login\')">Ingia</a>';
+      }
+    }
+
+    function goStep(step) {
+      if (step > currentStep && !validateStep(currentStep)) return;
+
+      document.getElementById('step-' + currentStep).classList.remove('active');
+      document.getElementById('dot-' + currentStep).classList.remove('active');
+      document.getElementById('dot-' + currentStep).classList.add('done');
+
+      currentStep = step;
+
+      document.getElementById('step-' + currentStep).classList.add('active');
+      document.getElementById('dot-' + currentStep).classList.add('active');
+      clearAlert();
+    }
+
+    function validateStep(step) {
+      if (step === 1) {
+        const first = document.getElementById('firstName').value.trim();
+        const last = document.getElementById('lastName').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const network = document.getElementById('network').value;
+        const pass = document.getElementById('regPassword').value;
+
+        if (!first || !last) return showAlert('error', 'Tafadhali ingiza jina lako kamili.');
+        if (!phone || phone.length < 10) return showAlert('error', 'Tafadhali ingiza namba sahihi ya simu.');
+        if (!network) return showAlert('error', 'Tafadhali chagua mtandao wako.');
+        if (pass.length < 8) return showAlert('error', 'Nenosiri lazima liwe na herufi 8 au zaidi.');
+        return true;
+      }
+
+      if (step === 2) {
+        const biz = document.getElementById('bizName').value.trim();
+        const region = document.getElementById('region').value;
+        if (!biz) return showAlert('error', 'Tafadhali ingiza jina la biashara yako.');
+        if (!region) return showAlert('error', 'Tafadhali chagua mkoa wako.');
+        return true;
+      }
+
+      return true;
+    }
+
+    function selectPackage(el, pkg) {
+      document.querySelectorAll('.package-option').forEach(o => o.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedPkg = pkg;
+    }
+
+    async function submitRegister() {
+  if (!selectedPkg) return showAlert('Tafadhali chagua package kwanza.');
+  if (!document.getElementById('terms').checked) return showAlert('Tafadhali kubali masharti.');
+
+  const btn = document.getElementById('submitBtn');
+  btn.textContent = 'Inaendelea...';
+  btn.disabled = true;
+
+  const data = {
+    firstName: document.getElementById('firstName').value,
+    lastName: document.getElementById('lastName').value,
+    phone: document.getElementById('phone').value,
+    password: document.getElementById('regPassword').value,
+    businessName: document.getElementById('bizName').value,
+    region: document.getElementById('region').value,
+    routerType: document.getElementById('routerType').value,
+    location: document.getElementById('location').value,
+    network: document.getElementById('network').value,
+    plan: selectedPkg
+  };
+
+  try {
+    const res = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    const result = await res.json();
+    if (res.ok) {
+      localStorage.setItem('token', result.token);
+      localStorage.setItem('client', JSON.stringify(result.client));
+      document.getElementById('step-3').classList.remove('active');
+      document.getElementById('successState').classList.add('active');
+      document.getElementById('successPhone').textContent = data.phone;
+      document.querySelector('.step-indicator').style.display = 'none';
+    } else {
+      showAlert(result.message);
+      btn.textContent = 'Tengeneza Akaunti';
+      btn.disabled = false;
+    }
+  } catch (err) {
+    showAlert('Hitilafu ya mtandao. Jaribu tena.');
+    btn.textContent = 'Tengeneza Akaunti';
+    btn.disabled = false;
+  }
+}
+
+    async function submitLogin() {
+  const phone = document.getElementById('loginPhone').value.trim();
+  const pass = document.getElementById('loginPassword').value;
+  if (!phone) return showAlert('Tafadhali ingiza namba ya simu.');
+  if (!pass) return showAlert('Tafadhali ingiza nenosiri lako.');
+
+  const btn = document.getElementById('loginBtn');
+  btn.classList.add('loading');
+
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone, password: pass })
+    });
+    const result = await res.json();
+    if (res.ok) {
+      localStorage.setItem('token', result.token);
+      localStorage.setItem('client', JSON.stringify(result.client));
+      window.location.href = '/wifipesa-dashboard.html';
+    } else {
+      showAlert(result.message);
+      btn.classList.remove('loading');
+    }
+  } catch (err) {
+    showAlert('Hitilafu ya mtandao. Jaribu tena.');
+    btn.classList.remove('loading');
+  }
+}
+
+    function togglePassword(id, btn) {
+      const input = document.getElementById(id);
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.textContent = '🙈';
+      } else {
+        input.type = 'password';
+        btn.textContent = '👁';
+      }
+    }
+
+    function checkStrength(val) {
+      const bars = [document.getElementById('sb1'), document.getElementById('sb2'), document.getElementById('sb3')];
+      bars.forEach(b => b.className = 'strength-bar');
+
+      if (val.length === 0) return;
+      if (val.length >= 4) bars[0].classList.add('weak');
+      if (val.length >= 8) bars[1].classList.add('medium');
+      if (val.length >= 12 && /[A-Z]/.test(val) && /[0-9]/.test(val)) {
+        bars[0].classList.add('strong');
+        bars[1].classList.add('strong');
+        bars[2].classList.add('strong');
+      } else if (val.length >= 8) {
+        bars[0].classList.add('medium');
+        bars[1].classList.add('medium');
+      }
+    }
+
+    function showAlert(type, msg) {
+      const el = document.getElementById('authAlert');
+      el.className = 'alert ' + type;
+      el.textContent = (type === 'success' ? '✓ ' : '⚠ ') + msg;
+      return false;
+    }
+
+    function clearAlert() {
+      const el = document.getElementById('authAlert');
+      el.className = 'alert';
+    }
+  </script>
+</body>
+</html>

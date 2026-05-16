@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WifiPesa - Lipa Upate WiFi</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;800&family=Sora:wght@300;400;600;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --green: #00c853;
+      --green-dark: #009624;
+      --green-glow: #00c85333;
+      --bg: #050f0a;
+      --bg2: #0a1a10;
+      --card: #0d2016;
+      --border: #1a3a28;
+      --text: #e8f5e9;
+      --muted: #7aad8a;
+      --yellow: #ffe600;
+      --red: #f44336;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Sora', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    .bg-glow {
+      position: fixed;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, var(--green-glow) 0%, transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      animation: pulse 5s ease-in-out infinite;
+      z-index: 0;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+      50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+    }
+
+    .portal-wrap {
+      width: 100%;
+      max-width: 420px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* HEADER */
+    .portal-header {
+      text-align: center;
+      margin-bottom: 28px;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .wifi-icon {
+      width: 64px;
+      height: 64px;
+      background: rgba(0,200,83,0.12);
+      border: 1px solid var(--green);
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      margin: 0 auto 16px;
+      animation: scaleIn 0.5s ease both;
+    }
+
+    @keyframes scaleIn {
+      from { transform: scale(0.6); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .biz-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+
+    .biz-name span { color: var(--green); }
+
+    .biz-tagline {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    /* CARD */
+    .portal-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      animation: fadeUp 0.5s 0.1s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* STEPS TABS */
+    .portal-steps {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .portal-step-tab {
+      flex: 1;
+      padding: 14px;
+      text-align: center;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--muted);
+      position: relative;
+      transition: color 0.2s;
+    }
+
+    .portal-step-tab.active { color: var(--green); }
+
+    .portal-step-tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--green);
+      border-radius: 2px;
+    }
+
+    .portal-step-tab.done { color: var(--green); opacity: 0.5; }
+
+    /* INNER */
+    .portal-inner {
+      padding: 28px 24px;
+    }
+
+    .step-content { display: none; animation: fadeUp 0.3s ease; }
+    .step-content.active { display: block; }
+
+    /* PACKAGE GRID */
+    .pkg-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .pkg-item {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 12px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .pkg-item:hover { border-color: var(--green); }
+
+    .pkg-item.selected {
+      border-color: var(--green);
+      background: rgba(0,200,83,0.08);
+    }
+
+    .pkg-item.selected::after {
+      content: '✓';
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      color: var(--green);
+      font-size: 0.75rem;
+      font-weight: 800;
+    }
+
+    .pkg-item-price {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--green);
+      margin-bottom: 4px;
+    }
+
+    .pkg-item-dur {
+      font-size: 0.78rem;
+      color: var(--text);
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+
+    .pkg-item-speed {
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .pkg-popular {
+      position: absolute;
+      top: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--green);
+      color: #000;
+      font-size: 0.6rem;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 100px;
+      white-space: nowrap;
+    }
+
+    /* PAYMENT METHODS */
+    .pay-methods {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .pay-method {
+      flex: 1;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 10px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .pay-method:hover { border-color: var(--green); }
+
+    .pay-method.selected {
+      border-color: var(--green);
+      background: rgba(0,200,83,0.08);
+    }
+
+    .pay-method-logo {
+      font-size: 1.4rem;
+      margin-bottom: 6px;
+    }
+
+    .pay-method-name {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .pay-method-net {
+      font-size: 0.68rem;
+      color: var(--muted);
+    }
+
+    /* FORM */
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 7px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-group input {
+      width: 100%;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 13px 14px;
+      color: var(--text);
+      font-family: 'Sora', sans-serif;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      letter-spacing: 1px;
+    }
+
+    .form-group input:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(0,200,83,0.1);
+    }
+
+    .form-group input::placeholder { color: #3a5a45; letter-spacing: 0; }
+
+    /* SUMMARY BOX */
+    .summary-box {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      padding: 6px 0;
+    }
+
+    .summary-row:last-child {
+      padding-top: 12px;
+      margin-top: 6px;
+      border-top: 1px solid var(--border);
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .summary-row span:last-child {
+      color: var(--green);
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+    }
+
+    .summary-row:last-child span:last-child { font-size: 1.1rem; }
+
+    /* STK INFO */
+    .stk-info {
+      background: rgba(0,200,83,0.06);
+      border: 1px solid rgba(0,200,83,0.2);
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 16px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .stk-info-icon { font-size: 1rem; flex-shrink: 0; margin-top: 2px; }
+
+    /* BUTTON */
+    .btn-pay {
+      width: 100%;
+      background: var(--green);
+      color: #000;
+      padding: 16px;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 1rem;
+      border: none;
+      cursor: pointer;
+      font-family: 'Space Grotesk', sans-serif;
+      letter-spacing: -0.3px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-pay:hover {
+      background: #00e564;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(0,200,83,0.3);
+    }
+
+    .btn-pay:active { transform: translateY(0); }
+
+    .btn-pay.loading { opacity: 0.7; pointer-events: none; }
+
+    .btn-back-step {
+      width: 100%;
+      background: transparent;
+      color: var(--muted);
+      padding: 12px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      font-family: 'Sora', sans-serif;
+      margin-top: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn-back-step:hover { color: var(--text); border-color: var(--muted); }
+
+    /* WAITING SCREEN */
+    .waiting-screen {
+      text-align: center;
+      padding: 20px 0;
+    }
+
+    .spinner-ring {
+      width: 64px;
+      height: 64px;
+      border: 3px solid var(--border);
+      border-top-color: var(--green);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .waiting-screen h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .waiting-screen p {
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .waiting-screen strong { color: var(--text); }
+
+    .timer-bar-wrap {
+      height: 4px;
+      background: var(--border);
+      border-radius: 10px;
+      margin: 20px 0;
+      overflow: hidden;
+    }
+
+    .timer-bar {
+      height: 100%;
+      background: var(--green);
+      border-radius: 10px;
+      width: 100%;
+      animation: timerDown 30s linear forwards;
+    }
+
+    @keyframes timerDown { to { width: 0%; } }
+
+    /* SUCCESS SCREEN */
+    .success-screen {
+      text-align: center;
+      padding: 10px 0;
+    }
+
+    .success-circle {
+      width: 80px;
+      height: 80px;
+      background: rgba(0,200,83,0.12);
+      border: 2px solid var(--green);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      margin: 0 auto 20px;
+      animation: bounceIn 0.5s ease both;
+    }
+
+    @keyframes bounceIn {
+      0% { transform: scale(0.3); opacity: 0; }
+      60% { transform: scale(1.1); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .success-screen h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .success-screen p {
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .session-info {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+
+    .session-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.83rem;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(26,58,40,0.4);
+    }
+
+    .session-row:last-child { border-bottom: none; }
+
+    .session-row span:last-child {
+      font-weight: 700;
+      color: var(--green);
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .btn-browse {
+      width: 100%;
+      background: var(--green);
+      color: #000;
+      padding: 15px;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 0.95rem;
+      border: none;
+      cursor: pointer;
+      font-family: 'Space Grotesk', sans-serif;
+      transition: all 0.2s;
+    }
+
+    .btn-browse:hover { background: #00e564; }
+
+    /* FOOTER */
+    .portal-footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      animation: fadeUp 0.5s 0.2s ease both;
+    }
+
+    .portal-footer span { color: var(--green); font-weight: 600; }
+
+    /* ALERT */
+    .alert-box {
+      background: rgba(244,67,54,0.1);
+      border: 1px solid var(--red);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 0.82rem;
+      color: #ef9a9a;
+      margin-bottom: 14px;
+      display: none;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .alert-box.show { display: flex; }
+  </style>
+</head>
+<body>
+
+  <div class="bg-glow"></div>
+
+  <div class="portal-wrap">
+
+    <!-- HEADER -->
+    <div class="portal-header">
+      <div class="wifi-icon">📶</div>
+      <div class="biz-name">Hotspot <span>SAMTUNES</span></div>
+      <div class="biz-tagline">Karibu! Lipa na upate internet ya haraka.</div>
+    </div>
+
+    <!-- CARD -->
+    <div class="portal-card">
+
+      <!-- STEP TABS -->
+      <div class="portal-steps">
+        <div class="portal-step-tab active" id="tab-1">1. Chagua Package</div>
+        <div class="portal-step-tab" id="tab-2">2. Lipa</div>
+        <div class="portal-step-tab" id="tab-3">3. Unganika</div>
+      </div>
+
+      <div class="portal-inner">
+
+        <!-- ALERT -->
+        <div class="alert-box" id="alertBox">
+          <span>⚠</span>
+          <span id="alertMsg"></span>
+        </div>
+
+        <!-- STEP 1: PACKAGES -->
+        <div class="step-content active" id="step-1">
+          <div style="font-size:0.82rem; color:var(--muted); margin-bottom:14px;">Chagua package inayokufaa:</div>
+
+          <div class="pkg-grid">
+            <div class="pkg-item" onclick="selectPkg(this, 'Dakika 30', 300)">
+              <div class="pkg-item-price">300<span style="font-size:0.7rem; font-weight:500; color:var(--muted);"> TZS</span></div>
+              <div class="pkg-item-dur">Dakika 30</div>
+              <div class="pkg-item-speed">Bila kikomo</div>
+            </div>
+            <div class="pkg-item" onclick="selectPkg(this, 'Saa 1', 500)">
+              <div class="pkg-popular">MAARUFU</div>
+              <div class="pkg-item-price">500<span style="font-size:0.7rem; font-weight:500; color:var(--muted);"> TZS</span></div>
+              <div class="pkg-item-dur">Saa 1</div>
+              <div class="pkg-item-speed">Bila kikomo</div>
+            </div>
+            <div class="pkg-item" onclick="selectPkg(this, 'Saa 3', 1000)">
+              <div class="pkg-item-price">1,000<span style="font-size:0.7rem; font-weight:500; color:var(--muted);"> TZS</span></div>
+              <div class="pkg-item-dur">Saa 3</div>
+              <div class="pkg-item-speed">Bila kikomo</div>
+            </div>
+            <div class="pkg-item" onclick="selectPkg(this, 'Siku Nzima', 3000)">
+              <div class="pkg-item-price">3,000<span style="font-size:0.7rem; font-weight:500; color:var(--muted);"> TZS</span></div>
+              <div class="pkg-item-dur">Siku Nzima</div>
+              <div class="pkg-item-speed">Bila kikomo</div>
+            </div>
+          </div>
+
+          <button class="btn-pay" onclick="goToStep2()">
+            Endelea Kulipa →
+          </button>
+        </div>
+
+        <!-- STEP 2: PAYMENT -->
+        <div class="step-content" id="step-2">
+
+          <div style="font-size:0.82rem; color:var(--muted); margin-bottom:12px;">Chagua njia ya kulipa:</div>
+
+          <div class="pay-methods">
+            <div class="pay-method selected" id="method-mpesa" onclick="selectMethod('mpesa')">
+              <div class="pay-method-logo">💚</div>
+              <div class="pay-method-name">M-Pesa</div>
+              <div class="pay-method-net">Vodacom</div>
+            </div>
+            <div class="pay-method" id="method-airtel" onclick="selectMethod('airtel')">
+              <div class="pay-method-logo">❤️</div>
+              <div class="pay-method-name">Airtel Money</div>
+              <div class="pay-method-net">Airtel Tanzania</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Namba ya Simu</label>
+            <input type="tel" id="phoneInput" placeholder="0762 XXX XXX" maxlength="13" />
+          </div>
+
+          <div class="summary-box">
+            <div class="summary-row">
+              <span>Package</span>
+              <span id="summaryPkg">Saa 1</span>
+            </div>
+            <div class="summary-row">
+              <span>Njia ya Malipo</span>
+              <span id="summaryMethod">M-Pesa</span>
+            </div>
+            <div class="summary-row">
+              <span>Jumla</span>
+              <span id="summaryTotal">500 TZS</span>
+            </div>
+          </div>
+
+          <div class="stk-info">
+            <span class="stk-info-icon">📱</span>
+            <span>Baada ya kubonyeza "Lipa Sasa", ombi la malipo litatumwa kwa simu yako. Ingiza PIN yako ya <strong id="methodName">M-Pesa</strong> kuthibitisha.</span>
+          </div>
+
+          <button class="btn-pay" onclick="initiatePayment()">
+            💳 Lipa <span id="payBtnAmount">500 TZS</span> Sasa
+          </button>
+          <button class="btn-back-step" onclick="goToStep(1)">← Rudi Nyuma</button>
+        </div>
+
+        <!-- STEP 3: WAITING / SUCCESS -->
+        <div class="step-content" id="step-3">
+
+          <div class="waiting-screen" id="waitingScreen">
+            <div class="spinner-ring"></div>
+            <h3>Inasubiri Malipo...</h3>
+            <p>Ombi limetumwa kwa <strong id="waitPhone">+255 762 XXX XXX</strong>.<br>Ingiza PIN yako ya <strong id="waitMethod">M-Pesa</strong> kwenye simu yako.</p>
+            <div class="timer-bar-wrap">
+              <div class="timer-bar" id="timerBar"></div>
+            </div>
+            <p style="font-size:0.75rem;">Ukimaliza kulipa, utaunganishwa kiotomatiki.</p>
+          </div>
+
+          <div class="success-screen" id="successScreen" style="display:none;">
+            <div class="success-circle">🎉</div>
+            <h3>Umefanikiwa!</h3>
+            <p>Malipo yako yamepokelewa. Unaweza sasa kutumia internet.</p>
+
+            <div class="session-info">
+              <div class="session-row">
+                <span>Package</span>
+                <span id="successPkg">Saa 1</span>
+              </div>
+              <div class="session-row">
+                <span>Muda Uliobaki</span>
+                <span id="countdown">60:00</span>
+              </div>
+              <div class="session-row">
+                <span>Simu</span>
+                <span id="successPhone">+255 762 XXX</span>
+              </div>
+            </div>
+
+            <button class="btn-browse" onclick="alert('Unapelekwa kwenye tovuti unayotaka...')">
+              🌐 Tumia Internet Sasa
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="portal-footer">
+      Inafanyakazi na <span>WifiPesa</span> · Tanzania
+    </div>
+
+  </div>
+
+  <script>
+    let selectedPkgName = '';
+    let selectedPkgPrice = 0;
+    let selectedMethod = 'mpesa';
+    let countdownInterval = null;
+    let remainingSeconds = 3600;
+
+    function selectPkg(el, name, price) {
+      document.querySelectorAll('.pkg-item').forEach(p => p.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedPkgName = name;
+      selectedPkgPrice = price;
+      clearAlert();
+    }
+
+    function selectMethod(method) {
+      selectedMethod = method;
+      document.querySelectorAll('.pay-method').forEach(m => m.classList.remove('selected'));
+      document.getElementById('method-' + method).classList.add('selected');
+      document.getElementById('summaryMethod').textContent = method === 'mpesa' ? 'M-Pesa' : 'Airtel Money';
+      document.getElementById('methodName').textContent = method === 'mpesa' ? 'M-Pesa' : 'Airtel Money';
+    }
+
+    function goToStep2() {
+      if (!selectedPkgName) return showAlert('Tafadhali chagua package kwanza.');
+      document.getElementById('summaryPkg').textContent = selectedPkgName;
+      document.getElementById('summaryTotal').textContent = selectedPkgPrice.toLocaleString() + ' TZS';
+      document.getElementById('payBtnAmount').textContent = selectedPkgPrice.toLocaleString() + ' TZS';
+      goToStep(2);
+    }
+
+    function initiatePayment() {
+      const phone = document.getElementById('phoneInput').value.trim();
+      if (!phone || phone.length < 9) return showAlert('Tafadhali ingiza namba sahihi ya simu.');
+
+      const formatted = phone.startsWith('0') ? '+255' + phone.slice(1) : phone;
+      document.getElementById('waitPhone').textContent = formatted;
+      document.getElementById('waitMethod').textContent = selectedMethod === 'mpesa' ? 'M-Pesa' : 'Airtel Money';
+      document.getElementById('successPhone').textContent = formatted;
+      document.getElementById('successPkg').textContent = selectedPkgName;
+
+      const durMap = { 'Dakika 30': 1800, 'Saa 1': 3600, 'Saa 3': 10800, 'Siku Nzima': 86400 };
+      remainingSeconds = durMap[selectedPkgName] || 3600;
+
+      goToStep(3);
+
+      setTimeout(() => {
+        document.getElementById('waitingScreen').style.display = 'none';
+        document.getElementById('successScreen').style.display = 'block';
+        startCountdown();
+      }, 5000);
+    }
+
+    function startCountdown() {
+      if (countdownInterval) clearInterval(countdownInterval);
+      updateCountdownDisplay();
+      countdownInterval = setInterval(() => {
+        if (remainingSeconds <= 0) {
+          clearInterval(countdownInterval);
+          document.getElementById('countdown').textContent = 'Imekwisha';
+          return;
+        }
+        remainingSeconds--;
+        updateCountdownDisplay();
+      }, 1000);
+    }
+
+    function updateCountdownDisplay() {
+      const h = Math.floor(remainingSeconds / 3600);
+      const m = Math.floor((remainingSeconds % 3600) / 60);
+      const s = remainingSeconds % 60;
+      const parts = [];
+      if (h > 0) parts.push(h + 'h');
+      parts.push(String(m).padStart(2, '0') + 'm');
+      parts.push(String(s).padStart(2, '0') + 's');
+      document.getElementById('countdown').textContent = parts.join(' ');
+    }
+
+    function goToStep(n) {
+      document.querySelectorAll('.step-content').forEach(s => s.classList.remove('active'));
+      document.getElementById('step-' + n).classList.add('active');
+
+      document.querySelectorAll('.portal-step-tab').forEach((t, i) => {
+        t.classList.remove('active', 'done');
+        if (i + 1 < n) t.classList.add('done');
+        if (i + 1 === n) t.classList.add('active');
+      });
+
+      clearAlert();
+    }
+
+    function showAlert(msg) {
+      const box = document.getElementById('alertBox');
+      document.getElementById('alertMsg').textContent = msg;
+      box.classList.add('show');
+    }
+
+    function clearAlert() {
+      document.getElementById('alertBox').classList.remove('show');
+    }
+  </script>
+</body>
+</html>

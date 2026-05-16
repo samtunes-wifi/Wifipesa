@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WifiPesa - Admin Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;800&family=Sora:wght@300;400;600;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --green: #00c853;
+      --green-dark: #009624;
+      --green-glow: #00c85322;
+      --bg: #050f0a;
+      --bg2: #0a1a10;
+      --card: #0d2016;
+      --card2: #102518;
+      --border: #1a3a28;
+      --text: #e8f5e9;
+      --muted: #7aad8a;
+      --red: #f44336;
+      --yellow: #ffe600;
+      --blue: #2196f3;
+      --sidebar-w: 240px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Sora', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.3;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      height: 100vh;
+      position: fixed;
+      left: 0; top: 0;
+      display: flex;
+      flex-direction: column;
+      z-index: 50;
+      transition: transform 0.3s;
+    }
+
+    .sidebar-logo {
+      padding: 24px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .sidebar-logo-text {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 800;
+      font-size: 1.3rem;
+      letter-spacing: -0.5px;
+    }
+
+    .sidebar-logo-text span { color: var(--green); }
+
+    .admin-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(255,230,0,0.1);
+      border: 1px solid rgba(255,230,0,0.3);
+      border-radius: 6px;
+      padding: 3px 8px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--yellow);
+      letter-spacing: 1px;
+      width: fit-content;
+    }
+
+    .sidebar-section {
+      padding: 20px 12px 8px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      margin: 2px 8px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    .nav-item:hover { background: rgba(0,200,83,0.08); color: var(--text); }
+    .nav-item.active { background: rgba(0,200,83,0.12); color: var(--green); font-weight: 600; }
+    .nav-item .nav-icon { font-size: 1rem; width: 20px; text-align: center; }
+
+    .nav-badge {
+      margin-left: auto;
+      background: var(--red);
+      color: #fff;
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 100px;
+    }
+
+    .nav-badge.green { background: var(--green); color: #000; }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 16px 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .admin-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px;
+      border-radius: 10px;
+    }
+
+    .admin-avatar {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--yellow), #ff9800);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.85rem;
+      color: #000;
+      flex-shrink: 0;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .admin-info { flex: 1; overflow: hidden; }
+    .admin-name { font-size: 0.85rem; font-weight: 700; }
+    .admin-role { font-size: 0.7rem; color: var(--yellow); }
+
+    /* MAIN */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* TOPBAR */
+    .topbar {
+      height: 64px;
+      background: rgba(5,15,10,0.9);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+
+    .topbar-left h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    .topbar-left p { font-size: 0.78rem; color: var(--muted); }
+
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+
+    .system-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0,200,83,0.1);
+      border: 1px solid var(--green);
+      border-radius: 100px;
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--green);
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: blink 1.5s ease infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.2; }
+    }
+
+    .icon-btn {
+      width: 38px;
+      height: 38px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .icon-btn:hover { border-color: var(--green); }
+
+    .notif-dot {
+      position: absolute;
+      top: 6px; right: 6px;
+      width: 6px; height: 6px;
+      background: var(--red);
+      border-radius: 50%;
+    }
+
+    .mobile-menu-btn {
+      display: none;
+      width: 38px; height: 38px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.1rem;
+    }
+
+    /* CONTENT */
+    .content { padding: 28px; flex: 1; }
+
+    .page { display: none; animation: fadeUp 0.3s ease; }
+    .page.active { display: block; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* STATS */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 22px 20px;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card:hover { border-color: var(--green); transform: translateY(-2px); }
+
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 80px; height: 80px;
+      background: radial-gradient(circle, var(--green-glow), transparent 70%);
+      pointer-events: none;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 10px;
+    }
+
+    .stat-value {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 6px;
+    }
+
+    .stat-change { font-size: 0.78rem; display: flex; align-items: center; gap: 4px; }
+    .stat-change.up { color: var(--green); }
+    .stat-change.down { color: var(--red); }
+
+    /* GRID */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+    .grid-3-1 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 24px; }
+
+    /* DASH CARD */
+    .dash-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .card-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .card-action {
+      font-size: 0.8rem;
+      color: var(--green);
+      cursor: pointer;
+      font-weight: 600;
+      background: none;
+      border: none;
+      font-family: 'Sora', sans-serif;
+    }
+
+    /* CHART */
+    .chart-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      height: 130px;
+    }
+
+    .bar-group {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      height: 100%;
+      justify-content: flex-end;
+    }
+
+    .bar {
+      width: 100%;
+      border-radius: 6px 6px 0 0;
+      transition: height 0.6s ease;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .bar.green { background: var(--green); }
+    .bar.green-dim { background: rgba(0,200,83,0.3); }
+
+    .bar:hover::after {
+      content: attr(data-val);
+      position: absolute;
+      top: -28px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--green);
+      color: #000;
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    .bar-label { font-size: 0.68rem; color: var(--muted); }
+
+    /* CLIENTS TABLE */
+    .clients-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .clients-table th {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 0 0 14px 0;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .clients-table td {
+      padding: 14px 0;
+      font-size: 0.85rem;
+      border-bottom: 1px solid rgba(26,58,40,0.5);
+      vertical-align: middle;
+    }
+
+    .clients-table tr:last-child td { border-bottom: none; }
+    .clients-table tr:hover td { background: rgba(0,200,83,0.02); }
+
+    .client-name-cell {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .client-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 800;
+      font-size: 0.78rem;
+      color: #000;
+      flex-shrink: 0;
+    }
+
+    .client-name { font-weight: 600; font-size: 0.85rem; }
+    .client-location { font-size: 0.75rem; color: var(--muted); }
+
+    .plan-badge {
+      font-size: 0.7rem;
+      padding: 3px 10px;
+      border-radius: 100px;
+      font-weight: 700;
+    }
+
+    .plan-badge.free { background: rgba(122,173,138,0.15); color: var(--muted); }
+    .plan-badge.business { background: rgba(0,200,83,0.12); color: var(--green); }
+    .plan-badge.pro { background: rgba(255,230,0,0.12); color: var(--yellow); }
+
+    .status-badge {
+      font-size: 0.7rem;
+      padding: 3px 10px;
+      border-radius: 100px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .status-badge.active { background: rgba(0,200,83,0.12); color: var(--green); }
+    .status-badge.suspended { background: rgba(244,67,54,0.12); color: var(--red); }
+    .status-badge.trial { background: rgba(33,150,243,0.12); color: var(--blue); }
+
+    .status-badge::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .revenue-cell {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      color: var(--green);
+    }
+
+    .action-btns { display: flex; gap: 6px; }
+
+    .action-btn {
+      font-size: 0.72rem;
+      padding: 5px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: 'Sora', sans-serif;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      transition: all 0.2s;
+    }
+
+    .action-btn:hover { color: var(--text); border-color: var(--muted); }
+    .action-btn.danger { color: var(--red); border-color: rgba(244,67,54,0.3); }
+    .action-btn.danger:hover { background: rgba(244,67,54,0.1); }
+    .action-btn.success { color: var(--green); border-color: rgba(0,200,83,0.3); }
+    .action-btn.success:hover { background: rgba(0,200,83,0.1); }
+
+    /* SEARCH + FILTER */
+    .table-controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .search-input {
+      flex: 1;
+      min-width: 200px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-family: 'Sora', sans-serif;
+      font-size: 0.88rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .search-input:focus { border-color: var(--green); }
+    .search-input::placeholder { color: #3a5a45; }
+
+    .filter-select {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-family: 'Sora', sans-serif;
+      font-size: 0.85rem;
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .filter-select:focus { border-color: var(--green); }
+    .filter-select option { background: var(--card); }
+
+    /* RECENT SIGNUPS */
+    .signup-list { display: flex; flex-direction: column; gap: 10px; }
+
+    .signup-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: var(--card2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      transition: border-color 0.2s;
+    }
+
+    .signup-row:hover { border-color: var(--green); }
+
+    .signup-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 800;
+      font-size: 0.8rem;
+      color: #000;
+      flex-shrink: 0;
+    }
+
+    .signup-info { flex: 1; }
+    .signup-name { font-size: 0.85rem; font-weight: 600; }
+    .signup-meta { font-size: 0.75rem; color: var(--muted); }
+    .signup-time { font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+
+    /* REVENUE SPLIT */
+    .revenue-split { display: flex; flex-direction: column; gap: 14px; }
+
+    .rev-row { }
+
+    .rev-row-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      margin-bottom: 6px;
+    }
+
+    .rev-row-header span:last-child {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      color: var(--green);
+    }
+
+    .rev-bar {
+      height: 6px;
+      background: var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .rev-bar-fill {
+      height: 100%;
+      border-radius: 10px;
+      background: var(--green);
+      transition: width 1s ease;
+    }
+
+    /* SYSTEM HEALTH */
+    .health-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .health-card {
+      background: var(--card2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .health-icon { font-size: 1.5rem; margin-bottom: 8px; }
+    .health-value {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .health-label { font-size: 0.75rem; color: var(--muted); }
+
+    /* MODAL */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(8px);
+    }
+
+    .modal-overlay.active { display: flex; }
+
+    .modal {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px 32px;
+      width: 100%;
+      max-width: 480px;
+      margin: 20px;
+      animation: modalIn 0.3s ease;
+    }
+
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.95) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .modal h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .modal p { color: var(--muted); font-size: 0.85rem; margin-bottom: 24px; }
+
+    .modal-detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.85rem;
+    }
+
+    .modal-detail-row:last-of-type { border-bottom: none; }
+    .modal-detail-row span:last-child { font-weight: 700; color: var(--text); }
+
+    .modal-btns { display: flex; gap: 10px; margin-top: 24px; }
+
+    .modal-cancel {
+      flex: 1;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: 'Sora', sans-serif;
+      font-size: 0.88rem;
+      transition: all 0.2s;
+    }
+
+    .modal-cancel:hover { color: var(--text); border-color: var(--muted); }
+
+    .modal-confirm {
+      flex: 2;
+      background: var(--red);
+      border: none;
+      color: #fff;
+      padding: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: 'Sora', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 700;
+      transition: all 0.2s;
+    }
+
+    .modal-confirm.green { background: var(--green); color: #000; }
+    .modal-confirm:hover { opacity: 0.9; }
+
+    /* PAGINATION */
+    .pagination {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 20px;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .page-btns { display: flex; gap: 6px; }
+
+    .page-btn {
+      width: 32px;
+      height: 32px;
+      background: var(--card2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.82rem;
+      color: var(--muted);
+      transition: all 0.2s;
+      font-family: 'Sora', sans-serif;
+    }
+
+    .page-btn:hover, .page-btn.active { border-color: var(--green); color: var(--green); }
+
+    /* ANNOUNCEMENTS */
+    .announce-form { display: flex; flex-direction: column; gap: 14px; }
+
+    .announce-input {
+      width: 100%;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: var(--text);
+      font-family: 'Sora', sans-serif;
+      font-size: 0.88rem;
+      outline: none;
+      resize: vertical;
+      min-height: 90px;
+      transition: border-color 0.2s;
+    }
+
+    .announce-input:focus { border-color: var(--green); }
+
+    .announce-select {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 14px;
+      color: var(--text);
+      font-family: 'Sora', sans-serif;
+      font-size: 0.85rem;
+      outline: none;
+      width: 100%;
+      cursor: pointer;
+    }
+
+    .announce-select option { background: var(--card); }
+
+    .btn-send {
+      background: var(--green);
+      color: #000;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      border: none;
+      cursor: pointer;
+      font-family: 'Sora', sans-serif;
+      transition: all 0.2s;
+      align-self: flex-start;
+    }
+
+    .btn-send:hover { background: #00e564; }
+
+    @media (max-width: 900px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; }
+      .mobile-menu-btn { display: flex; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .grid-2, .grid-3-1, .health-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-text">Wifi<span>Pesa</span></div>
+      <div class="admin-badge">ADMIN PANEL</div>
+    </div>
+
+    <div class="sidebar-section">Kuu</div>
+    <a class="nav-item active" onclick="showPage('overview', this)">
+      <span class="nav-icon">📊</span> Muhtasari
+    </a>
+    <a class="nav-item" onclick="showPage('clients', this)">
+      <span class="nav-icon">🏪</span> Clients Wote
+      <span class="nav-badge green">47</span>
+    </a>
+    <a class="nav-item" onclick="showPage('revenue', this)">
+      <span class="nav-icon">💰</span> Mapato
+    </a>
+
+    <div class="sidebar-section">Usimamizi</div>
+    <a class="nav-item" onclick="showPage('support', this)">
+      <span class="nav-icon">🎧</span> Msaada
+      <span class="nav-badge">3</span>
+    </a>
+    <a class="nav-item" onclick="showPage('announce', this)">
+      <span class="nav-icon">📢</span> Matangazo
+    </a>
+    <a class="nav-item" onclick="showPage('system', this)">
+      <span class="nav-icon">⚙️</span> Mfumo
+    </a>
+
+    <div class="sidebar-footer">
+      <div class="admin-card">
+        <div class="admin-avatar">WP</div>
+        <div class="admin-info">
+          <div class="admin-name">Super Admin</div>
+          <div class="admin-role">WifiPesa Owner</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+        <div class="topbar-left">
+          <h2 id="pageTitle">Muhtasari</h2>
+          <p>Ijumamosi, 17 Mei 2026</p>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="system-status">
+          <div class="status-dot"></div>
+          Mfumo Unafanya Kazi
+        </div>
+        <div class="icon-btn">
+          🔔
+          <div class="notif-dot"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- ======= OVERVIEW ======= -->
+      <div class="page active" id="page-overview">
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Clients Wote</div>
+            <div class="stat-value">47</div>
+            <div class="stat-change up">↑ 5 wiki hii</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Mapato Mwezi (Ada)</div>
+            <div class="stat-value">940k</div>
+            <div class="stat-change up">↑ 18% kuliko mwezi uliopita</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Clients Wapya Leo</div>
+            <div class="stat-value">3</div>
+            <div class="stat-change up">↑ 2 kuliko jana</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Clients Waliospend</div>
+            <div class="stat-value">2</div>
+            <div class="stat-change down">Wanahitaji msaada</div>
+          </div>
+        </div>
+
+        <div class="grid-3-1">
+          <div class="dash-card">
+            <div class="card-header">
+              <span class="card-title">Mapato ya Wiki Hii (Ada za Clients)</span>
+            </div>
+            <div class="chart-bars">
+              <div class="bar-group">
+                <div class="bar green-dim" style="height:50%" data-val="120,000 TZS"></div>
+                <div class="bar-label">Jum</div>
+              </div>
+              <div class="bar-group">
+                <div class="bar green-dim" style="height:65%" data-val="160,000 TZS"></div>
+                <div class="bar-label">Alh</div>
+              </div>
+              <div class="bar-group">
+                <div class="bar green-dim" style="height:42%" data-val="100,000 TZS"></div>
+                <div class="bar-label">Ijo</div>
+              </div>
+              <div class="bar-group">
+                <div class="bar green-dim" style="height:88%" data-val="220,000 TZS"></div>
+                <div class="bar-label">Moz</div>
+              </div>
+              <div class="bar-group">
+                <div class="bar green-dim" style="height:70%" data-val="180,000 TZS"></div>
+                <div class="bar-label">Ikh</div>
+              </div>
+              <div class="bar-group">
+                <div class="bar green-dim" style="height:78%" data-val="200,000 TZS"></div>
+                <div class="bar-label">Ijm</div>
+              </div>
+              <div class="bar-group">
+                <div class="bar green" style="height:60%" data-val="160,000 TZS"></div>
+                <div class="bar-label">Leo</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="dash-card">
+            <div class="card-header">
+              <span class="card-title">Mipango ya Clients</span>
+            </div>
+            <div class="revenue-split">
+              <div class="rev-row">
+                <div class="rev-row-header">
+                  <span>Mwanzo (Bure)</span>
+                  <span>18 clients</span>
+                </div>
+                <div class="rev-bar"><div class="rev-bar-fill" style="width:38%; background:var(--muted);"></div></div>
+              </div>
+              <div class="rev-row">
+                <div class="rev-row-header">
+                  <span>Biashara (20k)</span>
+                  <span>22 clients</span>
+                </div>
+                <div class="rev-bar"><div class="rev-bar-fill" style="width:47%;"></div></div>
+              </div>
+              <div class="rev-row">
+                <div class="rev-row-header">
+                  <span>Mtaalamu (50k)</span>
+                  <span>7 clients</span>
+                </div>
+                <div class="rev-bar"><div class="rev-bar-fill" style="width:15%; background:var(--yellow);"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="dash-card">
+            <div class="card-header">
+              <span class="card-title">Clients Wapya Hivi Karibuni</span>
+              <button class="card-action" onclick="showPage('clients', document.querySelectorAll('.nav-item')[1])">Ona Wote</button>
+            </div>
+            <div class="signup-list" id="recentSignups"></div>
+          </div>
+
+          <div class="dash-card">
+            <div class="card-header">
+              <span class="card-title">Hali ya Mfumo</span>
+            </div>
+            <div class="health-grid">
+              <div class="health-card">
+                <div class="health-icon">🟢</div>
+                <div class="health-value" style="color:var(--green);">99.8%</div>
+                <div class="health-label">Uptime</div>
+              </div>
+              <div class="health-card">
+                <div class="health-icon">⚡</div>
+                <div class="health-value">12ms</div>
+                <div class="health-label">Latency</div>
+              </div>
+              <div class="health-card">
+                <div class="health-icon">💾</div>
+                <div class="health-value">34%</div>
+                <div class="health-label">Server Load</div>
+              </div>
+              <div class="health-card">
+                <div class="health-icon">📡</div>
+                <div class="health-value">47</div>
+                <div class="health-label">Active Hotspots</div>
+              </div>
+              <div class="health-card">
+                <div class="health-icon">👥</div>
+                <div class="health-value">312</div>
+                <div class="health-label">Watumiaji Sasa</div>
+              </div>
+              <div class="health-card">
+                <div class="health-icon">💳</div>
+                <div class="health-value">98.2%</div>
+                <div class="health-label">Payment Success</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ======= CLIENTS ======= -->
+      <div class="page" id="page-clients">
+        <div class="dash-card">
+          <div class="card-header">
+            <span class="card-title">Clients Wote (47)</span>
+            <button class="card-action btn-send" onclick="openModal('add')">+ Ongeza Client</button>
+          </div>
+
+          <div class="table-controls">
+            <input type="text" class="search-input" placeholder="🔍  Tafuta jina, simu, au eneo..." oninput="filterClients(this.value)" />
+            <select class="filter-select" onchange="filterByPlan(this.value)">
+              <option value="">Mipango Yote</option>
+              <option value="free">Mwanzo</option>
+              <option value="business">Biashara</option>
+              <option value="pro">Mtaalamu</option>
+            </select>
+            <select class="filter-select" onchange="filterByStatus(this.value)">
+              <option value="">Hali Zote</option>
+              <option value="active">Aktive</option>
+              <option value="suspended">Imesimamishwa</option>
+              <option value="trial">Trial</option>
+            </select>
+          </div>
+
+          <table class="clients-table">
+            <thead>
+              <tr>
+                <th>Client</th>
+                <th>Mpango</th>
+                <th>Hali</th>
+                <th>Mapato (Mwezi)</th>
+                <th>Tarehe ya Kujisajili</th>
+                <th>Vitendo</th>
+              </tr>
+            </thead>
+            <tbody id="clientsBody"></tbody>
+          </table>
+
+          <div class="pagination">
+            <span id="paginationInfo">Inaonyesha 1-10 kati ya 47</span>
+            <div class="page-btns">
+              <div class="page-btn active">1</div>
+              <div class="page-btn">2</div>
+              <div class="page-btn">3</div>
+              <div class="page-btn">5</div>
+              <div class="page-btn">→</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======= REVENUE ======= -->
+      <div class="page" id="page-revenue">
+        <div class="stats-grid" style="margin-bottom:24px;">
+          <div class="stat-card">
+            <div class="stat-label">Mapato Jumla (MTD)</div>
+            <div class="stat-value">940k</div>
+            <div class="stat-change up">↑ 18%</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Mapato Kutoka Biashara</div>
+            <div class="stat-value">440k</div>
+            <div class="stat-change up">↑ 22 clients × 20k</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Mapato Kutoka Mtaalamu</div>
+            <div class="stat-value">350k</div>
+            <div class="stat-change up">↑ 7 clients × 50k</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Ada Zinazokuja (Wiki)</div>
+            <div class="stat-value">7</div>
+            <div class="stat-change up">Renewal zinazokuja</div>
+          </div>
+        </div>
+
+        <div class="dash-card">
+          <div class="card-header">
+            <span class="card-title">Top 5 Clients kwa Mapato</span>
+          </div>
+          <div class="revenue-split" style="gap:18px;" id="topClients"></div>
+        </div>
+      </div>
+
+      <!-- ======= SUPPORT ======= -->
+      <div class="page" id="page-support">
+        <div class="dash-card">
+          <div class="card-header">
+            <span class="card-title">Maombi ya Msaada (3 mapya)</span>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:12px;" id="supportList"></div>
+        </div>
+      </div>
+
+      <!-- ======= ANNOUNCE ======= -->
+      <div class="page" id="page-announce">
+        <div class="grid-2">
+          <div class="dash-card">
+            <div class="card-header">
+              <span class="card-title">Tuma Tangazo kwa Clients</span>
+            </div>
+            <div class="announce-form">
+              <div>
+                <label style="font-size:0.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:7px;">Tuma Kwa</label>
+                <select class="announce-select">
+                  <option>Clients Wote (47)</option>
+                  <option>Clients wa Mpango Biashara (22)</option>
+                  <option>Clients wa Mpango Mtaalamu (7)</option>
+                  <option>Clients wa Mpango Mwanzo (18)</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size:0.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:7px;">Kichwa cha Tangazo</label>
+                <input type="text" class="search-input" placeholder="Mfano: Matengenezo ya Mfumo..." style="width:100%;" />
+              </div>
+              <div>
+                <label style="font-size:0.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:7px;">Ujumbe</label>
+                <textarea class="announce-input" placeholder="Andika tangazo lako hapa..."></textarea>
+              </div>
+              <div>
+                <label style="font-size:0.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:7px;">Njia ya Kutuma</label>
+                <select class="announce-select">
+                  <option>Dashboard ya Client</option>
+                  <option>SMS</option>
+                  <option>WhatsApp</option>
+                  <option>Zote (Dashboard + SMS)</option>
+                </select>
+              </div>
+              <button class="btn-send" onclick="alert('Tangazo limetumwa kwa clients wote!')">📢 Tuma Tangazo</button>
+            </div>
+          </div>
+
+          <div class="dash-card">
+            <div class="card-header">
+              <span class="card-title">Matangazo Yaliyotumwa</span>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:12px;" id="announceHistory"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======= SYSTEM ======= -->
+      <div class="page" id="page-system">
+        <div class="grid-2">
+          <div class="dash-card">
+            <div class="card-header">
+              <span class="card-title">Mipangilio ya Mfumo</span>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:14px;">
+              <div>
+                <label style="font-size:0.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:7px;">Jina la Mfumo</label>
+                <input type="text" class="search-input" value="WifiPesa" style="width:100%;" />
+              </div>
+              <div>
+                <label style="font-size:0.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:7px;">Barua Pepe ya Admin</label>
+                <input type="email" class="search-input" value="admin@wifipesa.co.tz" style="width:100%;" />
+              </div>
+              <div>
+                <label style="font-size:0.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:7px;">Trial Period (Siku)</label>
+                <input type="number" class="search-input" value="14" style="width:100%;" />
+              </div>
+              <button class="btn-send">Hifadhi Mipangilio</button>
+            </div>
+          </div>
+
+          <div class="dash-card">
+            <div class="card-header">
+              <span class="card-title">API Keys</span>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:14px;">
+              <div>
+                <label style="font-size:0.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:7px;">M-Pesa API Key</label>
+                <input type="password" class="search-input" value="sk_live_xxxxxxxxxxx" style="width:100%;" />
+              </div>
+              <div>
+                <label style="font-size:0.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:7px;">Airtel Money API Key</label>
+                <input type="password" class="search-input" value="airtel_live_xxxxxxxx" style="width:100%;" />
+              </div>
+              <div>
+                <label style="font-size:0.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:7px;">SMS Gateway Key</label>
+                <input type="password" class="search-input" value="sms_live_xxxxxxxxx" style="width:100%;" />
+              </div>
+              <button class="btn-send">Hifadhi API Keys</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CLIENT DETAIL MODAL -->
+  <div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+    <div class="modal" id="modalContent"></div>
+  </div>
+
+  <script>
+    const avatarColors = ['#00c853','#2196f3','#ff9800','#e91e63','#9c27b0','#00bcd4'];
+
+    const clients = [
+      { name: 'John Mbwana', phone: '+255 762 001 001', location: 'Dar es Salaam', plan: 'business', status: 'active', revenue: '20,000', date: '12 Mei 2026' },
+      { name: 'Fatuma Hassan', phone: '+255 784 002 002', location: 'Mwanza', plan: 'pro', status: 'active', revenue: '50,000', date: '10 Mei 2026' },
+      { name: 'Peter Kiiza', phone: '+255 713 003 003', location: 'Arusha', plan: 'business', status: 'active', revenue: '20,000', date: '09 Mei 2026' },
+      { name: 'Amina Salim', phone: '+255 755 004 004', location: 'Dodoma', plan: 'free', status: 'trial', revenue: '0', date: '14 Mei 2026' },
+      { name: 'David Mushi', phone: '+255 767 005 005', location: 'Moshi', plan: 'pro', status: 'active', revenue: '50,000', date: '08 Mei 2026' },
+      { name: 'Grace Temba', phone: '+255 762 006 006', location: 'Tanga', plan: 'business', status: 'suspended', revenue: '0', date: '05 Mei 2026' },
+      { name: 'Ali Juma', phone: '+255 784 007 007', location: 'Zanzibar', plan: 'business', status: 'active', revenue: '20,000', date: '11 Mei 2026' },
+      { name: 'Mary Chacha', phone: '+255 713 008 008', location: 'Mbeya', plan: 'free', status: 'active', revenue: '0', date: '15 Mei 2026' },
+      { name: 'Hassan Mwenda', phone: '+255 755 009 009', location: 'Morogoro', plan: 'pro', status: 'active', revenue: '50,000', date: '07 Mei 2026' },
+      { name: 'Lucia Mwangi', phone: '+255 767 010 010', location: 'Dar es Salaam', plan: 'business', status: 'suspended', revenue: '0', date: '03 Mei 2026' },
+    ];
+
+    const planLabels = { free: 'Mwanzo', business: 'Biashara', pro: 'Mtaalamu' };
+    const statusLabels = { active: 'Aktive', suspended: 'Imesimamishwa', trial: 'Trial' };
+
+    function initials(name) {
+      return name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+    }
+
+    function renderClients(data) {
+      const tbody = document.getElementById('clientsBody');
+      tbody.innerHTML = data.map((c, i) => `
+        <tr>
+          <td>
+            <div class="client-name-cell">
+              <div class="client-avatar" style="background:${avatarColors[i % avatarColors.length]}">${initials(c.name)}</div>
+              <div>
+                <div class="client-name">${c.name}</div>
+                <div class="client-location">📍 ${c.location}</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="plan-badge ${c.plan}">${planLabels[c.plan]}</span></td>
+          <td><span class="status-badge ${c.status}">${statusLabels[c.status]}</span></td>
+          <td class="revenue-cell">${c.revenue} TZS</td>
+          <td style="color:var(--muted); font-size:0.82rem;">${c.date}</td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn" onclick="openClientModal(${i})">Ona</button>
+              ${c.status === 'active' || c.status === 'trial'
+                ? `<button class="action-btn danger" onclick="toggleStatus(${i})">Simamisha</button>`
+                : `<button class="action-btn success" onclick="toggleStatus(${i})">Activate</button>`
+              }
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderRecentSignups() {
+      const recent = clients.slice(0, 4);
+      document.getElementById('recentSignups').innerHTML = recent.map((c, i) => `
+        <div class="signup-row">
+          <div class="signup-avatar" style="background:${avatarColors[i % avatarColors.length]}">${initials(c.name)}</div>
+          <div class="signup-info">
+            <div class="signup-name">${c.name}</div>
+            <div class="signup-meta">📍 ${c.location} · <span class="plan-badge ${c.plan}" style="padding:1px 7px;">${planLabels[c.plan]}</span></div>
+          </div>
+          <div class="signup-time">${c.date}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderTopClients() {
+      const top = [
+        { name: 'David Mushi', location: 'Moshi', revenue: 50000, pct: 100 },
+        { name: 'Fatuma Hassan', location: 'Mwanza', revenue: 50000, pct: 100 },
+        { name: 'Hassan Mwenda', location: 'Morogoro', revenue: 50000, pct: 100 },
+        { name: 'John Mbwana', location: 'Dar es Salaam', revenue: 20000, pct: 40 },
+        { name: 'Ali Juma', location: 'Zanzibar', revenue: 20000, pct: 40 },
+      ];
+      document.getElementById('topClients').innerHTML = top.map((c, i) => `
+        <div class="rev-row">
+          <div class="rev-row-header">
+            <span style="display:flex; align-items:center; gap:8px;">
+              <span style="width:24px; height:24px; background:${avatarColors[i]}; border-radius:6px; display:inline-flex; align-items:center; justify-content:center; font-size:0.65rem; font-weight:800; color:#000;">${initials(c.name)}</span>
+              ${c.name} · ${c.location}
+            </span>
+            <span>${c.revenue.toLocaleString()} TZS</span>
+          </div>
+          <div class="rev-bar"><div class="rev-bar-fill" style="width:${c.pct}%"></div></div>
+        </div>
+      `).join('');
+    }
+
+    function renderSupport() {
+      const tickets = [
+        { name: 'Grace Temba', issue: 'Payment inashindwa kupita. M-Pesa inakataa.', time: 'Saa 2 zilizopita', urgent: true },
+        { name: 'Amina Salim', issue: 'Captive portal haitoki baada ya kulipa.', time: 'Saa 5 zilizopita', urgent: false },
+        { name: 'Lucia Mwangi', issue: 'Nataka kubadilisha namba ya M-Pesa yangu.', time: 'Jana', urgent: false },
+      ];
+      document.getElementById('supportList').innerHTML = tickets.map((t, i) => `
+        <div style="background:var(--card2); border:1px solid ${t.urgent ? 'var(--red)' : 'var(--border)'}; border-radius:12px; padding:16px; display:flex; gap:14px; align-items:flex-start;">
+          <div style="width:34px; height:34px; background:${avatarColors[i]}; border-radius:8px; display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk',sans-serif; font-weight:800; font-size:0.78rem; color:#000; flex-shrink:0;">${initials(t.name)}</div>
+          <div style="flex:1;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+              <span style="font-weight:700; font-size:0.88rem;">${t.name}</span>
+              <span style="font-size:0.75rem; color:var(--muted);">${t.time}</span>
+            </div>
+            <div style="font-size:0.83rem; color:var(--muted);">${t.issue}</div>
+          </div>
+          <div style="display:flex; gap:6px; flex-shrink:0;">
+            ${t.urgent ? '<span style="font-size:0.65rem; background:rgba(244,67,54,0.12); color:var(--red); padding:3px 8px; border-radius:100px; font-weight:700;">HARAKA</span>' : ''}
+            <button class="action-btn success" onclick="this.closest('div').parentElement.remove()">Maliza</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderAnnounceHistory() {
+      const history = [
+        { title: 'Matengenezo ya Mfumo', msg: 'Mfumo utafanyiwa matengenezo Jumapili saa 4 asubuhi.', sent: '3 siku zilizopita', to: 'Clients Wote' },
+        { title: 'Bei Mpya za Mtaalamu', msg: 'Bei ya mpango Mtaalamu imebaki ile ile kwa mwezi ujao.', sent: 'Wiki iliyopita', to: 'Mtaalamu' },
+      ];
+      document.getElementById('announceHistory').innerHTML = history.map(a => `
+        <div style="background:var(--card2); border:1px solid var(--border); border-radius:12px; padding:16px;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+            <span style="font-weight:700; font-size:0.88rem;">${a.title}</span>
+            <span style="font-size:0.72rem; color:var(--muted);">${a.sent}</span>
+          </div>
+          <div style="font-size:0.8rem; color:var(--muted); margin-bottom:8px;">${a.msg}</div>
+          <span style="font-size:0.7rem; background:rgba(0,200,83,0.1); color:var(--green); padding:2px 10px; border-radius:100px;">Ilitumwa kwa: ${a.to}</span>
+        </div>
+      `).join('');
+    }
+
+    function filterClients(q) {
+      const filtered = clients.filter(c =>
+        c.name.toLowerCase().includes(q.toLowerCase()) ||
+        c.location.toLowerCase().includes(q.toLowerCase()) ||
+        c.phone.includes(q)
+      );
+      renderClients(filtered);
+    }
+
+    function filterByPlan(plan) {
+      const filtered = plan ? clients.filter(c => c.plan === plan) : clients;
+      renderClients(filtered);
+    }
+
+    function filterByStatus(status) {
+      const filtered = status ? clients.filter(c => c.status === status) : clients;
+      renderClients(filtered);
+    }
+
+    function toggleStatus(i) {
+      if (clients[i].status === 'active' || clients[i].status === 'trial') {
+        clients[i].status = 'suspended';
+        clients[i].revenue = '0';
+      } else {
+        clients[i].status = 'active';
+      }
+      renderClients(clients);
+    }
+
+    function openClientModal(i) {
+      const c = clients[i];
+      document.getElementById('modalContent').innerHTML = `
+        <div style="display:flex; align-items:center; gap:14px; margin-bottom:20px;">
+          <div style="width:48px; height:48px; background:${avatarColors[i % avatarColors.length]}; border-radius:12px; display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk',sans-serif; font-weight:800; font-size:1rem; color:#000;">${initials(c.name)}</div>
+          <div>
+            <h2 style="margin-bottom:4px;">${c.name}</h2>
+            <p style="margin:0;">${c.phone} · 📍 ${c.location}</p>
+          </div>
+        </div>
+        <div class="modal-detail-row"><span>Mpango</span><span><span class="plan-badge ${c.plan}">${planLabels[c.plan]}</span></span></div>
+        <div class="modal-detail-row"><span>Hali</span><span><span class="status-badge ${c.status}">${statusLabels[c.status]}</span></span></div>
+        <div class="modal-detail-row"><span>Mapato Mwezi Huu</span><span>${c.revenue} TZS</span></div>
+        <div class="modal-detail-row"><span>Tarehe ya Kujisajili</span><span>${c.date}</span></div>
+        <div class="modal-detail-row"><span>Hotspots</span><span>1</span></div>
+        <div class="modal-detail-row"><span>Watumiaji wa Leo</span><span style="color:var(--green);">${Math.floor(Math.random()*50)+10}</span></div>
+        <div class="modal-btns">
+          <button class="modal-cancel" onclick="closeModal()">Funga</button>
+          <button class="modal-confirm green" onclick="closeModal()">Tuma Ujumbe</button>
+        </div>
+      `;
+      document.getElementById('modalOverlay').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function openModal(type) {
+      document.getElementById('modalContent').innerHTML = `
+        <h2>Ongeza Client Mpya</h2>
+        <p>Ongeza client manually kwenye mfumo wa WifiPesa.</p>
+        <div style="display:flex; flex-direction:column; gap:14px;">
+          <div><label style="font-size:0.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:7px;">Jina Kamili</label>
+          <input type="text" class="search-input" placeholder="Jina la client..." style="width:100%;"/></div>
+          <div><label style="font-size:0.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:7px;">Namba ya Simu</label>
+          <input type="tel" class="search-input" placeholder="+255 7XX XXX XXX" style="width:100%;"/></div>
+          <div><label style="font-size:0.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:7px;">Mpango</label>
+          <select class="announce-select"><option>Mwanzo (Bure)</option><option>Biashara (20,000 TZS)</option><option>Mtaalamu (50,000 TZS)</option></select></div>
+        </div>
+        <div class="modal-btns">
+          <button class="modal-cancel" onclick="closeModal()">Ghairi</button>
+          <button class="modal-confirm green" onclick="closeModal(); alert('Client ameongezwa!')">Ongeza Client</button>
+        </div>
+      `;
+      document.getElementById('modalOverlay').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function closeModalOutside(e) {
+      if (e.target === document.getElementById('modalOverlay')) closeModal();
+    }
+
+    function showPage(name, navEl) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById('page-' + name).classList.add('active');
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      if (navEl) navEl.classList.add('active');
+      const titles = { overview: 'Muhtasari', clients: 'Clients Wote', revenue: 'Mapato', support: 'Msaada', announce: 'Matangazo', system: 'Mfumo' };
+      document.getElementById('pageTitle').textContent = titles[name] || name;
+      if (window.innerWidth < 900) document.getElementById('sidebar').classList.remove('open');
+    }
+
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+    renderClients(clients);
+    renderRecentSignups();
+    renderTopClients();
+    renderSupport();
+    renderAnnounceHistory();
+  </script>
+</body>
+</html>
