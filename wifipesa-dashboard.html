@@ -74,7 +74,6 @@
     .plan-chip {
       display: inline-flex;
       align-items: center;
-      gap: 5px;
       padding: 3px 10px;
       border-radius: 100px;
       font-size: 0.65rem;
@@ -116,11 +115,7 @@
     .nav-item.active { background: rgba(0,200,83,0.12); color: var(--green); font-weight: 600; }
     .nav-item.locked { opacity: 0.4; cursor: not-allowed; }
     .nav-item .nav-icon { font-size: 1rem; width: 20px; text-align: center; }
-
-    .lock-icon {
-      margin-left: auto;
-      font-size: 0.75rem;
-    }
+    .lock-icon { margin-left: auto; font-size: 0.75rem; }
 
     .sidebar-footer {
       margin-top: auto;
@@ -154,7 +149,6 @@
     .user-info { flex: 1; overflow: hidden; }
     .user-name { font-size: 0.82rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .user-plan { font-size: 0.7rem; color: var(--green); }
-
     .logout-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1rem; transition: color 0.2s; }
     .logout-btn:hover { color: var(--red); }
 
@@ -277,12 +271,9 @@
       border-radius: 16px;
       padding: 22px 20px;
       transition: all 0.3s;
-      position: relative;
-      overflow: hidden;
     }
 
     .stat-card:hover { border-color: var(--green); transform: translateY(-2px); }
-
     .stat-label { font-size: 0.75rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
     .stat-value { font-family: 'Space Grotesk', sans-serif; font-size: 2rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 4px; }
     .stat-sub { font-size: 0.78rem; color: var(--muted); }
@@ -292,10 +283,8 @@
     .usage-fill.warning { background: var(--yellow); }
     .usage-fill.danger { background: var(--red); }
 
-    /* GRID */
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
 
-    /* DASH CARD */
     .dash-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; }
     .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     .card-title { font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 700; }
@@ -347,7 +336,7 @@
     .kick-btn:hover { background: rgba(244,67,54,0.2); }
 
     /* PACKAGES */
-    .packages-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .packages-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-bottom: 24px; }
 
     .pkg-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; transition: all 0.3s; }
     .pkg-card:hover { border-color: var(--green); }
@@ -361,6 +350,40 @@
 
     .pkg-price-big { font-family: 'Space Grotesk', sans-serif; font-size: 2rem; font-weight: 800; letter-spacing: -1px; color: var(--green); margin-bottom: 4px; }
     .pkg-duration { font-size: 0.82rem; color: var(--muted); margin-bottom: 16px; }
+
+    /* PACKAGE EDIT BUTTONS */
+    .pkg-actions { display: flex; gap: 8px; margin-top: 12px; }
+
+    .btn-edit-pkg {
+      flex: 1;
+      background: rgba(0,200,83,0.1);
+      border: 1px solid rgba(0,200,83,0.3);
+      color: var(--green);
+      font-size: 0.75rem;
+      padding: 7px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: 'Sora', sans-serif;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .btn-edit-pkg:hover { background: rgba(0,200,83,0.2); }
+
+    .btn-delete-pkg {
+      background: rgba(244,67,54,0.1);
+      border: 1px solid rgba(244,67,54,0.3);
+      color: var(--red);
+      font-size: 0.75rem;
+      padding: 7px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: 'Sora', sans-serif;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .btn-delete-pkg:hover { background: rgba(244,67,54,0.2); }
 
     .add-pkg-btn {
       display: flex;
@@ -380,6 +403,43 @@
     }
 
     .add-pkg-btn:hover { border-color: var(--green); color: var(--green); }
+
+    /* PORTAL LINK */
+    .portal-link-box {
+      background: var(--card2);
+      border: 1px solid var(--green);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .portal-link-url {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.82rem;
+      color: var(--green);
+      word-break: break-all;
+    }
+
+    .copy-link-btn {
+      background: var(--green);
+      color: #000;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'Sora', sans-serif;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .copy-link-btn:hover { background: #00e564; }
 
     /* LOCKED PAGE */
     .locked-page {
@@ -442,12 +502,6 @@
 
     .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--green); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 40px auto; display: block; }
     @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* API PAGE */
-    .api-card { background: var(--card2); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
-    .api-key { font-family: 'Space Grotesk', sans-serif; font-size: 0.85rem; background: var(--bg); padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border); word-break: break-all; color: var(--green); margin: 10px 0; }
-    .copy-btn { background: rgba(0,200,83,0.1); border: 1px solid var(--green); color: var(--green); padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.78rem; font-weight: 600; font-family: 'Sora', sans-serif; transition: all 0.2s; }
-    .copy-btn:hover { background: rgba(0,200,83,0.2); }
 
     @media (max-width: 900px) {
       .sidebar { transform: translateX(-100%); }
@@ -587,16 +641,26 @@
 
       <!-- PACKAGES -->
       <div class="page" id="page-packages">
+
+        <!-- Portal Link -->
+        <div class="portal-link-box" id="portalLinkBox" style="display:none;">
+          <div>
+            <div style="font-size:0.75rem; color:var(--muted); margin-bottom:4px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Link ya Captive Portal Yako</div>
+            <div class="portal-link-url" id="portalLinkUrl"></div>
+          </div>
+          <button class="copy-link-btn" onclick="copyPortalLink()">📋 Nakala Link</button>
+        </div>
+
         <div class="packages-grid" id="packagesGrid"><div class="spinner"></div></div>
-        <button class="add-pkg-btn" onclick="openModal()">+ Ongeza Package Mpya</button>
+        <button class="add-pkg-btn" onclick="openAddModal()">+ Ongeza Package Mpya</button>
       </div>
 
-      <!-- REPORTS - Business & Pro only -->
+      <!-- REPORTS -->
       <div class="page" id="page-reports">
         <div class="locked-page" id="reportsLocked" style="display:none;">
           <div class="lock-big">📈</div>
           <h2>Ripoti za Kina</h2>
-          <p>Ripoti za kina zinapatikana kwa Mpango wa Biashara na Mtaalamu tu. Panda mpango wako leo upate uchambuzi kamili wa biashara yako.</p>
+          <p>Ripoti za kina zinapatikana kwa Mpango wa Biashara na Mtaalamu tu.</p>
           <a class="btn-upgrade" href="https://wa.me/255695745084?text=Nataka%20kupanda%20mpango%20wangu%20ili%20nipate%20ripoti%20za%20kina." target="_blank">Panda Mpango Sasa</a>
         </div>
         <div id="reportsContent" style="display:none;">
@@ -607,21 +671,21 @@
         </div>
       </div>
 
-      <!-- API - Pro only -->
+      <!-- API -->
       <div class="page" id="page-api">
         <div class="locked-page" id="apiLocked" style="display:none;">
           <div class="lock-big">🔗</div>
           <h2>API Access</h2>
-          <p>API Access inapatikana kwa Mpango wa Mtaalamu tu. Panda mpango wako leo ujumuishe WifiPesa na mifumo yako mingine.</p>
+          <p>API Access inapatikana kwa Mpango wa Mtaalamu tu.</p>
           <a class="btn-upgrade" href="https://wa.me/255695745084?text=Nataka%20mpango%20wa%20Mtaalamu%20wa%20WifiPesa%20ili%20nipate%20API%20Access." target="_blank">Panda Mpango wa Mtaalamu</a>
         </div>
         <div id="apiContent" style="display:none;">
-          <div class="dash-card" style="margin-bottom:16px;">
+          <div class="dash-card">
             <div class="card-header"><span class="card-title">API Keys Zako</span></div>
-            <div class="api-card">
+            <div style="background:var(--card2); border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:16px;">
               <div style="font-size:0.85rem; font-weight:600; margin-bottom:8px;">API Key</div>
-              <div class="api-key" id="apiKey">Inapakia...</div>
-              <button class="copy-btn" onclick="copyApiKey()">📋 Nakala</button>
+              <div id="apiKey" style="font-family:'Space Grotesk',sans-serif; font-size:0.85rem; background:var(--bg); padding:12px 16px; border-radius:8px; border:1px solid var(--border); word-break:break-all; color:var(--green); margin:10px 0;">Inapakia...</div>
+              <button onclick="copyApiKey()" style="background:rgba(0,200,83,0.1); border:1px solid var(--green); color:var(--green); padding:6px 14px; border-radius:6px; cursor:pointer; font-size:0.78rem; font-weight:600; font-family:'Sora',sans-serif;">📋 Nakala</button>
             </div>
           </div>
         </div>
@@ -664,11 +728,11 @@
   </div>
 
   <!-- ADD PACKAGE MODAL -->
-  <div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal-overlay" id="addModalOverlay" onclick="closeAddModalOutside(event)">
     <div class="modal">
       <h2>Ongeza Package Mpya</h2>
       <p>Tengeneza package mpya ya WiFi kwa watumiaji wako.</p>
-      <div class="alert" id="modalAlert"></div>
+      <div class="alert" id="addModalAlert"></div>
       <div class="modal-form-group">
         <label>Jina la Package</label>
         <input type="text" id="pkgName" placeholder="Mfano: Saa 2" />
@@ -690,8 +754,42 @@
         </select>
       </div>
       <div class="modal-btns">
-        <button class="modal-cancel" onclick="closeModal()">Ghairi</button>
+        <button class="modal-cancel" onclick="closeAddModal()">Ghairi</button>
         <button class="modal-confirm" onclick="addPackage()">Ongeza Package</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDIT PACKAGE MODAL -->
+  <div class="modal-overlay" id="editModalOverlay" onclick="closeEditModalOutside(event)">
+    <div class="modal">
+      <h2>Hariri Package</h2>
+      <p>Badilisha bei, jina au muda wa package hii.</p>
+      <div class="alert" id="editModalAlert"></div>
+      <input type="hidden" id="editPkgId" />
+      <div class="modal-form-group">
+        <label>Jina la Package</label>
+        <input type="text" id="editPkgName" placeholder="Jina la package" />
+      </div>
+      <div class="modal-form-group">
+        <label>Bei Mpya (TZS)</label>
+        <input type="number" id="editPkgPrice" placeholder="Weka bei mpya" />
+      </div>
+      <div class="modal-form-group">
+        <label>Muda</label>
+        <select id="editPkgDuration">
+          <option value="30">Dakika 30</option>
+          <option value="60">Saa 1</option>
+          <option value="120">Saa 2</option>
+          <option value="180">Saa 3</option>
+          <option value="360">Saa 6</option>
+          <option value="1440">Siku Nzima</option>
+          <option value="10080">Wiki Nzima</option>
+        </select>
+      </div>
+      <div class="modal-btns">
+        <button class="modal-cancel" onclick="closeEditModal()">Ghairi</button>
+        <button class="modal-confirm" onclick="saveEditPackage()">Hifadhi Mabadiliko</button>
       </div>
     </div>
   </div>
@@ -717,58 +815,40 @@
       chip.textContent = planNames[plan] || plan;
       chip.className = `plan-chip ${plan}`;
 
-      // Weka vipengele kulingana na plan
       if (plan === 'free') {
         document.getElementById('lockReports').style.display = 'block';
         document.getElementById('lockApi').style.display = 'block';
         document.getElementById('navReports').classList.add('locked');
         document.getElementById('navApi').classList.add('locked');
-
         document.getElementById('upgradeBanner').style.display = 'block';
         document.getElementById('upgradeMsg').textContent = 'Uko kwenye Mpango wa Mwanzo. Panda kwenye Biashara ili upate hotspots 5 na watumiaji wasiokoma.';
-
         document.getElementById('limitLabel').textContent = 'Watumiaji Mwezi';
         document.getElementById('usageLimit').textContent = '/ 50 kikomo';
         document.getElementById('usageBarWrap').style.display = 'block';
-
       } else if (plan === 'business') {
         document.getElementById('lockReports').style.display = 'none';
         document.getElementById('lockApi').style.display = 'block';
         document.getElementById('navReports').classList.remove('locked');
         document.getElementById('navApi').classList.add('locked');
-
         document.getElementById('upgradeBanner').style.display = 'block';
         document.getElementById('upgradeMsg').textContent = 'Panda kwenye Mpango wa Mtaalamu ili upate API Access, hotspots zisizo na mipaka na msaada 24/7.';
-
         document.getElementById('limitLabel').textContent = 'Hotspots';
         document.getElementById('usageValue').textContent = '5';
         document.getElementById('usageLimit').textContent = 'Zilizoidhinishwa';
-
       } else if (plan === 'pro') {
         document.getElementById('lockReports').style.display = 'none';
         document.getElementById('lockApi').style.display = 'none';
         document.getElementById('navReports').classList.remove('locked');
         document.getElementById('navApi').classList.remove('locked');
-
         document.getElementById('upgradeBanner').style.display = 'none';
-
         document.getElementById('limitLabel').textContent = 'Hotspots';
         document.getElementById('usageValue').textContent = '∞';
         document.getElementById('usageLimit').textContent = 'Zisizo na Mipaka';
-
         document.getElementById('apiKey').textContent = `wfp_${token.slice(0, 32)}...`;
       }
     }
 
     function handleLockedClick(page, navEl) {
-      if (navEl.classList.contains('locked')) {
-        const messages = {
-          reports: 'Ripoti za kina zinahitaji Mpango wa Biashara au Mtaalamu.',
-          api: 'API Access inahitaji Mpango wa Mtaalamu.'
-        };
-        showPage(page, navEl);
-        return;
-      }
       showPage(page, navEl);
     }
 
@@ -784,6 +864,11 @@
       document.getElementById('settingsAirtel').value = client.airtelNumber || '';
       document.getElementById('settingsPortalMsg').value = client.portalMessage || '';
       setupPlanFeatures(client.plan || 'free');
+
+      // Weka portal link
+      const portalUrl = `${window.location.origin}/wifipesa-captive-portal.html?client=${client._id || client.id}`;
+      document.getElementById('portalLinkUrl').textContent = portalUrl;
+      document.getElementById('portalLinkBox').style.display = 'flex';
     }
 
     async function loadProfile() {
@@ -885,8 +970,6 @@
         const data = await res.json();
         const packages = data.packages || [];
 
-        document.getElementById('totalPackages') && (document.getElementById('totalPackages').textContent = packages.length);
-
         document.getElementById('packagesGrid').innerHTML = packages.length === 0
           ? '<div class="empty-state"><div>📦</div>Bado hakuna packages.</div>'
           : packages.map(p => `
@@ -897,9 +980,13 @@
               </div>
               <div class="pkg-price-big">${p.price.toLocaleString()} TZS</div>
               <div class="pkg-duration">${p.durationMinutes < 60 ? p.durationMinutes + ' dakika' : (p.durationMinutes / 60) + ' saa'} · ${p.speedLimit === 'unlimited' ? 'Bila kikomo' : p.speedLimit}</div>
-              <div style="margin-top:8px;">
+              <div style="margin-top:4px;">
                 <div style="font-family:'Space Grotesk',sans-serif; font-size:1.1rem; font-weight:700;">${p.totalSold}</div>
                 <div style="font-size:0.7rem; color:var(--muted);">Imeuliwa Jumla</div>
+              </div>
+              <div class="pkg-actions">
+                <button class="btn-edit-pkg" onclick="openEditModal('${p._id}', '${p.name}', ${p.price}, ${p.durationMinutes})">✏️ Hariri Bei</button>
+                <button class="btn-delete-pkg" onclick="deletePackage('${p._id}')">🗑️</button>
               </div>
             </div>`).join('');
       } catch (err) {
@@ -917,16 +1004,54 @@
       }
     }
 
+    async function deletePackage(id) {
+      if (!confirm('Una uhakika unataka kufuta package hii?')) return;
+      try {
+        await fetch(`${API}/api/packages/${id}`, { method: 'DELETE', headers: headers() });
+        loadPackages();
+      } catch (err) {
+        console.error('Delete error:', err);
+      }
+    }
+
+    function openEditModal(id, name, price, duration) {
+      document.getElementById('editPkgId').value = id;
+      document.getElementById('editPkgName').value = name;
+      document.getElementById('editPkgPrice').value = price;
+      document.getElementById('editPkgDuration').value = duration;
+      document.getElementById('editModalOverlay').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    async function saveEditPackage() {
+      const id = document.getElementById('editPkgId').value;
+      const name = document.getElementById('editPkgName').value.trim();
+      const price = parseInt(document.getElementById('editPkgPrice').value);
+      const durationMinutes = parseInt(document.getElementById('editPkgDuration').value);
+
+      if (!name || !price) { showEditAlert('Tafadhali jaza sehemu zote.'); return; }
+
+      try {
+        const res = await fetch(`${API}/api/packages/${id}`, {
+          method: 'PUT',
+          headers: headers(),
+          body: JSON.stringify({ name, price, durationMinutes })
+        });
+        if (res.ok) { closeEditModal(); loadPackages(); }
+        else { const d = await res.json(); showEditAlert(d.message); }
+      } catch (err) { showEditAlert('Hitilafu ya mtandao.'); }
+    }
+
     async function addPackage() {
       const name = document.getElementById('pkgName').value.trim();
       const price = parseInt(document.getElementById('pkgPrice').value);
       const durationMinutes = parseInt(document.getElementById('pkgDuration').value);
-      if (!name || !price) { showModalAlert('Tafadhali jaza sehemu zote.'); return; }
+      if (!name || !price) { showAddAlert('Tafadhali jaza sehemu zote.'); return; }
       try {
         const res = await fetch(`${API}/api/packages`, { method: 'POST', headers: headers(), body: JSON.stringify({ name, price, durationMinutes }) });
-        if (res.ok) { closeModal(); loadPackages(); }
-        else { const d = await res.json(); showModalAlert(d.message); }
-      } catch (err) { showModalAlert('Hitilafu ya mtandao.'); }
+        if (res.ok) { closeAddModal(); loadPackages(); }
+        else { const d = await res.json(); showAddAlert(d.message); }
+      } catch (err) { showAddAlert('Hitilafu ya mtandao.'); }
     }
 
     async function saveSettings() {
@@ -938,17 +1063,23 @@
       };
       try {
         const res = await fetch(`${API}/api/clients/portal/settings`, { method: 'PUT', headers: headers(), body: JSON.stringify(body) });
-        const alert = document.getElementById('settingsAlert');
+        const alertEl = document.getElementById('settingsAlert');
         if (res.ok) {
-          alert.className = 'alert success';
-          alert.textContent = '✓ Mipangilio imehifadhiwa vizuri.';
-          setTimeout(() => { alert.className = 'alert'; }, 3000);
+          alertEl.className = 'alert success';
+          alertEl.textContent = '✓ Mipangilio imehifadhiwa vizuri.';
+          setTimeout(() => { alertEl.className = 'alert'; }, 3000);
           loadProfile();
         } else {
-          alert.className = 'alert error';
-          alert.textContent = '⚠ Hitilafu. Jaribu tena.';
+          alertEl.className = 'alert error';
+          alertEl.textContent = '⚠ Hitilafu. Jaribu tena.';
         }
       } catch (err) { console.error(err); }
+    }
+
+    function copyPortalLink() {
+      const link = document.getElementById('portalLinkUrl').textContent;
+      navigator.clipboard.writeText(link);
+      alert('Link ya portal imenakiliwa! Weka kwenye router yako.');
     }
 
     function copyApiKey() {
@@ -986,12 +1117,16 @@
       window.location.href = '/wifipesa-auth.html';
     }
 
-    function openModal() { document.getElementById('modalOverlay').classList.add('active'); document.body.style.overflow = 'hidden'; }
-    function closeModal() { document.getElementById('modalOverlay').classList.remove('active'); document.body.style.overflow = ''; document.getElementById('pkgName').value = ''; document.getElementById('pkgPrice').value = ''; }
-    function closeModalOutside(e) { if (e.target === document.getElementById('modalOverlay')) closeModal(); }
-    function showModalAlert(msg) { const el = document.getElementById('modalAlert'); el.className = 'alert error'; el.textContent = '⚠ ' + msg; }
+    function openAddModal() { document.getElementById('addModalOverlay').classList.add('active'); document.body.style.overflow = 'hidden'; }
+    function closeAddModal() { document.getElementById('addModalOverlay').classList.remove('active'); document.body.style.overflow = ''; document.getElementById('pkgName').value = ''; document.getElementById('pkgPrice').value = ''; }
+    function closeAddModalOutside(e) { if (e.target === document.getElementById('addModalOverlay')) closeAddModal(); }
+    function showAddAlert(msg) { const el = document.getElementById('addModalAlert'); el.className = 'alert error'; el.textContent = '⚠ ' + msg; }
 
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+    function closeEditModal() { document.getElementById('editModalOverlay').classList.remove('active'); document.body.style.overflow = ''; }
+    function closeEditModalOutside(e) { if (e.target === document.getElementById('editModalOverlay')) closeEditModal(); }
+    function showEditAlert(msg) { const el = document.getElementById('editModalAlert'); el.className = 'alert error'; el.textContent = '⚠ ' + msg; }
+
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeAddModal(); closeEditModal(); } });
 
     if (clientData.firstName) setClientInfo(clientData);
 
