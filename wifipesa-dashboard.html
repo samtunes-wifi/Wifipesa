@@ -19,6 +19,7 @@
       --muted: #7aad8a;
       --red: #f44336;
       --yellow: #ffe600;
+      --blue: #2196f3;
       --sidebar-w: 240px;
     }
 
@@ -44,7 +45,6 @@
       opacity: 0.3;
     }
 
-    /* SIDEBAR */
     .sidebar {
       width: var(--sidebar-w);
       background: var(--bg2);
@@ -56,6 +56,7 @@
       flex-direction: column;
       z-index: 50;
       transition: transform 0.3s;
+      overflow-y: auto;
     }
 
     .sidebar-logo {
@@ -65,9 +66,27 @@
       font-weight: 800;
       font-size: 1.3rem;
       letter-spacing: -0.5px;
+      flex-shrink: 0;
     }
 
     .sidebar-logo span { color: var(--green); }
+
+    .plan-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 100px;
+      font-size: 0.65rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      margin-top: 6px;
+      width: fit-content;
+    }
+
+    .plan-chip.free { background: rgba(122,173,138,0.15); color: var(--muted); border: 1px solid var(--border); }
+    .plan-chip.business { background: rgba(0,200,83,0.12); color: var(--green); border: 1px solid var(--green); }
+    .plan-chip.pro { background: rgba(255,230,0,0.12); color: var(--yellow); border: 1px solid var(--yellow); }
 
     .sidebar-section {
       padding: 20px 12px 8px;
@@ -90,29 +109,36 @@
       font-size: 0.88rem;
       font-weight: 500;
       color: var(--muted);
+      position: relative;
     }
 
     .nav-item:hover { background: rgba(0,200,83,0.08); color: var(--text); }
     .nav-item.active { background: rgba(0,200,83,0.12); color: var(--green); font-weight: 600; }
+    .nav-item.locked { opacity: 0.4; cursor: not-allowed; }
     .nav-item .nav-icon { font-size: 1rem; width: 20px; text-align: center; }
+
+    .lock-icon {
+      margin-left: auto;
+      font-size: 0.75rem;
+    }
 
     .sidebar-footer {
       margin-top: auto;
       padding: 16px 12px;
       border-top: 1px solid var(--border);
+      flex-shrink: 0;
     }
 
     .user-card {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       padding: 10px;
       border-radius: 10px;
     }
 
     .user-avatar {
-      width: 36px;
-      height: 36px;
+      width: 36px; height: 36px;
       background: linear-gradient(135deg, var(--green), var(--green-dark));
       border-radius: 10px;
       display: flex;
@@ -126,24 +152,36 @@
     }
 
     .user-info { flex: 1; overflow: hidden; }
-    .user-name { font-size: 0.85rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .user-plan { font-size: 0.72rem; color: var(--green); }
+    .user-name { font-size: 0.82rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-plan { font-size: 0.7rem; color: var(--green); }
 
-    .logout-btn {
-      background: none;
-      border: none;
-      color: var(--muted);
-      cursor: pointer;
-      font-size: 1rem;
-      transition: color 0.2s;
-    }
-
+    .logout-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1rem; transition: color 0.2s; }
     .logout-btn:hover { color: var(--red); }
 
-    /* MAIN */
+    .whatsapp-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #25d366;
+      color: #000;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      font-family: 'Sora', sans-serif;
+      width: 100%;
+      margin-top: 8px;
+      transition: all 0.2s;
+      text-decoration: none;
+      justify-content: center;
+    }
+
+    .whatsapp-btn:hover { background: #1fb855; transform: translateY(-1px); }
+
     .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
 
-    /* TOPBAR */
     .topbar {
       height: 64px;
       background: rgba(5,15,10,0.9);
@@ -160,7 +198,6 @@
 
     .topbar-left h2 { font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; font-weight: 700; }
     .topbar-left p { font-size: 0.78rem; color: var(--muted); }
-
     .topbar-right { display: flex; align-items: center; gap: 12px; }
 
     .hotspot-status {
@@ -176,13 +213,7 @@
       color: var(--green);
     }
 
-    .status-dot {
-      width: 7px; height: 7px;
-      background: var(--green);
-      border-radius: 50%;
-      animation: blink 1.5s ease infinite;
-    }
-
+    .status-dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; animation: blink 1.5s ease infinite; }
     @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
 
     .mobile-menu-btn {
@@ -197,41 +228,48 @@
       font-size: 1.1rem;
     }
 
-    /* CONTENT */
     .content { padding: 28px; flex: 1; }
 
     .page { display: none; animation: fadeUp 0.3s ease; }
     .page.active { display: block; }
-
     @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* LOADING */
-    .loading-spinner {
+    /* UPGRADE BANNER */
+    .upgrade-banner {
+      background: linear-gradient(135deg, rgba(0,200,83,0.1), rgba(255,230,0,0.05));
+      border: 1px solid var(--green);
+      border-radius: 16px;
+      padding: 20px 24px;
       display: flex;
       align-items: center;
-      justify-content: center;
-      padding: 60px;
-      flex-direction: column;
+      justify-content: space-between;
+      margin-bottom: 24px;
       gap: 16px;
+      flex-wrap: wrap;
     }
 
-    .spinner {
-      width: 40px; height: 40px;
-      border: 3px solid var(--border);
-      border-top-color: var(--green);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+    .upgrade-banner h3 { font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+    .upgrade-banner p { font-size: 0.82rem; color: var(--muted); }
+
+    .btn-upgrade {
+      background: var(--green);
+      color: #000;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      border: none;
+      cursor: pointer;
+      font-family: 'Sora', sans-serif;
+      white-space: nowrap;
+      transition: all 0.2s;
+      text-decoration: none;
     }
 
-    @keyframes spin { to { transform: rotate(360deg); } }
+    .btn-upgrade:hover { background: #00e564; }
 
     /* STATS */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      margin-bottom: 24px;
-    }
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
 
     .stat-card {
       background: var(--card);
@@ -239,20 +277,26 @@
       border-radius: 16px;
       padding: 22px 20px;
       transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
     }
 
     .stat-card:hover { border-color: var(--green); transform: translateY(-2px); }
 
     .stat-label { font-size: 0.75rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
-    .stat-value { font-family: 'Space Grotesk', sans-serif; font-size: 2rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 6px; }
+    .stat-value { font-family: 'Space Grotesk', sans-serif; font-size: 2rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 4px; }
     .stat-sub { font-size: 0.78rem; color: var(--muted); }
+
+    .usage-bar { height: 4px; background: var(--border); border-radius: 10px; margin-top: 10px; overflow: hidden; }
+    .usage-fill { height: 100%; background: var(--green); border-radius: 10px; transition: width 1s ease; }
+    .usage-fill.warning { background: var(--yellow); }
+    .usage-fill.danger { background: var(--red); }
 
     /* GRID */
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
 
     /* DASH CARD */
     .dash-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; }
-
     .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     .card-title { font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 700; }
     .card-action { font-size: 0.8rem; color: var(--green); cursor: pointer; font-weight: 600; background: none; border: none; font-family: 'Sora', sans-serif; }
@@ -260,7 +304,7 @@
     /* TABLE */
     .tx-table { width: 100%; border-collapse: collapse; }
     .tx-table th { font-size: 0.72rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); padding: 0 0 14px 0; text-align: left; border-bottom: 1px solid var(--border); }
-    .tx-table td { padding: 14px 0; font-size: 0.85rem; border-bottom: 1px solid rgba(26,58,40,0.5); }
+    .tx-table td { padding: 12px 0; font-size: 0.85rem; border-bottom: 1px solid rgba(26,58,40,0.5); }
     .tx-table tr:last-child td { border-bottom: none; }
 
     .tx-badge { font-size: 0.7rem; padding: 3px 10px; border-radius: 100px; font-weight: 700; }
@@ -269,7 +313,7 @@
     .tx-badge.failed { background: rgba(244,67,54,0.12); color: var(--red); }
 
     /* USERS */
-    .users-list { display: flex; flex-direction: column; gap: 12px; }
+    .users-list { display: flex; flex-direction: column; gap: 10px; }
 
     .user-row {
       display: flex;
@@ -285,7 +329,7 @@
     .user-row-info { flex: 1; }
     .user-row-phone { font-size: 0.85rem; font-weight: 600; font-family: 'Space Grotesk', sans-serif; }
     .user-row-pkg { font-size: 0.75rem; color: var(--muted); }
-    .user-row-time { font-size: 0.75rem; color: var(--muted); text-align: right; }
+    .user-row-time { font-size: 0.75rem; color: var(--muted); }
 
     .kick-btn {
       background: rgba(244,67,54,0.1);
@@ -307,28 +351,16 @@
 
     .pkg-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; transition: all 0.3s; }
     .pkg-card:hover { border-color: var(--green); }
-
     .pkg-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
     .pkg-name { font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 800; }
 
-    .pkg-toggle {
-      width: 40px; height: 22px;
-      background: var(--green);
-      border-radius: 100px;
-      position: relative;
-      cursor: pointer;
-      border: none;
-      transition: background 0.2s;
-    }
-
+    .pkg-toggle { width: 40px; height: 22px; background: var(--green); border-radius: 100px; position: relative; cursor: pointer; border: none; transition: background 0.2s; }
     .pkg-toggle::after { content: ''; position: absolute; width: 16px; height: 16px; background: #000; border-radius: 50%; top: 3px; right: 3px; transition: all 0.2s; }
     .pkg-toggle.off { background: var(--border); }
     .pkg-toggle.off::after { right: auto; left: 3px; }
 
     .pkg-price-big { font-family: 'Space Grotesk', sans-serif; font-size: 2rem; font-weight: 800; letter-spacing: -1px; color: var(--green); margin-bottom: 4px; }
     .pkg-duration { font-size: 0.82rem; color: var(--muted); margin-bottom: 16px; }
-    .pkg-stat-val { font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; font-weight: 700; }
-    .pkg-stat-label { font-size: 0.7rem; color: var(--muted); }
 
     .add-pkg-btn {
       display: flex;
@@ -348,6 +380,23 @@
     }
 
     .add-pkg-btn:hover { border-color: var(--green); color: var(--green); }
+
+    /* LOCKED PAGE */
+    .locked-page {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 80px 40px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+    }
+
+    .locked-page .lock-big { font-size: 3rem; margin-bottom: 20px; }
+    .locked-page h2 { font-family: 'Space Grotesk', sans-serif; font-size: 1.5rem; font-weight: 800; margin-bottom: 10px; }
+    .locked-page p { color: var(--muted); font-size: 0.9rem; margin-bottom: 28px; max-width: 400px; }
 
     /* SETTINGS */
     .settings-section { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 16px; }
@@ -372,14 +421,14 @@
     .modal p { color: var(--muted); font-size: 0.85rem; margin-bottom: 24px; }
 
     .modal-form-group { margin-bottom: 14px; }
-    .modal-form-group label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--muted); margin-bottom: 7px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .modal-form-group label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--muted); margin-bottom: 7px; text-transform: uppercase; }
     .modal-form-group input, .modal-form-group select { width: 100%; background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 11px 13px; color: var(--text); font-family: 'Sora', sans-serif; font-size: 0.88rem; outline: none; transition: border-color 0.2s; }
     .modal-form-group input:focus, .modal-form-group select:focus { border-color: var(--green); }
     .modal-form-group select option { background: var(--card); }
 
     .modal-btns { display: flex; gap: 10px; margin-top: 20px; }
     .modal-cancel { flex: 1; background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 12px; border-radius: 8px; cursor: pointer; font-family: 'Sora', sans-serif; font-size: 0.88rem; transition: all 0.2s; }
-    .modal-cancel:hover { color: var(--text); border-color: var(--muted); }
+    .modal-cancel:hover { color: var(--text); }
     .modal-confirm { flex: 2; background: var(--green); border: none; color: #000; padding: 12px; border-radius: 8px; cursor: pointer; font-family: 'Sora', sans-serif; font-size: 0.88rem; font-weight: 700; transition: all 0.2s; }
     .modal-confirm:hover { background: #00e564; }
 
@@ -390,6 +439,15 @@
 
     .empty-state { text-align: center; padding: 40px; color: var(--muted); font-size: 0.9rem; }
     .empty-state div { font-size: 2rem; margin-bottom: 12px; }
+
+    .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--green); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 40px auto; display: block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* API PAGE */
+    .api-card { background: var(--card2); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+    .api-key { font-family: 'Space Grotesk', sans-serif; font-size: 0.85rem; background: var(--bg); padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border); word-break: break-all; color: var(--green); margin: 10px 0; }
+    .copy-btn { background: rgba(0,200,83,0.1); border: 1px solid var(--green); color: var(--green); padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.78rem; font-weight: 600; font-family: 'Sora', sans-serif; transition: all 0.2s; }
+    .copy-btn:hover { background: rgba(0,200,83,0.2); }
 
     @media (max-width: 900px) {
       .sidebar { transform: translateX(-100%); }
@@ -404,7 +462,10 @@
 <body>
 
   <aside class="sidebar" id="sidebar">
-    <div class="sidebar-logo">Wifi<span>Pesa</span></div>
+    <div class="sidebar-logo">
+      Wifi<span>Pesa</span>
+      <div class="plan-chip" id="planChip">Inapakia...</div>
+    </div>
 
     <div class="sidebar-section">Kuu</div>
     <div class="nav-item active" onclick="showPage('overview', this)"><span class="nav-icon">📊</span> Muhtasari</div>
@@ -413,6 +474,8 @@
 
     <div class="sidebar-section">Mfumo</div>
     <div class="nav-item" onclick="showPage('packages', this)"><span class="nav-icon">📦</span> Packages</div>
+    <div class="nav-item" id="navReports" onclick="handleLockedClick('reports', this)"><span class="nav-icon">📈</span> Ripoti <span class="lock-icon" id="lockReports">🔒</span></div>
+    <div class="nav-item" id="navApi" onclick="handleLockedClick('api', this)"><span class="nav-icon">🔗</span> API Access <span class="lock-icon" id="lockApi">🔒</span></div>
     <div class="nav-item" onclick="showPage('settings', this)"><span class="nav-icon">⚙️</span> Mipangilio</div>
 
     <div class="sidebar-footer">
@@ -424,6 +487,9 @@
         </div>
         <button class="logout-btn" onclick="logout()" title="Toka">🚪</button>
       </div>
+      <a class="whatsapp-btn" href="https://wa.me/255695745084?text=Habari%20WifiPesa%2C%20ninahitaji%20msaada%20na%20akaunti%20yangu." target="_blank">
+        💬 Msaada wa WhatsApp
+      </a>
     </div>
   </aside>
 
@@ -445,6 +511,16 @@
 
       <!-- OVERVIEW -->
       <div class="page active" id="page-overview">
+        <div id="upgradeBanner" style="display:none;">
+          <div class="upgrade-banner">
+            <div>
+              <h3>Panda Mpango Wako 🚀</h3>
+              <p id="upgradeMsg">Panda ili upate vipengele zaidi na kukua biashara yako.</p>
+            </div>
+            <a class="btn-upgrade" href="https://wa.me/255695745084?text=Nataka%20kupanda%20mpango%20wangu%20wa%20WifiPesa." target="_blank">Panda Mpango</a>
+          </div>
+        </div>
+
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-label">Mapato Yote</div>
@@ -462,9 +538,12 @@
             <div class="stat-sub">Online</div>
           </div>
           <div class="stat-card">
-            <div class="stat-label">Packages</div>
-            <div class="stat-value" id="totalPackages">0</div>
-            <div class="stat-sub">Zilizowekwa</div>
+            <div class="stat-label" id="limitLabel">Matumizi</div>
+            <div class="stat-value" id="usageValue">0</div>
+            <div class="stat-sub" id="usageLimit"></div>
+            <div class="usage-bar" id="usageBarWrap" style="display:none;">
+              <div class="usage-fill" id="usageFill"></div>
+            </div>
           </div>
         </div>
 
@@ -474,9 +553,7 @@
               <span class="card-title">Malipo ya Hivi Karibuni</span>
               <button class="card-action" onclick="showPage('payments', null)">Ona Yote</button>
             </div>
-            <div id="recentPaymentsList">
-              <div class="loading-spinner"><div class="spinner"></div></div>
-            </div>
+            <div id="recentPaymentsList"><div class="spinner"></div></div>
           </div>
 
           <div class="dash-card">
@@ -484,9 +561,7 @@
               <span class="card-title">Watumiaji Waliounganika</span>
               <span id="activeCount" style="font-size:0.8rem; color:var(--green); font-weight:700;">0 Online</span>
             </div>
-            <div id="activeSessionsList">
-              <div class="loading-spinner"><div class="spinner"></div></div>
-            </div>
+            <div class="users-list" id="activeSessionsList"><div class="spinner"></div></div>
           </div>
         </div>
       </div>
@@ -494,12 +569,8 @@
       <!-- PAYMENTS -->
       <div class="page" id="page-payments">
         <div class="dash-card">
-          <div class="card-header">
-            <span class="card-title">Malipo Yote</span>
-          </div>
-          <div id="allPaymentsList">
-            <div class="loading-spinner"><div class="spinner"></div></div>
-          </div>
+          <div class="card-header"><span class="card-title">Malipo Yote</span></div>
+          <div id="allPaymentsList"><div class="spinner"></div></div>
         </div>
       </div>
 
@@ -510,18 +581,50 @@
             <span class="card-title">Watumiaji Waliounganika</span>
             <button class="card-action" onclick="loadSessions()">Refresh</button>
           </div>
-          <div class="users-list" id="sessionsList">
-            <div class="loading-spinner"><div class="spinner"></div></div>
-          </div>
+          <div class="users-list" id="sessionsList"><div class="spinner"></div></div>
         </div>
       </div>
 
       <!-- PACKAGES -->
       <div class="page" id="page-packages">
-        <div class="packages-grid" id="packagesGrid">
-          <div class="loading-spinner"><div class="spinner"></div></div>
-        </div>
+        <div class="packages-grid" id="packagesGrid"><div class="spinner"></div></div>
         <button class="add-pkg-btn" onclick="openModal()">+ Ongeza Package Mpya</button>
+      </div>
+
+      <!-- REPORTS - Business & Pro only -->
+      <div class="page" id="page-reports">
+        <div class="locked-page" id="reportsLocked" style="display:none;">
+          <div class="lock-big">📈</div>
+          <h2>Ripoti za Kina</h2>
+          <p>Ripoti za kina zinapatikana kwa Mpango wa Biashara na Mtaalamu tu. Panda mpango wako leo upate uchambuzi kamili wa biashara yako.</p>
+          <a class="btn-upgrade" href="https://wa.me/255695745084?text=Nataka%20kupanda%20mpango%20wangu%20ili%20nipate%20ripoti%20za%20kina." target="_blank">Panda Mpango Sasa</a>
+        </div>
+        <div id="reportsContent" style="display:none;">
+          <div class="dash-card">
+            <div class="card-header"><span class="card-title">Ripoti za Mapato</span></div>
+            <p style="color:var(--muted); font-size:0.9rem;">Ripoti za kina zitaongezwa hivi karibuni.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- API - Pro only -->
+      <div class="page" id="page-api">
+        <div class="locked-page" id="apiLocked" style="display:none;">
+          <div class="lock-big">🔗</div>
+          <h2>API Access</h2>
+          <p>API Access inapatikana kwa Mpango wa Mtaalamu tu. Panda mpango wako leo ujumuishe WifiPesa na mifumo yako mingine.</p>
+          <a class="btn-upgrade" href="https://wa.me/255695745084?text=Nataka%20mpango%20wa%20Mtaalamu%20wa%20WifiPesa%20ili%20nipate%20API%20Access." target="_blank">Panda Mpango wa Mtaalamu</a>
+        </div>
+        <div id="apiContent" style="display:none;">
+          <div class="dash-card" style="margin-bottom:16px;">
+            <div class="card-header"><span class="card-title">API Keys Zako</span></div>
+            <div class="api-card">
+              <div style="font-size:0.85rem; font-weight:600; margin-bottom:8px;">API Key</div>
+              <div class="api-key" id="apiKey">Inapakia...</div>
+              <button class="copy-btn" onclick="copyApiKey()">📋 Nakala</button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- SETTINGS -->
@@ -543,9 +646,17 @@
           </div>
           <div class="form-group">
             <label>Ujumbe wa Portal</label>
-            <input type="text" id="settingsPortalMsg" placeholder="Ujumbe utakaoonekana kwa watumiaji" />
+            <input type="text" id="settingsPortalMsg" placeholder="Ujumbe kwa watumiaji wako" />
           </div>
           <button class="btn-save" onclick="saveSettings()">Hifadhi Mabadiliko</button>
+        </div>
+
+        <div class="settings-section">
+          <h3>Msaada wa Haraka</h3>
+          <p style="font-size:0.85rem; color:var(--muted); margin-bottom:16px;">Una swali au tatizo? Wasiliana nasi moja kwa moja kupitia WhatsApp.</p>
+          <a class="whatsapp-btn" href="https://wa.me/255695745084?text=Habari%20WifiPesa%2C%20ninahitaji%20msaada." target="_blank" style="display:inline-flex; width:auto;">
+            💬 Ongea Nasi WhatsApp
+          </a>
         </div>
       </div>
 
@@ -589,8 +700,8 @@
     const API = '';
     let token = localStorage.getItem('token');
     let clientData = JSON.parse(localStorage.getItem('client') || '{}');
+    let currentPlan = 'free';
 
-    // Angalia kama mtumiaji ameingia
     if (!token) window.location.href = '/wifipesa-auth.html';
 
     const headers = () => ({
@@ -598,17 +709,83 @@
       'Authorization': `Bearer ${token}`
     });
 
-    // Weka taarifa za client kwenye sidebar
-    function setClientInfo(client) {
-      const name = `${client.firstName} ${client.lastName}`;
-      const initials = `${client.firstName[0]}${client.lastName[0]}`.toUpperCase();
-      document.getElementById('sidebarAvatar').textContent = initials;
-      document.getElementById('sidebarName').textContent = name;
-      document.getElementById('sidebarPlan').textContent = `Mpango: ${client.plan === 'free' ? 'Mwanzo' : client.plan === 'business' ? 'Biashara' : 'Mtaalamu'}`;
-      document.getElementById('clientBizName').textContent = client.businessName || 'WifiPesa Dashboard';
+    const planNames = { free: 'Mwanzo', business: 'Biashara', pro: 'Mtaalamu' };
+
+    function setupPlanFeatures(plan) {
+      currentPlan = plan;
+      const chip = document.getElementById('planChip');
+      chip.textContent = planNames[plan] || plan;
+      chip.className = `plan-chip ${plan}`;
+
+      // Weka vipengele kulingana na plan
+      if (plan === 'free') {
+        document.getElementById('lockReports').style.display = 'block';
+        document.getElementById('lockApi').style.display = 'block';
+        document.getElementById('navReports').classList.add('locked');
+        document.getElementById('navApi').classList.add('locked');
+
+        document.getElementById('upgradeBanner').style.display = 'block';
+        document.getElementById('upgradeMsg').textContent = 'Uko kwenye Mpango wa Mwanzo. Panda kwenye Biashara ili upate hotspots 5 na watumiaji wasiokoma.';
+
+        document.getElementById('limitLabel').textContent = 'Watumiaji Mwezi';
+        document.getElementById('usageLimit').textContent = '/ 50 kikomo';
+        document.getElementById('usageBarWrap').style.display = 'block';
+
+      } else if (plan === 'business') {
+        document.getElementById('lockReports').style.display = 'none';
+        document.getElementById('lockApi').style.display = 'block';
+        document.getElementById('navReports').classList.remove('locked');
+        document.getElementById('navApi').classList.add('locked');
+
+        document.getElementById('upgradeBanner').style.display = 'block';
+        document.getElementById('upgradeMsg').textContent = 'Panda kwenye Mpango wa Mtaalamu ili upate API Access, hotspots zisizo na mipaka na msaada 24/7.';
+
+        document.getElementById('limitLabel').textContent = 'Hotspots';
+        document.getElementById('usageValue').textContent = '5';
+        document.getElementById('usageLimit').textContent = 'Zilizoidhinishwa';
+
+      } else if (plan === 'pro') {
+        document.getElementById('lockReports').style.display = 'none';
+        document.getElementById('lockApi').style.display = 'none';
+        document.getElementById('navReports').classList.remove('locked');
+        document.getElementById('navApi').classList.remove('locked');
+
+        document.getElementById('upgradeBanner').style.display = 'none';
+
+        document.getElementById('limitLabel').textContent = 'Hotspots';
+        document.getElementById('usageValue').textContent = '∞';
+        document.getElementById('usageLimit').textContent = 'Zisizo na Mipaka';
+
+        document.getElementById('apiKey').textContent = `wfp_${token.slice(0, 32)}...`;
+      }
     }
 
-    // Load profile
+    function handleLockedClick(page, navEl) {
+      if (navEl.classList.contains('locked')) {
+        const messages = {
+          reports: 'Ripoti za kina zinahitaji Mpango wa Biashara au Mtaalamu.',
+          api: 'API Access inahitaji Mpango wa Mtaalamu.'
+        };
+        showPage(page, navEl);
+        return;
+      }
+      showPage(page, navEl);
+    }
+
+    function setClientInfo(client) {
+      const name = `${client.firstName || ''} ${client.lastName || ''}`.trim();
+      const initials = `${(client.firstName || 'W')[0]}${(client.lastName || 'P')[0]}`.toUpperCase();
+      document.getElementById('sidebarAvatar').textContent = initials;
+      document.getElementById('sidebarName').textContent = name || 'Mtumiaji';
+      document.getElementById('sidebarPlan').textContent = planNames[client.plan] || 'Mwanzo';
+      document.getElementById('clientBizName').textContent = client.businessName || 'WifiPesa Dashboard';
+      document.getElementById('settingsBizName').value = client.businessName || '';
+      document.getElementById('settingsMpesa').value = client.mpesaNumber || '';
+      document.getElementById('settingsAirtel').value = client.airtelNumber || '';
+      document.getElementById('settingsPortalMsg').value = client.portalMessage || '';
+      setupPlanFeatures(client.plan || 'free');
+    }
+
     async function loadProfile() {
       try {
         const res = await fetch(`${API}/api/auth/me`, { headers: headers() });
@@ -617,69 +794,52 @@
         clientData = data.client;
         localStorage.setItem('client', JSON.stringify(clientData));
         setClientInfo(clientData);
-
-        document.getElementById('settingsBizName').value = clientData.businessName || '';
-        document.getElementById('settingsMpesa').value = clientData.mpesaNumber || '';
-        document.getElementById('settingsAirtel').value = clientData.airtelNumber || '';
-        document.getElementById('settingsPortalMsg').value = clientData.portalMessage || '';
       } catch (err) {
         console.error('Profile error:', err);
       }
     }
 
-    // Load payments
     async function loadPayments() {
       try {
         const res = await fetch(`${API}/api/payments/my`, { headers: headers() });
         const data = await res.json();
         const payments = data.payments || [];
 
+        const totalRevenue = payments.filter(p => p.status === 'success').reduce((s, p) => s + p.amount, 0);
         document.getElementById('totalPayments').textContent = payments.length;
-        document.getElementById('totalRevenue').textContent = payments
-          .filter(p => p.status === 'success')
-          .reduce((sum, p) => sum + p.amount, 0)
-          .toLocaleString();
+        document.getElementById('totalRevenue').textContent = totalRevenue.toLocaleString();
+
+        if (currentPlan === 'free') {
+          const pct = Math.min((payments.length / 50) * 100, 100);
+          document.getElementById('usageValue').textContent = payments.length;
+          const fill = document.getElementById('usageFill');
+          fill.style.width = pct + '%';
+          fill.className = `usage-fill ${pct >= 90 ? 'danger' : pct >= 70 ? 'warning' : ''}`;
+        }
 
         const statusMap = { success: 'Imefaulu', pending: 'Inasubiri', failed: 'Imeshindwa' };
 
-        const recentHtml = payments.length === 0
+        const makeTable = (list) => list.length === 0
           ? '<div class="empty-state"><div>💰</div>Bado hakuna malipo.</div>'
           : `<table class="tx-table">
               <thead><tr><th>Simu</th><th>Package</th><th>Kiasi</th><th>Hali</th></tr></thead>
-              <tbody>${payments.slice(0, 5).map(p => `
+              <tbody>${list.map(p => `
                 <tr>
                   <td style="font-weight:600;">${p.userPhone}</td>
-                  <td>${p.package?.name || 'N/A'}</td>
-                  <td style="color:var(--green); font-weight:700;">${p.amount.toLocaleString()} TZS</td>
+                  <td style="font-size:0.82rem;">${p.package?.name || 'N/A'}</td>
+                  <td style="color:var(--green); font-weight:700; font-family:'Space Grotesk',sans-serif;">${p.amount.toLocaleString()} TZS</td>
                   <td><span class="tx-badge ${p.status}">${statusMap[p.status] || p.status}</span></td>
                 </tr>`).join('')}
               </tbody>
             </table>`;
 
-        document.getElementById('recentPaymentsList').innerHTML = recentHtml;
-
-        const allHtml = payments.length === 0
-          ? '<div class="empty-state"><div>💰</div>Bado hakuna malipo.</div>'
-          : `<table class="tx-table">
-              <thead><tr><th>Simu</th><th>Mtandao</th><th>Package</th><th>Kiasi</th><th>Hali</th></tr></thead>
-              <tbody>${payments.map(p => `
-                <tr>
-                  <td style="font-weight:600;">${p.userPhone}</td>
-                  <td style="font-size:0.82rem;">${p.method === 'mpesa' ? 'M-Pesa' : 'Airtel Money'}</td>
-                  <td>${p.package?.name || 'N/A'}</td>
-                  <td style="color:var(--green); font-weight:700;">${p.amount.toLocaleString()} TZS</td>
-                  <td><span class="tx-badge ${p.status}">${statusMap[p.status] || p.status}</span></td>
-                </tr>`).join('')}
-              </tbody>
-            </table>`;
-
-        document.getElementById('allPaymentsList').innerHTML = allHtml;
+        document.getElementById('recentPaymentsList').innerHTML = makeTable(payments.slice(0, 5));
+        document.getElementById('allPaymentsList').innerHTML = makeTable(payments);
       } catch (err) {
         console.error('Payments error:', err);
       }
     }
 
-    // Load sessions
     async function loadSessions() {
       try {
         const res = await fetch(`${API}/api/sessions/active`, { headers: headers() });
@@ -698,7 +858,7 @@
                 <div class="user-row-phone">${s.userPhone}</div>
                 <div class="user-row-pkg">${s.package} · ${s.method === 'mpesa' ? 'M-Pesa' : 'Airtel Money'}</div>
               </div>
-              <div class="user-row-time">${s.remainingMinutes} min iliyobaki</div>
+              <div class="user-row-time">${s.remainingMinutes} min</div>
               <button class="kick-btn" onclick="kickUser('${s.id}', this)">Toa</button>
             </div>`).join('');
 
@@ -709,7 +869,6 @@
       }
     }
 
-    // Kick user
     async function kickUser(sessionId, btn) {
       try {
         await fetch(`${API}/api/sessions/kick/${sessionId}`, { method: 'DELETE', headers: headers() });
@@ -720,16 +879,15 @@
       }
     }
 
-    // Load packages
     async function loadPackages() {
       try {
         const res = await fetch(`${API}/api/packages`, { headers: headers() });
         const data = await res.json();
         const packages = data.packages || [];
 
-        document.getElementById('totalPackages').textContent = packages.length;
+        document.getElementById('totalPackages') && (document.getElementById('totalPackages').textContent = packages.length);
 
-        const html = packages.length === 0
+        document.getElementById('packagesGrid').innerHTML = packages.length === 0
           ? '<div class="empty-state"><div>📦</div>Bado hakuna packages.</div>'
           : packages.map(p => `
             <div class="pkg-card">
@@ -738,78 +896,48 @@
                 <button class="pkg-toggle ${p.isActive ? '' : 'off'}" onclick="togglePackage('${p._id}', this)"></button>
               </div>
               <div class="pkg-price-big">${p.price.toLocaleString()} TZS</div>
-              <div class="pkg-duration">${p.durationMinutes < 60 ? p.durationMinutes + ' dakika' : p.durationMinutes / 60 + ' saa'} · ${p.speedLimit === 'unlimited' ? 'Bila kikomo' : p.speedLimit}</div>
-              <div>
-                <div class="pkg-stat-val">${p.totalSold}</div>
-                <div class="pkg-stat-label">Imeuliwa Jumla</div>
+              <div class="pkg-duration">${p.durationMinutes < 60 ? p.durationMinutes + ' dakika' : (p.durationMinutes / 60) + ' saa'} · ${p.speedLimit === 'unlimited' ? 'Bila kikomo' : p.speedLimit}</div>
+              <div style="margin-top:8px;">
+                <div style="font-family:'Space Grotesk',sans-serif; font-size:1.1rem; font-weight:700;">${p.totalSold}</div>
+                <div style="font-size:0.7rem; color:var(--muted);">Imeuliwa Jumla</div>
               </div>
             </div>`).join('');
-
-        document.getElementById('packagesGrid').innerHTML = html;
       } catch (err) {
         console.error('Packages error:', err);
       }
     }
 
-    // Toggle package
     async function togglePackage(id, btn) {
       const isActive = !btn.classList.contains('off');
       try {
-        await fetch(`${API}/api/packages/${id}`, {
-          method: 'PUT',
-          headers: headers(),
-          body: JSON.stringify({ isActive: !isActive })
-        });
+        await fetch(`${API}/api/packages/${id}`, { method: 'PUT', headers: headers(), body: JSON.stringify({ isActive: !isActive }) });
         btn.classList.toggle('off');
       } catch (err) {
         console.error('Toggle error:', err);
       }
     }
 
-    // Add package
     async function addPackage() {
       const name = document.getElementById('pkgName').value.trim();
       const price = parseInt(document.getElementById('pkgPrice').value);
       const durationMinutes = parseInt(document.getElementById('pkgDuration').value);
-
-      if (!name || !price) {
-        showModalAlert('Tafadhali jaza sehemu zote.');
-        return;
-      }
-
+      if (!name || !price) { showModalAlert('Tafadhali jaza sehemu zote.'); return; }
       try {
-        const res = await fetch(`${API}/api/packages`, {
-          method: 'POST',
-          headers: headers(),
-          body: JSON.stringify({ name, price, durationMinutes })
-        });
-
-        if (res.ok) {
-          closeModal();
-          loadPackages();
-        } else {
-          const data = await res.json();
-          showModalAlert(data.message);
-        }
-      } catch (err) {
-        showModalAlert('Hitilafu ya mtandao. Jaribu tena.');
-      }
+        const res = await fetch(`${API}/api/packages`, { method: 'POST', headers: headers(), body: JSON.stringify({ name, price, durationMinutes }) });
+        if (res.ok) { closeModal(); loadPackages(); }
+        else { const d = await res.json(); showModalAlert(d.message); }
+      } catch (err) { showModalAlert('Hitilafu ya mtandao.'); }
     }
 
-    // Save settings
     async function saveSettings() {
-      const bizName = document.getElementById('settingsBizName').value;
-      const mpesaNumber = document.getElementById('settingsMpesa').value;
-      const airtelNumber = document.getElementById('settingsAirtel').value;
-      const portalMessage = document.getElementById('settingsPortalMsg').value;
-
+      const body = {
+        businessName: document.getElementById('settingsBizName').value,
+        mpesaNumber: document.getElementById('settingsMpesa').value,
+        airtelNumber: document.getElementById('settingsAirtel').value,
+        portalMessage: document.getElementById('settingsPortalMsg').value
+      };
       try {
-        const res = await fetch(`${API}/api/clients/portal/settings`, {
-          method: 'PUT',
-          headers: headers(),
-          body: JSON.stringify({ businessName: bizName, mpesaNumber, airtelNumber, portalMessage })
-        });
-
+        const res = await fetch(`${API}/api/clients/portal/settings`, { method: 'PUT', headers: headers(), body: JSON.stringify(body) });
         const alert = document.getElementById('settingsAlert');
         if (res.ok) {
           alert.className = 'alert success';
@@ -820,9 +948,36 @@
           alert.className = 'alert error';
           alert.textContent = '⚠ Hitilafu. Jaribu tena.';
         }
-      } catch (err) {
-        console.error('Settings error:', err);
+      } catch (err) { console.error(err); }
+    }
+
+    function copyApiKey() {
+      const key = document.getElementById('apiKey').textContent;
+      navigator.clipboard.writeText(key);
+      alert('API Key imenakiliwa!');
+    }
+
+    function showPage(name, navEl) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById('page-' + name).classList.add('active');
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      if (navEl && !navEl.classList.contains('locked')) navEl.classList.add('active');
+
+      if (name === 'reports') {
+        const locked = currentPlan === 'free';
+        document.getElementById('reportsLocked').style.display = locked ? 'flex' : 'none';
+        document.getElementById('reportsContent').style.display = locked ? 'none' : 'block';
       }
+
+      if (name === 'api') {
+        const locked = currentPlan !== 'pro';
+        document.getElementById('apiLocked').style.display = locked ? 'flex' : 'none';
+        document.getElementById('apiContent').style.display = locked ? 'none' : 'block';
+      }
+
+      const titles = { overview: 'Muhtasari', payments: 'Malipo Yote', sessions: 'Watumiaji', packages: 'Packages', reports: 'Ripoti', api: 'API Access', settings: 'Mipangilio' };
+      document.getElementById('pageTitle').textContent = titles[name] || name;
+      if (window.innerWidth < 900) document.getElementById('sidebar').classList.remove('open');
     }
 
     function logout() {
@@ -831,54 +986,21 @@
       window.location.href = '/wifipesa-auth.html';
     }
 
-    function showPage(name, navEl) {
-      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-      document.getElementById('page-' + name).classList.add('active');
-      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-      if (navEl) navEl.classList.add('active');
-      const titles = { overview: 'Muhtasari', payments: 'Malipo Yote', sessions: 'Watumiaji', packages: 'Packages', settings: 'Mipangilio' };
-      document.getElementById('pageTitle').textContent = titles[name] || name;
-      if (window.innerWidth < 900) document.getElementById('sidebar').classList.remove('open');
-    }
-
-    function openModal() {
-      document.getElementById('modalOverlay').classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeModal() {
-      document.getElementById('modalOverlay').classList.remove('active');
-      document.body.style.overflow = '';
-      document.getElementById('pkgName').value = '';
-      document.getElementById('pkgPrice').value = '';
-    }
-
-    function closeModalOutside(e) {
-      if (e.target === document.getElementById('modalOverlay')) closeModal();
-    }
-
-    function showModalAlert(msg) {
-      const el = document.getElementById('modalAlert');
-      el.className = 'alert error';
-      el.textContent = '⚠ ' + msg;
-    }
+    function openModal() { document.getElementById('modalOverlay').classList.add('active'); document.body.style.overflow = 'hidden'; }
+    function closeModal() { document.getElementById('modalOverlay').classList.remove('active'); document.body.style.overflow = ''; document.getElementById('pkgName').value = ''; document.getElementById('pkgPrice').value = ''; }
+    function closeModalOutside(e) { if (e.target === document.getElementById('modalOverlay')) closeModal(); }
+    function showModalAlert(msg) { const el = document.getElementById('modalAlert'); el.className = 'alert error'; el.textContent = '⚠ ' + msg; }
 
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
-    // Weka client info mara moja kutoka localStorage
     if (clientData.firstName) setClientInfo(clientData);
 
-    // Load data zote
     loadProfile();
     loadPayments();
     loadSessions();
     loadPackages();
 
-    // Refresh kila dakika 1
-    setInterval(() => {
-      loadSessions();
-      loadPayments();
-    }, 60000);
+    setInterval(() => { loadSessions(); loadPayments(); }, 60000);
   </script>
 </body>
 </html>
