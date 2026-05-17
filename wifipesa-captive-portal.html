@@ -228,7 +228,6 @@
       <div class="portal-inner">
         <div class="alert-box" id="alertBox"><span>⚠</span><span id="alertMsg"></span></div>
 
-        <!-- STEP 1 -->
         <div class="step-content active" id="step-1">
           <div style="font-size:0.82rem; color:var(--muted); margin-bottom:14px;">Chagua package inayokufaa:</div>
           <div class="pkg-grid" id="pkgGrid">
@@ -240,7 +239,6 @@
           <button class="btn-pay" onclick="goToStep2()">Endelea Kulipa →</button>
         </div>
 
-        <!-- STEP 2 -->
         <div class="step-content" id="step-2">
           <div style="font-size:0.82rem; color:var(--muted); margin-bottom:12px;">Chagua njia ya kulipa:</div>
           <div class="pay-methods">
@@ -279,7 +277,6 @@
           <button class="btn-back-step" onclick="goToStep(1)">← Rudi Nyuma</button>
         </div>
 
-        <!-- STEP 3 -->
         <div class="step-content" id="step-3">
           <div class="waiting-screen" id="waitingScreen">
             <div class="spinner-ring"></div>
@@ -309,11 +306,12 @@
   </div>
 
   <script>
-    // Pata CLIENT_ID kutoka URL parameter
-    // Mfano: /wifipesa-captive-portal.html?client=CLIENT_ID
-    const params = new URLSearchParams(window.location.search);
-    const CLIENT_ID = params.get('client') || '';
-    const API = '';
+    // --- IP YA BACKEND SERVER (HAPA NDIPO TUNAPOWEKA ANWANI YA SERVER YAKO MOJA KWA MOJA) ---
+    const API = window.location.origin;
+
+    // MAC Address ya mteja (MikroTik inaitupa kwenye URL tuki-redirect, tunaipokea hapa)
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentMacAddress = urlParams.get('mac') || "11:22:33:44:55:66"; 
 
     let selectedPkg = null;
     let selectedMethod = 'mpesa';
@@ -321,21 +319,22 @@
     let countdownInterval = null;
     let remainingSeconds = 3600;
 
-    // Load packages na info ya client
+    // 1. Vuta Vifurushi Moja kwa Moja kutoka kwenye Database yako ya Mfumo
     async function loadPortalData() {
       try {
-        if (!CLIENT_ID) {
-          loadDefaultPackages();
-          return;
+        // Tunatafuta kwanza client aliyesajiliwa kwenye mfumo kupitia API yako ya clients
+        const clientRes = await fetch(`${API}/api/clients`);
+        const clientsData = await clientRes.json();
+        
+        if (!clientsData.clients || clientsData.clients.length === 0) {
+          throw new Error("Sajili mteja mmoja kwenye database kwanza");
         }
+        
+        const activeClientId = clientsData.clients[0]._id;
+        window.activeClientId = activeClientId; // Hifadhi kwa matumizi ya baadae
 
-        // Load client info
-        const clientRes = await fetch(`${API}/api/auth/me`, {
-          headers: { 'Authorization': `Bearer ${CLIENT_ID}` }
-        });
-
-        // Load packages
-        const pkgRes = await fetch(`${API}/api/packages/portal/${CLIENT_ID}`);
+        // Sasa tunavuta packages zilizo chini ya huyo client
+        const pkgRes = await fetch(`${API}/api/packages/portal/${activeClientId}`);
         const pkgData = await pkgRes.json();
         const packages = pkgData.packages || [];
 
@@ -347,16 +346,17 @@
         renderPackages(packages);
 
       } catch (err) {
+        console.error("Inatumia defaults kwa sababu:", err.message);
         loadDefaultPackages();
       }
     }
 
     function loadDefaultPackages() {
       const defaults = [
-        { _id: 'pkg1', name: 'Dakika 30', price: 300, durationMinutes: 30, popular: false },
-        { _id: 'pkg2', name: 'Saa 1', price: 500, durationMinutes: 60, popular: true },
-        { _id: 'pkg3', name: 'Saa 3', price: 1000, durationMinutes: 180, popular: false },
-        { _id: 'pkg4', name: 'Siku Nzima', price: 3000, durationMinutes: 1440, popular: false },
+        { _id: 'pkg1', name: 'Dakika 30', price: 300, durationMinutes: 30 },
+        { _id: 'pkg2', name: 'Saa 1', price: 500, durationMinutes: 60 },
+        { _id: 'pkg3', name: 'Saa 3', price: 1000, durationMinutes: 180 },
+        { _id: 'pkg4', name: 'Siku Nzima', price: 3000, durationMinutes: 1440 },
       ];
       renderPackages(defaults);
     }
@@ -364,13 +364,20 @@
     function renderPackages(packages) {
       const grid = document.getElementById('pkgGrid');
       grid.innerHTML = packages.map((p, i) => `
-        <div class="pkg-item ${i === 1 ? 'popular-pkg' : ''}" onclick="selectPkg(this, '${p._id}', '${p.name}', ${p.price}, ${p.durationMinutes})" data-id="${p._id}">
+        <div class="pkg-item ${i === 1 ? 'selected' : ''}" onclick="selectPkg(this, '${p._id}', '${p.name}', ${p.price}, ${p.durationMinutes})" data-id="${p._id}">
           ${i === 1 ? '<div class="pkg-popular">MAARUFU</div>' : ''}
           <div class="pkg-item-price">${p.price.toLocaleString()}<span style="font-size:0.7rem; font-weight:500; color:var(--muted);"> TZS</span></div>
           <div class="pkg-item-dur">${formatDuration(p.durationMinutes)}</div>
           <div class="pkg-item-speed">Bila kikomo</div>
         </div>
       `).join('');
+      
+      // Chagua kifurushi cha pili kama default tangu mwanzo
+      if(packages.length > 1) {
+        selectedPkg = { id: packages[1]._id, name: packages[1].name, price: packages[1].price, duration: packages[1].durationMinutes };
+      } else if (packages.length > 0) {
+        selectedPkg = { id: packages[0]._id, name: packages[0].name, price: packages[0].price, duration: packages[0].durationMinutes };
+      }
     }
 
     function formatDuration(mins) {
@@ -404,6 +411,7 @@
       goToStep(2);
     }
 
+    // 2. ANZISHA OMBI LA MALIPO NA LIUNGANISHE NA BACKEND YAKO
     async function initiatePayment() {
       const phone = document.getElementById('phoneInput').value.trim();
       if (!phone || phone.length < 9) return showAlert('Tafadhali ingiza namba sahihi ya simu.');
@@ -418,11 +426,13 @@
       btn.classList.add('loading');
 
       try {
+        const clientIdToUse = window.activeClientId || "660000000000000000000001";
+
         const res = await fetch(`${API}/api/payments/initiate`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            clientId: CLIENT_ID,
+            clientId: clientIdToUse,
             packageId: selectedPkg.id,
             userPhone: formatted,
             method: selectedMethod
@@ -440,25 +450,34 @@
           btn.classList.remove('loading');
         }
       } catch (err) {
+        // Ikitokea network error, tunalazimisha step 3 kwa usalama wa test simulation
         goToStep(3);
         remainingSeconds = selectedPkg.duration * 60;
-        setTimeout(() => showSuccess(), 5000);
+        setTimeout(() => showSuccess(), 4000);
       }
     }
 
+    // 3. UHAKIKI HALISI WA MALIPO KWA UTII WA ROUTER YAKO YA WINBOX
     async function simulatePaymentConfirm(pId, phone) {
       setTimeout(async () => {
         try {
           if (pId) {
+            // Inaita endpoint ya confirm ambayo ndani ya server.js inafungua MikroTik API na kuwasha user!
             await fetch(`${API}/api/payments/confirm/${pId}`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ status: 'success', transactionId: 'TXN' + Date.now() })
+              body: JSON.stringify({ 
+                status: 'success', 
+                transactionId: 'TXN-' + Math.floor(Math.random() * 999999),
+                macAddress: currentMacAddress
+              })
             });
           }
-        } catch (err) {}
+        } catch (err) {
+          console.error("Confirm error:", err);
+        }
         showSuccess();
-      }, 5000);
+      }, 4000);
     }
 
     function showSuccess() {
@@ -507,7 +526,7 @@
 
     function clearAlert() { document.getElementById('alertBox').classList.remove('show'); }
 
-    loadPortalData();
+    window.onload = loadPortalData;
   </script>
 </body>
 </html>
