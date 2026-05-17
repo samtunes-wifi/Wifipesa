@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { RouterOSClient } = require('routeros-client'); // <-- Sisi: Added library import safely
 
 dotenv.config();
 
@@ -13,6 +14,17 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname)));
+
+// ============================================================
+// MIKROTIK INTEGRATION CLIENT
+// ============================================================
+// Configured specifically for your VirtualBox Lab network settings
+const routerClient = new RouterOSClient({
+  host: '10.5.5.1',            // Your Host-Only / Loopback gateway IP
+  user: 'admin',               // Your MikroTik Admin username
+  password: 'wifipesa2026',    // The secure password you provided
+  port: 8728                   // Standard RouterOS API port we enabled
+});
 
 // ============================================================
 // MODELS
@@ -288,7 +300,7 @@ app.post('/api/payments/initiate', async (req, res) => {
 
 app.post('/api/payments/confirm/:paymentId', async (req, res) => {
   try {
-    const { status, transactionId } = req.body;
+    const { status, transactionId, macAddress } = req.body; // <-- Sisi: Added macAddress parameter from request body
     const payment = await Payment.findById(req.params.paymentId).populate('package');
     if (!payment) return res.status(404).json({ message: 'Malipo hayapatikani.' });
 
@@ -301,6 +313,33 @@ app.post('/api/payments/confirm/:paymentId', async (req, res) => {
       payment.sessionEnd = new Date(now.getTime() + payment.package.durationMinutes * 60 * 1000);
       await Client.findByIdAndUpdate(payment.client, { $inc: { totalRevenue: payment.amount } });
       await Package.findByIdAndUpdate(payment.package._id, { $inc: { totalSold: 1 } });
+
+      // ============================================================
+      // SAFE MIKROTIK TRIGGER INSIDE SUCCESS BLOCK
+      // ============================================================
+      // This will send the MAC address profile activation command to port 8728
+      if (macAddress) {
+        try {
+          console.log(`[MikroTik] Malipo yamehakikishwa kwa ${payment.userPhone}. Inatengeneza hotspot user...`);
+          const api = await routerClient.connect();
+          
+          await api.menu('/ip/hotspot/user').add({
+            name: macAddress,
+            password: 'password123', // User can use this or automatically log in via MAC cookie
+            profile: 'default',      // Maps to profiles configuration in WinBox
+            comment: `Paid via ${payment.method.toUpperCase()}: ${payment.userPhone}`
+          });
+          
+          await api.close();
+          console.log(`[MikroTik] Mtumiaji mwenye MAC ${macAddress} amewashwa kwenye router.`);
+        } catch (routerErr) {
+          // Wrapped in a catch block so even if your router is offline, your main Node.js code/database won't crash!
+          console.error('[MikroTik API Error] Imeshindwa kuwasiliana na router:', routerErr.message);
+        }
+      } else {
+        console.log(`[MikroTik Warning] Malipo yamefaulu ila hakuna 'macAddress' iliyotumwa kwenye request.`);
+      }
+      // ============================================================
     }
 
     await payment.save();
