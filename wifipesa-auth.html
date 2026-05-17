@@ -679,7 +679,6 @@
 
   <div class="auth-wrapper">
 
-    <!-- LEFT PANEL -->
     <div class="left-panel">
       <div class="left-glow"></div>
       <div class="left-badge">Mfumo wa Tanzania</div>
@@ -705,30 +704,24 @@
       </div>
     </div>
 
-    <!-- RIGHT PANEL -->
     <div class="right-panel">
       <div class="auth-box">
 
-        <!-- TABS -->
         <div class="auth-tabs">
           <button class="auth-tab active" id="tab-register" onclick="switchTab('register')">Jisajili</button>
           <button class="auth-tab" id="tab-login" onclick="switchTab('login')">Ingia</button>
         </div>
 
-        <!-- ALERT -->
         <div class="alert" id="authAlert"></div>
 
-        <!-- ============ REGISTER FORM ============ -->
         <div class="auth-form active" id="form-register">
 
-          <!-- STEP INDICATOR -->
           <div class="step-indicator">
             <div class="step-dot active" id="dot-1"></div>
             <div class="step-dot" id="dot-2"></div>
             <div class="step-dot" id="dot-3"></div>
           </div>
 
-          <!-- SUCCESS STATE -->
           <div class="success-state" id="successState">
             <div class="success-icon">🎉</div>
             <h2>Umefanikiwa!</h2>
@@ -738,7 +731,6 @@
             </button>
           </div>
 
-          <!-- STEP 1: Personal Info -->
           <div class="reg-step active" id="step-1">
             <div class="form-title">Habari Zako</div>
             <div class="form-subtitle">Tuanze na maelezo yako ya msingi.</div>
@@ -798,7 +790,6 @@
             <button class="btn-next" onclick="goStep(2)">Endelea →</button>
           </div>
 
-          <!-- STEP 2: Business Info -->
           <div class="reg-step" id="step-2">
             <div class="form-title">Biashara Yako</div>
             <div class="form-subtitle">Sasa tuandike maelezo ya hotspot yako.</div>
@@ -860,7 +851,6 @@
             </div>
           </div>
 
-          <!-- STEP 3: Package -->
           <div class="reg-step" id="step-3">
             <div class="form-title">Chagua Mpango</div>
             <div class="form-subtitle">Unaweza kubadilisha wakati wowote baadaye.</div>
@@ -884,14 +874,13 @@
             <div class="step-nav">
               <button class="btn-back" onclick="goStep(2)">← Rudi</button>
               <button class="btn-next" id="submitBtn" onclick="submitRegister()" style="flex:2;">
-                <span>Tengeneza Akaunti</span>
+                <span id="submitBtnText">Tengeneza Akaunti</span>
               </button>
             </div>
           </div>
 
         </div>
 
-        <!-- ============ LOGIN FORM ============ -->
         <div class="auth-form" id="form-login">
           <div class="form-title">Karibu Tena</div>
           <div class="form-subtitle">Ingia kwenye akaunti yako ya WifiPesa.</div>
@@ -997,82 +986,128 @@
       selectedPkg = pkg;
     }
 
+    // =======================================================
+    // SYSTEM YA MALIPO YA STK PUSH NA UHAKIKI WA USAJILI
+    // =======================================================
     async function submitRegister() {
-  if (!selectedPkg) return showAlert('Tafadhali chagua package kwanza.');
-  if (!document.getElementById('terms').checked) return showAlert('Tafadhali kubali masharti.');
+      if (!selectedPkg) return showAlert('error', 'Tafadhali chagua package kwanza.');
+      if (!document.getElementById('terms').checked) return showAlert('error', 'Tafadhali kubali masharti.');
 
-  const btn = document.getElementById('submitBtn');
-  btn.textContent = 'Inaendelea...';
-  btn.disabled = true;
+      const btn = document.getElementById('submitBtn');
+      const btnText = document.getElementById('submitBtnText');
+      btnText.textContent = '🔄 Inatuma ombi la malipo...';
+      btn.disabled = true;
 
-  const data = {
-    firstName: document.getElementById('firstName').value,
-    lastName: document.getElementById('lastName').value,
-    phone: document.getElementById('phone').value,
-    password: document.getElementById('regPassword').value,
-    businessName: document.getElementById('bizName').value,
-    region: document.getElementById('region').value,
-    routerType: document.getElementById('routerType').value,
-    location: document.getElementById('location').value,
-    network: document.getElementById('network').value,
-    plan: selectedPkg
-  };
+      const data = {
+        firstName: document.getElementById('firstName').value,
+        lastName: document.getElementById('lastName').value,
+        phone: document.getElementById('phone').value.trim(),
+        password: document.getElementById('regPassword').value,
+        businessName: document.getElementById('bizName').value,
+        region: document.getElementById('region').value,
+        routerType: document.getElementById('routerType').value,
+        location: document.getElementById('location').value,
+        network: document.getElementById('network').value,
+        plan: selectedPkg
+      };
 
-  try {
-    const res = await fetch('/api/auth/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-    const result = await res.json();
-    if (res.ok) {
-      localStorage.setItem('token', result.token);
-      localStorage.setItem('client', JSON.stringify(result.client));
-      document.getElementById('step-3').classList.remove('active');
-      document.getElementById('successState').classList.add('active');
-      document.getElementById('successPhone').textContent = data.phone;
-      document.querySelector('.step-indicator').style.display = 'none';
-    } else {
-      showAlert(result.message);
-      btn.textContent = 'Tengeneza Akaunti';
-      btn.disabled = false;
+      try {
+        // Tunatuma data za kwanza kuanzisha STK Push ya malipo
+        const res = await fetch('/api/auth/initiate-signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        const result = await res.json();
+        
+        if (result.success) {
+          const tempTxnId = result.transactionId;
+          // Anza kusubiri PIN hapa hapa
+          anzaKuhakikiMalipo(tempTxnId, data, btn, btnText);
+        } else {
+          showAlert('error', result.message || 'Kuna hitilafu imetokea kwenye mfumo wa malipo.');
+          btnText.textContent = 'Tengeneza Akaunti';
+          btn.disabled = false;
+        }
+      } catch (err) {
+        showAlert('error', 'Hitilafu ya mtandao imetokea. Jaribu tena.');
+        btnText.textContent = 'Tengeneza Akaunti';
+        btn.disabled = false;
+      }
     }
-  } catch (err) {
-    showAlert('Hitilafu ya mtandao. Jaribu tena.');
-    btn.textContent = 'Tengeneza Akaunti';
-    btn.disabled = false;
-  }
-}
 
+    function anzaKuhakikiMalipo(transactionId, dataZaMteja, btn, btnText) {
+      btnText.textContent = '📱 Weka PIN ya malipo kwenye simu...';
+      showAlert('success', 'Ujumbe wa malipo (STK Push) umetumwa. Tafadhali weka PIN kukamilisha usajili.');
+
+      const mzunguko = setInterval(async () => {
+        try {
+          const res = await fetch(`/api/auth/verify-payment/${transactionId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dataZaMteja)
+          });
+          const result = await res.json();
+
+          if (result.success) {
+            clearInterval(mzunguko); // Komesha mzunguko
+            localStorage.setItem('token', result.token);
+            localStorage.setItem('client', JSON.stringify(result.client));
+            
+            // Washa ule muonekano wako mzuri wa mafanikio (Success State)
+            document.getElementById('step-3').classList.remove('active');
+            document.getElementById('successState').classList.add('active');
+            document.getElementById('successPhone').textContent = dataZaMteja.phone;
+            document.querySelector('.step-indicator').style.display = 'none';
+            clearAlert();
+          } 
+          else if (result.status === 'FAILED') {
+            clearInterval(mzunguko);
+            showAlert('error', 'Malipo yamefeli! Labda umesitisha muamala au salio halitoshi.');
+            btnText.textContent = 'Tengeneza Akaunti';
+            btn.disabled = false;
+          }
+        } catch (err) {
+          console.log("Inasubiri majibu ya mtandao...");
+        }
+      }, 3000); // Inakagua kila baada ya sekunde 3
+    }
+
+    // =======================================================
+    // SYSTEM YA KUINGIA (LOGIN) NA UHAKIKI WA DATABASE
+    // =======================================================
     async function submitLogin() {
-  const phone = document.getElementById('loginPhone').value.trim();
-  const pass = document.getElementById('loginPassword').value;
-  if (!phone) return showAlert('Tafadhali ingiza namba ya simu.');
-  if (!pass) return showAlert('Tafadhali ingiza nenosiri lako.');
+      const phone = document.getElementById('loginPhone').value.trim();
+      const pass = document.getElementById('loginPassword').value;
+      if (!phone) return showAlert('error', 'Tafadhali ingiza namba ya simu.');
+      if (!pass) return showAlert('error', 'Tafadhali ingiza nenosiri lako.');
 
-  const btn = document.getElementById('loginBtn');
-  btn.classList.add('loading');
+      const btn = document.getElementById('loginBtn');
+      btn.classList.add('loading');
+      clearAlert();
 
-  try {
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone, password: pass })
-    });
-    const result = await res.json();
-    if (res.ok) {
-      localStorage.setItem('token', result.token);
-      localStorage.setItem('client', JSON.stringify(result.client));
-      window.location.href = '/wifipesa-dashboard.html';
-    } else {
-      showAlert(result.message);
-      btn.classList.remove('loading');
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone, password: pass })
+        });
+        const result = await res.json();
+        
+        if (res.ok) {
+          localStorage.setItem('token', result.token);
+          localStorage.setItem('client', JSON.stringify(result.client));
+          window.location.href = '/wifipesa-dashboard.html';
+        } else {
+          // Kama akaunti haipo au nenosiri ni la uongo, inatupa ujumbe hapa hapa
+          showAlert('error', result.message || 'Namba ya simu au nenosiri sio sahihi!');
+          btn.classList.remove('loading');
+        }
+      } catch (err) {
+        showAlert('error', 'Hitilafu ya mtandao wa server. Jaribu tena baada ya muda.');
+        btn.classList.remove('loading');
+      }
     }
-  } catch (err) {
-    showAlert('Hitilafu ya mtandao. Jaribu tena.');
-    btn.classList.remove('loading');
-  }
-}
 
     function togglePassword(id, btn) {
       const input = document.getElementById(id);
