@@ -286,4 +286,897 @@
         window.onload = fetchAvailablePackages;
     </script>
 </body>
+</html><!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WifiPesa - Mfumo wa WiFi Hotspot Tanzania</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;800&family=Sora:wght@300;400;600;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --green: #00c853;
+      --green-dark: #009624;
+      --green-glow: #00c85344;
+      --bg: #050f0a;
+      --bg2: #0a1a10;
+      --card: #0d2016;
+      --border: #1a3a28;
+      --text: #e8f5e9;
+      --muted: #7aad8a;
+      --accent: #ffe600;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Sora', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* NOISE TEXTURE OVERLAY */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 100;
+      padding: 18px 5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(5, 15, 10, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 800;
+      font-size: 1.5rem;
+      letter-spacing: -1px;
+      color: var(--text);
+    }
+
+    .logo span {
+      color: var(--green);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--text); }
+
+    .nav-cta {
+      background: var(--green);
+      color: #000 !important;
+      padding: 10px 22px;
+      border-radius: 8px;
+      font-weight: 700 !important;
+      transition: background 0.2s, transform 0.1s !important;
+    }
+
+    .nav-cta:hover {
+      background: #00e564 !important;
+      transform: translateY(-1px);
+    }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 120px 5% 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-glow {
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, var(--green-glow) 0%, transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      animation: pulse 4s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
+      50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 200, 83, 0.12);
+      border: 1px solid var(--green);
+      border-radius: 100px;
+      padding: 6px 16px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--green);
+      margin-bottom: 32px;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    .hero-badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: blink 1.5s ease infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.2; }
+    }
+
+    h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2.8rem, 7vw, 5.5rem);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -2px;
+      margin-bottom: 24px;
+      animation: fadeUp 0.6s 0.1s ease both;
+    }
+
+    h1 em {
+      font-style: normal;
+      color: var(--green);
+    }
+
+    .hero-sub {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      color: var(--muted);
+      max-width: 560px;
+      line-height: 1.7;
+      margin-bottom: 48px;
+      font-weight: 300;
+      animation: fadeUp 0.6s 0.2s ease both;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+      animation: fadeUp 0.6s 0.3s ease both;
+    }
+
+    .btn-primary {
+      background: var(--green);
+      color: #000;
+      padding: 16px 36px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 1rem;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Sora', sans-serif;
+    }
+
+    .btn-primary:hover {
+      background: #00e564;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(0, 200, 83, 0.35);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text);
+      padding: 16px 36px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 1rem;
+      text-decoration: none;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Sora', sans-serif;
+    }
+
+    .btn-outline:hover {
+      border-color: var(--green);
+      color: var(--green);
+    }
+
+    /* STATS BAR */
+    .stats-bar {
+      display: flex;
+      justify-content: center;
+      gap: 60px;
+      padding: 48px 5%;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .stat {
+      text-align: center;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    .stat-num {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--green);
+      letter-spacing: -1px;
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* HOW IT WORKS */
+    section {
+      padding: 100px 5%;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 60px;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 24px;
+    }
+
+    .step {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 36px 28px;
+      position: relative;
+      transition: border-color 0.3s, transform 0.3s;
+    }
+
+    .step:hover {
+      border-color: var(--green);
+      transform: translateY(-4px);
+    }
+
+    .step-num {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 3rem;
+      font-weight: 800;
+      color: var(--border);
+      line-height: 1;
+      margin-bottom: 20px;
+    }
+
+    .step h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .step p {
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* FEATURES */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .feature-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      transition: all 0.3s;
+    }
+
+    .feature-card:hover {
+      border-color: var(--green);
+      box-shadow: 0 0 32px rgba(0, 200, 83, 0.08);
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(0, 200, 83, 0.12);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      margin-bottom: 20px;
+    }
+
+    .feature-card h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .feature-card p {
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* PRICING */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      align-items: start;
+    }
+
+    .price-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px 32px;
+      transition: all 0.3s;
+    }
+
+    .price-card.featured {
+      border-color: var(--green);
+      background: linear-gradient(135deg, var(--card), rgba(0, 200, 83, 0.06));
+      position: relative;
+    }
+
+    .price-card.featured::before {
+      content: 'MAARUFU';
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--green);
+      color: #000;
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 2px;
+      padding: 4px 14px;
+      border-radius: 100px;
+    }
+
+    .price-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .price-amount {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 3rem;
+      font-weight: 800;
+      letter-spacing: -2px;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .price-amount span {
+      font-size: 1rem;
+      color: var(--muted);
+      font-weight: 400;
+      letter-spacing: 0;
+    }
+
+    .price-desc {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+
+    .price-features {
+      list-style: none;
+      margin-bottom: 32px;
+    }
+
+    .price-features li {
+      font-size: 0.88rem;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text);
+    }
+
+    .price-features li::before {
+      content: '✓';
+      color: var(--green);
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    /* CTA SECTION */
+    .cta-section {
+      text-align: center;
+      padding: 100px 5%;
+      background: linear-gradient(135deg, var(--bg2), var(--card));
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .cta-section h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      margin-bottom: 16px;
+    }
+
+    .cta-section p {
+      color: var(--muted);
+      font-size: 1rem;
+      margin-bottom: 40px;
+      max-width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* FOOTER */
+    footer {
+      padding: 48px 5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    footer p {
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    footer p span {
+      color: var(--green);
+    }
+
+    /* REGISTER MODAL */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(8px);
+    }
+
+    .modal-overlay.active { display: flex; }
+
+    .modal {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 480px;
+      margin: 20px;
+      position: relative;
+      animation: modalIn 0.3s ease;
+    }
+
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.95) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 1.5rem;
+      cursor: pointer;
+      line-height: 1;
+      transition: color 0.2s;
+    }
+
+    .modal-close:hover { color: var(--text); }
+
+    .modal h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+      letter-spacing: -0.5px;
+    }
+
+    .modal p {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 32px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .form-group input, .form-group select {
+      width: 100%;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      color: var(--text);
+      font-family: 'Sora', sans-serif;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus, .form-group select:focus {
+      border-color: var(--green);
+    }
+
+    .form-group select option {
+      background: var(--card);
+    }
+
+    .btn-submit {
+      width: 100%;
+      background: var(--green);
+      color: #000;
+      padding: 16px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 1rem;
+      border: none;
+      cursor: pointer;
+      font-family: 'Sora', sans-serif;
+      margin-top: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn-submit:hover {
+      background: #00e564;
+      transform: translateY(-1px);
+    }
+
+    .modal-footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .modal-footer a {
+      color: var(--green);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .stats-bar { gap: 32px; }
+      .modal { padding: 36px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="logo">Wifi<span>Pesa</span></div>
+    <ul class="nav-links">
+      <li><a href="#jinsi">Jinsi Inavyofanya Kazi</a></li>
+      <li><a href="#features">Vipengele</a></li>
+      <li><a href="#bei">Bei</a></li>
+      <li><a href="#" class="nav-cta" onclick="openModal()">Jisajili Sasa</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-glow"></div>
+    <div class="hero-badge">Mfumo #1 wa WiFi Hotspot Tanzania</div>
+    <h1>Uza <em>WiFi.</em><br>Pokea <em>Pesa.</em></h1>
+    <p class="hero-sub">WifiPesa inakusaidia kuunda biashara ya WiFi Hotspot na kupokea malipo ya M-Pesa na Airtel Money kwa haraka na urahisi.</p>
+    <div class="hero-buttons">
+      <button class="btn-primary" onclick="openModal()">Anza Bure Leo</button>
+      <a href="#jinsi" class="btn-outline">Jifunze Zaidi</a>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-bar">
+    <div class="stat">
+      <div class="stat-num">M-Pesa</div>
+      <div class="stat-label">Malipo Yanakubaliwa</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">Airtel</div>
+      <div class="stat-label">Money Inakubaliwa</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">24/7</div>
+      <div class="stat-label">Mfumo Unaofanya Kazi</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">5 min</div>
+      <div class="stat-label">Kuanza Kutumia</div>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <section id="jinsi">
+    <p class="section-label">Jinsi Inavyofanya Kazi</p>
+    <h2 class="section-title">Rahisi. Haraka. Faida.</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <h3>Jisajili na Sanidi</h3>
+        <p>Tengeneza akaunti yako ya WifiPesa. Ingiza jina la biashara, packages za WiFi, na bei unazotaka kuuza.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <h3>Unganisha Router Yako</h3>
+        <p>Sanidi router yako kutumia captive portal ya WifiPesa. Mtumiaji yeyote atakayeunganika ataona ukurasa wako wa malipo.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <h3>Mtumiaji Analipa</h3>
+        <p>Mtumiaji anachagua package, analipa kwa M-Pesa au Airtel Money. Mfumo unathibitisha malipo moja kwa moja.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <h3>WiFi Inafunguka</h3>
+        <p>Baada ya malipo kuthibitishwa, internet inafunguka kwa mtumiaji kwa muda wa package aliyolipa.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section id="features" style="background: var(--bg2); max-width: 100%; padding: 100px 5%;">
+    <div style="max-width:1200px; margin:0 auto;">
+      <p class="section-label">Vipengele</p>
+      <h2 class="section-title">Kila Kitu Unachohitaji</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">📱</div>
+          <h3>STK Push ya Moja Kwa Moja</h3>
+          <p>Mtumiaji analipa bila kuandika namba yoyote ya paybill. Ombi la malipo linakwenda simu yake moja kwa moja.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h3>Dashboard ya Mapato</h3>
+          <p>Ona mapato yako ya kila siku, wiki na mwezi. Jua packages zipi zinauza zaidi.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">⚙️</div>
+          <h3>Packages Zinazoweza Kubadilishwa</h3>
+          <p>Weka packages zako mwenyewe. Dakika 30, saa 1, saa 3, siku nzima, wiki nzima.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔒</div>
+          <h3>Usalama wa Juu</h3>
+          <p>Mtumiaji asiyelipia hawezi kupata internet. Mfumo unazuia otomatiki wakati session inaisha.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🌐</div>
+          <h3>Portal Yako Mwenyewe</h3>
+          <p>Kila mtumiaji wa WifiPesa ana portal yake na logo yake, rangi zake na jina lake la biashara.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📡</div>
+          <h3>Inafanya Kazi na Routers Nyingi</h3>
+          <p>Inafanya kazi na ZLT, Mikrotik, TP-Link na routers nyingi zinazouza Tanzania.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section id="bei">
+    <p class="section-label">Bei Zetu</p>
+    <h2 class="section-title">Chagua Mpango Wako</h2>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-name">Mwanzo</div>
+        <div class="price-amount">Bure <span>/ milele</span></div>
+        <div class="price-desc">Nzuri kwa kuanza na kujaribu mfumo.</div>
+        <ul class="price-features">
+          <li>Hotspot 1 tu</li>
+          <li>Watumiaji 50 kwa mwezi</li>
+          <li>M-Pesa na Airtel Money</li>
+          <li>Dashboard ya Msingi</li>
+        </ul>
+        <button class="btn-outline" style="width:100%; padding:14px; border-radius:10px; cursor:pointer; font-family:'Sora',sans-serif; font-size:0.95rem;" onclick="openModal()">Anza Bure</button>
+      </div>
+
+      <div class="price-card featured">
+        <div class="price-name">Biashara</div>
+        <div class="price-amount">20,000 <span>TZS / mwezi</span></div>
+        <div class="price-desc">Kwa biashara zinazokua na hotspots nyingi.</div>
+        <ul class="price-features">
+          <li>Hotspots 5</li>
+          <li>Watumiaji Wasiokoma</li>
+          <li>M-Pesa na Airtel Money</li>
+          <li>Dashboard ya Kina</li>
+          <li>Ripoti za Kila Siku</li>
+          <li>Msaada wa WhatsApp</li>
+        </ul>
+        <button class="btn-primary" style="width:100%;" onclick="openModal()">Chagua Mpango Huu</button>
+      </div>
+
+      <div class="price-card">
+        <div class="price-name">Mtaalamu</div>
+        <div class="price-amount">50,000 <span>TZS / mwezi</span></div>
+        <div class="price-desc">Kwa wauza mfumo na watoa huduma wa ISP.</div>
+        <ul class="price-features">
+          <li>Hotspots Zisizo na Mipaka</li>
+          <li>Watumiaji Wasiokoma</li>
+          <li>API Access</li>
+          <li>White Label (Logo Yako)</li>
+          <li>Msaada wa Haraka 24/7</li>
+          <li>Ufundi wa Setup</li>
+        </ul>
+        <button class="btn-outline" style="width:100%; padding:14px; border-radius:10px; cursor:pointer; font-family:'Sora',sans-serif; font-size:0.95rem;" onclick="openModal()">Wasiliana Nasi</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <div class="cta-section">
+    <h2>Anza Kupata Pesa<br>Leo Hii.</h2>
+    <p>Jisajili bure. Hakuna kadi ya benki inayohitajika. Anza kupata mapato kwa dakika 5.</p>
+    <button class="btn-primary" onclick="openModal()">Jisajili Sasa Hivi</button>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="logo">Wifi<span>Pesa</span></div>
+    <p>Imetengenezwa Tanzania <span>&#10084;</span> kwa Watanzania.</p>
+    <p style="color: var(--muted); font-size:0.8rem;">© 2025 WifiPesa. Haki zote zimehifadhiwa.</p>
+  </footer>
+
+  <!-- MODAL -->
+  <div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+    <div class="modal">
+      <button class="modal-close" onclick="closeModal()">×</button>
+      <h2>Anza na WifiPesa</h2>
+      <p>Tengeneza akaunti yako ya bure leo. Hakuna kadi ya benki.</p>
+
+      <div class="form-group">
+        <label>Jina Lako Kamili</label>
+        <input type="text" placeholder="Mfano: John Mbwana" />
+      </div>
+      <div class="form-group">
+        <label>Namba ya Simu</label>
+        <input type="tel" placeholder="+255 7XX XXX XXX" />
+      </div>
+      <div class="form-group">
+        <label>Jina la Biashara Yako</label>
+        <input type="text" placeholder="Mfano: Hotspot Mwanza" />
+      </div>
+      <div class="form-group">
+        <label>Aina ya Mtandao Wako</label>
+        <select>
+          <option value="">Chagua...</option>
+          <option>M-Pesa (Vodacom)</option>
+          <option>Airtel Money</option>
+          <option>Zote Mbili</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Nenosiri</label>
+        <input type="password" placeholder="Angalau herufi 8" />
+      </div>
+      <button class="btn-submit">Tengeneza Akaunti</button>
+      <div class="modal-footer">
+        Una akaunti tayari? <a href="#">Ingia hapa</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openModal() {
+      document.getElementById('modalOverlay').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function closeModalOutside(e) {
+      if (e.target === document.getElementById('modalOverlay')) closeModal();
+    }
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    // Animate stats on scroll
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(el => {
+        if (el.isIntersecting) el.target.style.animation = 'fadeUp 0.6s ease both';
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.step, .feature-card, .price-card').forEach(el => observer.observe(el));
+  </script>
+</body>
 </html>
