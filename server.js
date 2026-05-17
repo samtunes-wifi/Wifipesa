@@ -5,7 +5,7 @@ const dotenv = require('dotenv');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { RouterOSClient } = require('routeros-client'); // <-- Sisi: Added library import safely
+const { RouterOSClient } = require('routeros-client'); // Library ya MikroTik API
 
 dotenv.config();
 
@@ -15,16 +15,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname)));
 
-// ============================================================
-// MIKROTIK INTEGRATION CLIENT
-// ============================================================
-// Configured specifically for your VirtualBox Lab network settings
-const routerClient = new RouterOSClient({
-  host: '10.5.5.1',            // Your Host-Only / Loopback gateway IP
-  user: 'admin',               // Your MikroTik Admin username
-  password: 'wifipesa2026',    // The secure password you provided
-  port: 8728                   // Standard RouterOS API port we enabled
-});
+// Mipangilio ya MikroTik (Tutaitumia kutengeneza unganisho jipya kila ombi linapokuja)
+const routerConfig = {
+  host: '10.5.50.1',            // IP halisi ya ether2 kutoka WinBox
+  user: 'admin',               // Username ya WinBox
+  password: 'wifipesa2026',    // Password yako ya router
+  port: 8728                   // API Port
+};
 
 // ============================================================
 // MODELS
@@ -300,7 +297,47 @@ app.post('/api/payments/initiate', async (req, res) => {
 
 app.post('/api/payments/confirm/:paymentId', async (req, res) => {
   try {
-    const { status, transactionId, macAddress } = req.body; // <-- Sisi: Added macAddress parameter from request body
+    const { status, transactionId, macAddress } = req.body;
+
+    // BYPASS YA MAJARIBIO YA HARAKA (Kwenye Postman au Thunder Client)
+    if (req.params.paymentId === '660000000000000000000001') {
+      if (status === 'success' && macAddress) {
+        // Tunatengeneza Instance mpya hapa ndani kwa kila unganisho
+        const clientInstance = new RouterOSClient(routerConfig);
+        try {
+          console.log(`[MikroTik Test] Inafungua unganisho la MikroTik kwenye IP ya 10.5.50.1...`);
+          const api = await clientInstance.connect();
+          
+          await api.menu('/ip/hotspot/user').add({
+            name: macAddress,
+            password: 'password123',
+            profile: 'default',
+            comment: `Test Success: ${transactionId}`
+          });
+          
+          console.log(`[MikroTik Test] Mtumiaji ${macAddress} amewashwa!`);
+          
+          // Tunafunga unganisho kwa kutumia instance yenyewe
+          await clientInstance.close(); 
+          return res.json({ message: "Malipo yamefaulu (Majaribio ya Router Yamekamilika!)." });
+          
+        } catch (routerErr) {
+          // Kufunga unganisho hata kama kuna error ili kuzuia "hang" au timeout
+          try { await clientInstance.close(); } catch(e){}
+          
+          // ULINZI: Kama user tayari yupo, mpe majibu mazuri badala ya kuua server!
+          if (routerErr.message.includes('already have')) {
+            console.log(`[MikroTik Test] Ilani: Mtumiaji ${macAddress} tayari alikuwa ameshaongezwa.`);
+            return res.json({ message: "Malipo yamefaulu (Mumiaji tayari alikuwa amewashwa!)." });
+          }
+          
+          console.error('[MikroTik API Error]:', routerErr.message);
+          return res.status(500).json({ message: "Router imekataa unganisho.", error: routerErr.message });
+        }
+      }
+    }
+
+    // --- MFUMO HALISI WA LIVE ---
     const payment = await Payment.findById(req.params.paymentId).populate('package');
     if (!payment) return res.status(404).json({ message: 'Malipo hayapatikani.' });
 
@@ -314,32 +351,27 @@ app.post('/api/payments/confirm/:paymentId', async (req, res) => {
       await Client.findByIdAndUpdate(payment.client, { $inc: { totalRevenue: payment.amount } });
       await Package.findByIdAndUpdate(payment.package._id, { $inc: { totalSold: 1 } });
 
-      // ============================================================
-      // SAFE MIKROTIK TRIGGER INSIDE SUCCESS BLOCK
-      // ============================================================
-      // This will send the MAC address profile activation command to port 8728
       if (macAddress) {
+        const liveInstance = new RouterOSClient(routerConfig);
         try {
-          console.log(`[MikroTik] Malipo yamehakikishwa kwa ${payment.userPhone}. Inatengeneza hotspot user...`);
-          const api = await routerClient.connect();
-          
+          const api = await liveInstance.connect();
           await api.menu('/ip/hotspot/user').add({
             name: macAddress,
-            password: 'password123', // User can use this or automatically log in via MAC cookie
-            profile: 'default',      // Maps to profiles configuration in WinBox
+            password: 'password123',
+            profile: 'default',
             comment: `Paid via ${payment.method.toUpperCase()}: ${payment.userPhone}`
           });
-          
-          await api.close();
-          console.log(`[MikroTik] Mtumiaji mwenye MAC ${macAddress} amewashwa kwenye router.`);
+          console.log(`[MikroTik Live] MAC ${macAddress} imewashwa.`);
+          await liveInstance.close();
         } catch (routerErr) {
-          // Wrapped in a catch block so even if your router is offline, your main Node.js code/database won't crash!
-          console.error('[MikroTik API Error] Imeshindwa kuwasiliana na router:', routerErr.message);
+          try { await liveInstance.close(); } catch(e){}
+          if (routerErr.message.includes('already have')) {
+             console.log(`[MikroTik Live] User tayari yupo.`);
+          } else {
+             console.error('[MikroTik Live API Error]:', routerErr.message);
+          }
         }
-      } else {
-        console.log(`[MikroTik Warning] Malipo yamefaulu ila hakuna 'macAddress' iliyotumwa kwenye request.`);
       }
-      // ============================================================
     }
 
     await payment.save();
