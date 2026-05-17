@@ -284,6 +284,7 @@
     .usage-fill.danger { background: var(--red); }
 
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
 
     .dash-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; }
     .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
@@ -351,7 +352,6 @@
     .pkg-price-big { font-family: 'Space Grotesk', sans-serif; font-size: 2rem; font-weight: 800; letter-spacing: -1px; color: var(--green); margin-bottom: 4px; }
     .pkg-duration { font-size: 0.82rem; color: var(--muted); margin-bottom: 16px; }
 
-    /* PACKAGE EDIT BUTTONS */
     .pkg-actions { display: flex; gap: 8px; margin-top: 12px; }
 
     .btn-edit-pkg {
@@ -418,12 +418,7 @@
       flex-wrap: wrap;
     }
 
-    .portal-link-url {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 0.82rem;
-      color: var(--green);
-      word-break: break-all;
-    }
+    .portal-link-url { font-family: 'Space Grotesk', sans-serif; font-size: 0.82rem; color: var(--green); word-break: break-all; }
 
     .copy-link-btn {
       background: var(--green);
@@ -441,7 +436,49 @@
 
     .copy-link-btn:hover { background: #00e564; }
 
-    /* LOCKED PAGE */
+    /* ROUTER INTEGRATION */
+    .router-steps { display: flex; flex-direction: column; gap: 12px; }
+
+    .router-step {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      padding: 16px;
+      background: var(--card2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    .router-step-num {
+      width: 32px; height: 32px;
+      background: var(--green);
+      color: #000;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 800;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+
+    .router-step-info h4 { font-size: 0.9rem; font-weight: 700; margin-bottom: 4px; }
+    .router-step-info p { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+    .router-step-info code { background: var(--bg); border: 1px solid var(--border); padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; color: var(--green); font-family: monospace; }
+
+    /* REPORTS CHARTS */
+    .chart-bars { display: flex; align-items: flex-end; gap: 8px; height: 120px; }
+    .bar-group { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end; }
+    .bar { width: 100%; background: rgba(0,200,83,0.3); border-radius: 6px 6px 0 0; position: relative; cursor: pointer; }
+    .bar.today { background: var(--green); }
+    .bar-label { font-size: 0.68rem; color: var(--muted); }
+
+    /* API */
+    .api-card { background: var(--card2); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+    .api-key { font-family: 'Space Grotesk', sans-serif; font-size: 0.85rem; background: var(--bg); padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border); word-break: break-all; color: var(--green); margin: 10px 0; }
+
+    /* LOCKED */
     .locked-page {
       display: flex;
       flex-direction: column;
@@ -492,7 +529,6 @@
     .modal-confirm { flex: 2; background: var(--green); border: none; color: #000; padding: 12px; border-radius: 8px; cursor: pointer; font-family: 'Sora', sans-serif; font-size: 0.88rem; font-weight: 700; transition: all 0.2s; }
     .modal-confirm:hover { background: #00e564; }
 
-    /* ALERT */
     .alert { padding: 12px 16px; border-radius: 10px; font-size: 0.85rem; margin-bottom: 16px; display: none; align-items: center; gap: 10px; }
     .alert.success { background: rgba(0,200,83,0.12); border: 1px solid var(--green); color: var(--green); display: flex; }
     .alert.error { background: rgba(244,67,54,0.1); border: 1px solid var(--red); color: #ef9a9a; display: flex; }
@@ -503,13 +539,17 @@
     .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--green); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 40px auto; display: block; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* PRO FEATURES */
+    .pro-badge { background: rgba(255,230,0,0.12); color: var(--yellow); border: 1px solid var(--yellow); border-radius: 6px; padding: 2px 8px; font-size: 0.65rem; font-weight: 800; letter-spacing: 1px; }
+    .business-badge { background: rgba(0,200,83,0.12); color: var(--green); border: 1px solid var(--green); border-radius: 6px; padding: 2px 8px; font-size: 0.65rem; font-weight: 800; letter-spacing: 1px; }
+
     @media (max-width: 900px) {
       .sidebar { transform: translateX(-100%); }
       .sidebar.open { transform: translateX(0); }
       .main { margin-left: 0; }
       .mobile-menu-btn { display: flex; }
       .stats-grid { grid-template-columns: repeat(2, 1fr); }
-      .grid-2 { grid-template-columns: 1fr; }
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -528,6 +568,7 @@
 
     <div class="sidebar-section">Mfumo</div>
     <div class="nav-item" onclick="showPage('packages', this)"><span class="nav-icon">📦</span> Packages</div>
+    <div class="nav-item" onclick="showPage('router', this)"><span class="nav-icon">📡</span> Router Setup</div>
     <div class="nav-item" id="navReports" onclick="handleLockedClick('reports', this)"><span class="nav-icon">📈</span> Ripoti <span class="lock-icon" id="lockReports">🔒</span></div>
     <div class="nav-item" id="navApi" onclick="handleLockedClick('api', this)"><span class="nav-icon">🔗</span> API Access <span class="lock-icon" id="lockApi">🔒</span></div>
     <div class="nav-item" onclick="showPage('settings', this)"><span class="nav-icon">⚙️</span> Mipangilio</div>
@@ -563,13 +604,14 @@
 
     <div class="content">
 
-      <!-- OVERVIEW -->
+      <!-- ======= OVERVIEW ======= -->
       <div class="page active" id="page-overview">
+
         <div id="upgradeBanner" style="display:none;">
           <div class="upgrade-banner">
             <div>
               <h3>Panda Mpango Wako 🚀</h3>
-              <p id="upgradeMsg">Panda ili upate vipengele zaidi na kukua biashara yako.</p>
+              <p id="upgradeMsg">Panda ili upate vipengele zaidi.</p>
             </div>
             <a class="btn-upgrade" href="https://wa.me/255695745084?text=Nataka%20kupanda%20mpango%20wangu%20wa%20WifiPesa." target="_blank">Panda Mpango</a>
           </div>
@@ -601,7 +643,8 @@
           </div>
         </div>
 
-        <div class="grid-2">
+        <!-- FREE: Basic 2 cards -->
+        <div class="grid-2" id="overviewBasic">
           <div class="dash-card">
             <div class="card-header">
               <span class="card-title">Malipo ya Hivi Karibuni</span>
@@ -609,7 +652,6 @@
             </div>
             <div id="recentPaymentsList"><div class="spinner"></div></div>
           </div>
-
           <div class="dash-card">
             <div class="card-header">
               <span class="card-title">Watumiaji Waliounganika</span>
@@ -618,9 +660,32 @@
             <div class="users-list" id="activeSessionsList"><div class="spinner"></div></div>
           </div>
         </div>
+
+        <!-- BUSINESS+: Extra stats row -->
+        <div class="grid-3" id="overviewExtra" style="display:none;">
+          <div class="dash-card">
+            <div class="card-header"><span class="card-title">Mapato Wiki Hii</span><span class="business-badge">BIASHARA</span></div>
+            <div class="chart-bars" id="weekChart"></div>
+          </div>
+          <div class="dash-card">
+            <div class="card-header"><span class="card-title">Package Inayouza Zaidi</span></div>
+            <div id="topPackage" style="text-align:center; padding:20px;">
+              <div style="font-size:2rem; margin-bottom:8px;">📦</div>
+              <div style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:1.1rem;" id="topPkgName">Inapakia...</div>
+              <div style="color:var(--green); font-size:0.85rem;" id="topPkgSales">0 mauzo</div>
+            </div>
+          </div>
+          <div class="dash-card">
+            <div class="card-header"><span class="card-title">Hotspots Zangu</span></div>
+            <div style="text-align:center; padding:20px;">
+              <div style="font-family:'Space Grotesk',sans-serif; font-size:3rem; font-weight:800; color:var(--green);" id="hotspotCount">1</div>
+              <div style="color:var(--muted); font-size:0.85rem;" id="hotspotLimit">kati ya 5 zilizoidhinishwa</div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- PAYMENTS -->
+      <!-- ======= PAYMENTS ======= -->
       <div class="page" id="page-payments">
         <div class="dash-card">
           <div class="card-header"><span class="card-title">Malipo Yote</span></div>
@@ -628,7 +693,7 @@
         </div>
       </div>
 
-      <!-- SESSIONS -->
+      <!-- ======= SESSIONS ======= -->
       <div class="page" id="page-sessions">
         <div class="dash-card">
           <div class="card-header">
@@ -639,10 +704,8 @@
         </div>
       </div>
 
-      <!-- PACKAGES -->
+      <!-- ======= PACKAGES ======= -->
       <div class="page" id="page-packages">
-
-        <!-- Portal Link -->
         <div class="portal-link-box" id="portalLinkBox" style="display:none;">
           <div>
             <div style="font-size:0.75rem; color:var(--muted); margin-bottom:4px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Link ya Captive Portal Yako</div>
@@ -650,12 +713,69 @@
           </div>
           <button class="copy-link-btn" onclick="copyPortalLink()">📋 Nakala Link</button>
         </div>
-
         <div class="packages-grid" id="packagesGrid"><div class="spinner"></div></div>
         <button class="add-pkg-btn" onclick="openAddModal()">+ Ongeza Package Mpya</button>
       </div>
 
-      <!-- REPORTS -->
+      <!-- ======= ROUTER SETUP ======= -->
+      <div class="page" id="page-router">
+        <div class="dash-card" style="margin-bottom:16px;">
+          <div class="card-header">
+            <span class="card-title">Sanidi Router Yako</span>
+          </div>
+          <p style="color:var(--muted); font-size:0.88rem; margin-bottom:24px;">Fuata hatua hizi ili watumiaji wanaounganisha WiFi yako wapelekwe moja kwa moja kwenye ukurasa wa malipo.</p>
+
+          <div class="router-steps">
+            <div class="router-step">
+              <div class="router-step-num">1</div>
+              <div class="router-step-info">
+                <h4>Ingia kwenye Router Admin Panel</h4>
+                <p>Fungua browser yako, andika <code>192.168.1.1</code> au <code>192.168.8.1</code>. Ingiza username na password ya router (kawaida ni admin/admin).</p>
+              </div>
+            </div>
+            <div class="router-step">
+              <div class="router-step-num">2</div>
+              <div class="router-step-info">
+                <h4>Nenda Captive Portal Settings</h4>
+                <p>Kwenye ZLT X17U nenda: <code>Advanced</code> kisha <code>Captive Portal</code> au <code>Portal Settings</code>. Washa (Enable) Captive Portal.</p>
+              </div>
+            </div>
+            <div class="router-step">
+              <div class="router-step-num">3</div>
+              <div class="router-step-info">
+                <h4>Weka URL ya Portal Yako</h4>
+                <p>Kwenye sehemu ya Redirect URL au Portal URL, weka link yako ya portal:</p>
+                <div style="margin-top:8px; background:var(--bg); border:1px solid var(--green); border-radius:8px; padding:10px 14px;">
+                  <div style="font-family:'Space Grotesk',sans-serif; font-size:0.82rem; color:var(--green); word-break:break-all;" id="routerPortalUrl">Inapakia...</div>
+                </div>
+                <button onclick="copyRouterUrl()" style="margin-top:8px; background:rgba(0,200,83,0.1); border:1px solid var(--green); color:var(--green); padding:6px 14px; border-radius:6px; cursor:pointer; font-size:0.78rem; font-weight:600; font-family:'Sora',sans-serif;">📋 Nakala URL</button>
+              </div>
+            </div>
+            <div class="router-step">
+              <div class="router-step-num">4</div>
+              <div class="router-step-info">
+                <h4>Hifadhi na Restart Router</h4>
+                <p>Bonyeza Save au Apply. Restart router yako. Sasa mtumiaji yeyote atakayeunganisha WiFi yako ataona ukurasa wa WifiPesa wa kulipa.</p>
+              </div>
+            </div>
+            <div class="router-step">
+              <div class="router-step-num">5</div>
+              <div class="router-step-info">
+                <h4>Jaribu Mfumo</h4>
+                <p>Unganisha simu yako kwenye WiFi yako. Fungua browser, utapelekwa kwenye portal ya malipo. Lipa package ya majaribio ukione kama inafanya kazi.</p>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top:20px; padding:16px; background:rgba(33,150,243,0.08); border:1px solid rgba(33,150,243,0.3); border-radius:12px;">
+            <div style="font-weight:700; margin-bottom:6px; color:var(--blue);">ℹ️ Router Yako Haitumii Captive Portal?</div>
+            <p style="font-size:0.85rem; color:var(--muted);">Wasiliana nasi WhatsApp, tutakusaidia kusanidi router yako moja kwa moja.</p>
+            <a href="https://wa.me/255695745084?text=Ninahitaji%20msaada%20wa%20kusanidi%20router%20yangu%20na%20WifiPesa." target="_blank" style="display:inline-flex; align-items:center; gap:8px; margin-top:10px; background:#25d366; color:#000; padding:8px 16px; border-radius:8px; font-weight:700; font-size:0.82rem; text-decoration:none;">💬 Omba Msaada</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======= REPORTS ======= -->
       <div class="page" id="page-reports">
         <div class="locked-page" id="reportsLocked" style="display:none;">
           <div class="lock-big">📈</div>
@@ -664,14 +784,36 @@
           <a class="btn-upgrade" href="https://wa.me/255695745084?text=Nataka%20kupanda%20mpango%20wangu%20ili%20nipate%20ripoti%20za%20kina." target="_blank">Panda Mpango Sasa</a>
         </div>
         <div id="reportsContent" style="display:none;">
+          <div class="stats-grid" style="margin-bottom:24px;">
+            <div class="stat-card">
+              <div class="stat-label">Mapato Leo</div>
+              <div class="stat-value" id="reportToday">0</div>
+              <div class="stat-sub">TZS</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Mapato Wiki</div>
+              <div class="stat-value" id="reportWeek">0</div>
+              <div class="stat-sub">TZS</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Mapato Mwezi</div>
+              <div class="stat-value" id="reportMonth">0</div>
+              <div class="stat-sub">TZS</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Wastani kwa Siku</div>
+              <div class="stat-value" id="reportAvg">0</div>
+              <div class="stat-sub">TZS</div>
+            </div>
+          </div>
           <div class="dash-card">
-            <div class="card-header"><span class="card-title">Ripoti za Mapato</span></div>
-            <p style="color:var(--muted); font-size:0.9rem;">Ripoti za kina zitaongezwa hivi karibuni.</p>
+            <div class="card-header"><span class="card-title">Mauzo kwa Packages</span><span class="business-badge">BIASHARA</span></div>
+            <div id="packageReports"><div class="spinner"></div></div>
           </div>
         </div>
       </div>
 
-      <!-- API -->
+      <!-- ======= API ACCESS ======= -->
       <div class="page" id="page-api">
         <div class="locked-page" id="apiLocked" style="display:none;">
           <div class="lock-big">🔗</div>
@@ -680,18 +822,35 @@
           <a class="btn-upgrade" href="https://wa.me/255695745084?text=Nataka%20mpango%20wa%20Mtaalamu%20wa%20WifiPesa%20ili%20nipate%20API%20Access." target="_blank">Panda Mpango wa Mtaalamu</a>
         </div>
         <div id="apiContent" style="display:none;">
-          <div class="dash-card">
-            <div class="card-header"><span class="card-title">API Keys Zako</span></div>
-            <div style="background:var(--card2); border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:16px;">
+          <div class="dash-card" style="margin-bottom:16px;">
+            <div class="card-header"><span class="card-title">API Keys Zako</span><span class="pro-badge">MTAALAMU</span></div>
+            <div class="api-card">
               <div style="font-size:0.85rem; font-weight:600; margin-bottom:8px;">API Key</div>
-              <div id="apiKey" style="font-family:'Space Grotesk',sans-serif; font-size:0.85rem; background:var(--bg); padding:12px 16px; border-radius:8px; border:1px solid var(--border); word-break:break-all; color:var(--green); margin:10px 0;">Inapakia...</div>
+              <div class="api-key" id="apiKey">Inapakia...</div>
               <button onclick="copyApiKey()" style="background:rgba(0,200,83,0.1); border:1px solid var(--green); color:var(--green); padding:6px 14px; border-radius:6px; cursor:pointer; font-size:0.78rem; font-weight:600; font-family:'Sora',sans-serif;">📋 Nakala</button>
+            </div>
+          </div>
+          <div class="dash-card">
+            <div class="card-header"><span class="card-title">API Documentation</span></div>
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <div style="background:var(--card2); border:1px solid var(--border); border-radius:10px; padding:14px;">
+                <div style="font-size:0.8rem; font-weight:700; color:var(--green); margin-bottom:4px;">GET /api/packages/portal/:clientId</div>
+                <div style="font-size:0.78rem; color:var(--muted);">Pata packages zako zote zilizowezeshwa</div>
+              </div>
+              <div style="background:var(--card2); border:1px solid var(--border); border-radius:10px; padding:14px;">
+                <div style="font-size:0.8rem; font-weight:700; color:var(--yellow); margin-bottom:4px;">POST /api/payments/initiate</div>
+                <div style="font-size:0.78rem; color:var(--muted);">Anza malipo ya mtumiaji</div>
+              </div>
+              <div style="background:var(--card2); border:1px solid var(--border); border-radius:10px; padding:14px;">
+                <div style="font-size:0.8rem; font-weight:700; color:var(--blue); margin-bottom:4px;">POST /api/payments/confirm/:paymentId</div>
+                <div style="font-size:0.78rem; color:var(--muted);">Thibitisha malipo yaliyofanikiwa</div>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- SETTINGS -->
+      <!-- ======= SETTINGS ======= -->
       <div class="page" id="page-settings">
         <div class="settings-section">
           <h3>Mipangilio ya Akaunti</h3>
@@ -728,7 +887,7 @@
   </div>
 
   <!-- ADD PACKAGE MODAL -->
-  <div class="modal-overlay" id="addModalOverlay" onclick="closeAddModalOutside(event)">
+  <div class="modal-overlay" id="addModalOverlay" onclick="if(event.target===this)closeAddModal()">
     <div class="modal">
       <h2>Ongeza Package Mpya</h2>
       <p>Tengeneza package mpya ya WiFi kwa watumiaji wako.</p>
@@ -761,7 +920,7 @@
   </div>
 
   <!-- EDIT PACKAGE MODAL -->
-  <div class="modal-overlay" id="editModalOverlay" onclick="closeEditModalOutside(event)">
+  <div class="modal-overlay" id="editModalOverlay" onclick="if(event.target===this)closeEditModal()">
     <div class="modal">
       <h2>Hariri Package</h2>
       <p>Badilisha bei, jina au muda wa package hii.</p>
@@ -769,11 +928,11 @@
       <input type="hidden" id="editPkgId" />
       <div class="modal-form-group">
         <label>Jina la Package</label>
-        <input type="text" id="editPkgName" placeholder="Jina la package" />
+        <input type="text" id="editPkgName" />
       </div>
       <div class="modal-form-group">
         <label>Bei Mpya (TZS)</label>
-        <input type="number" id="editPkgPrice" placeholder="Weka bei mpya" />
+        <input type="number" id="editPkgPrice" />
       </div>
       <div class="modal-form-group">
         <label>Muda</label>
@@ -799,6 +958,7 @@
     let token = localStorage.getItem('token');
     let clientData = JSON.parse(localStorage.getItem('client') || '{}');
     let currentPlan = 'free';
+    let allPayments = [];
 
     if (!token) window.location.href = '/wifipesa-auth.html';
 
@@ -821,10 +981,12 @@
         document.getElementById('navReports').classList.add('locked');
         document.getElementById('navApi').classList.add('locked');
         document.getElementById('upgradeBanner').style.display = 'block';
-        document.getElementById('upgradeMsg').textContent = 'Uko kwenye Mpango wa Mwanzo. Panda kwenye Biashara ili upate hotspots 5 na watumiaji wasiokoma.';
+        document.getElementById('upgradeMsg').textContent = 'Uko kwenye Mpango wa Mwanzo. Panda kwenye Biashara ili upate hotspots 5, ripoti za kina na watumiaji wasiokoma.';
         document.getElementById('limitLabel').textContent = 'Watumiaji Mwezi';
         document.getElementById('usageLimit').textContent = '/ 50 kikomo';
         document.getElementById('usageBarWrap').style.display = 'block';
+        document.getElementById('overviewExtra').style.display = 'none';
+
       } else if (plan === 'business') {
         document.getElementById('lockReports').style.display = 'none';
         document.getElementById('lockApi').style.display = 'block';
@@ -833,8 +995,12 @@
         document.getElementById('upgradeBanner').style.display = 'block';
         document.getElementById('upgradeMsg').textContent = 'Panda kwenye Mpango wa Mtaalamu ili upate API Access, hotspots zisizo na mipaka na msaada 24/7.';
         document.getElementById('limitLabel').textContent = 'Hotspots';
-        document.getElementById('usageValue').textContent = '5';
-        document.getElementById('usageLimit').textContent = 'Zilizoidhinishwa';
+        document.getElementById('usageValue').textContent = '1';
+        document.getElementById('usageLimit').textContent = 'kati ya 5';
+        document.getElementById('overviewExtra').style.display = 'grid';
+        document.getElementById('hotspotCount').textContent = '1';
+        document.getElementById('hotspotLimit').textContent = 'kati ya 5 zilizoidhinishwa';
+
       } else if (plan === 'pro') {
         document.getElementById('lockReports').style.display = 'none';
         document.getElementById('lockApi').style.display = 'none';
@@ -844,6 +1010,9 @@
         document.getElementById('limitLabel').textContent = 'Hotspots';
         document.getElementById('usageValue').textContent = '∞';
         document.getElementById('usageLimit').textContent = 'Zisizo na Mipaka';
+        document.getElementById('overviewExtra').style.display = 'grid';
+        document.getElementById('hotspotCount').textContent = '∞';
+        document.getElementById('hotspotLimit').textContent = 'Hotspots zisizo na mipaka';
         document.getElementById('apiKey').textContent = `wfp_${token.slice(0, 32)}...`;
       }
     }
@@ -865,10 +1034,11 @@
       document.getElementById('settingsPortalMsg').value = client.portalMessage || '';
       setupPlanFeatures(client.plan || 'free');
 
-      // Weka portal link
-      const portalUrl = `${window.location.origin}/wifipesa-captive-portal.html?client=${client._id || client.id}`;
+      const clientId = client._id || client.id;
+      const portalUrl = `${window.location.origin}/wifipesa-captive-portal.html?client=${clientId}`;
       document.getElementById('portalLinkUrl').textContent = portalUrl;
       document.getElementById('portalLinkBox').style.display = 'flex';
+      document.getElementById('routerPortalUrl').textContent = portalUrl;
     }
 
     async function loadProfile() {
@@ -879,27 +1049,45 @@
         clientData = data.client;
         localStorage.setItem('client', JSON.stringify(clientData));
         setClientInfo(clientData);
-      } catch (err) {
-        console.error('Profile error:', err);
-      }
+      } catch (err) { console.error('Profile error:', err); }
     }
 
     async function loadPayments() {
       try {
         const res = await fetch(`${API}/api/payments/my`, { headers: headers() });
         const data = await res.json();
-        const payments = data.payments || [];
+        allPayments = data.payments || [];
 
-        const totalRevenue = payments.filter(p => p.status === 'success').reduce((s, p) => s + p.amount, 0);
-        document.getElementById('totalPayments').textContent = payments.length;
+        const successful = allPayments.filter(p => p.status === 'success');
+        const totalRevenue = successful.reduce((s, p) => s + p.amount, 0);
+        document.getElementById('totalPayments').textContent = allPayments.length;
         document.getElementById('totalRevenue').textContent = totalRevenue.toLocaleString();
 
         if (currentPlan === 'free') {
-          const pct = Math.min((payments.length / 50) * 100, 100);
-          document.getElementById('usageValue').textContent = payments.length;
+          const pct = Math.min((allPayments.length / 50) * 100, 100);
+          document.getElementById('usageValue').textContent = allPayments.length;
           const fill = document.getElementById('usageFill');
           fill.style.width = pct + '%';
           fill.className = `usage-fill ${pct >= 90 ? 'danger' : pct >= 70 ? 'warning' : ''}`;
+        }
+
+        // Reports data
+        const now = new Date();
+        const todayStart = new Date(); todayStart.setHours(0,0,0,0);
+        const weekStart = new Date(); weekStart.setDate(weekStart.getDate() - 7);
+        const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0,0,0,0);
+
+        const todayRev = successful.filter(p => new Date(p.createdAt) >= todayStart).reduce((s,p) => s+p.amount, 0);
+        const weekRev = successful.filter(p => new Date(p.createdAt) >= weekStart).reduce((s,p) => s+p.amount, 0);
+        const monthRev = successful.filter(p => new Date(p.createdAt) >= monthStart).reduce((s,p) => s+p.amount, 0);
+        const days = Math.max(1, Math.ceil((now - new Date(clientData.createdAt || now)) / 86400000));
+        const avgRev = Math.floor(totalRevenue / days);
+
+        if (document.getElementById('reportToday')) {
+          document.getElementById('reportToday').textContent = todayRev.toLocaleString();
+          document.getElementById('reportWeek').textContent = weekRev.toLocaleString();
+          document.getElementById('reportMonth').textContent = monthRev.toLocaleString();
+          document.getElementById('reportAvg').textContent = avgRev.toLocaleString();
         }
 
         const statusMap = { success: 'Imefaulu', pending: 'Inasubiri', failed: 'Imeshindwa' };
@@ -918,11 +1106,9 @@
               </tbody>
             </table>`;
 
-        document.getElementById('recentPaymentsList').innerHTML = makeTable(payments.slice(0, 5));
-        document.getElementById('allPaymentsList').innerHTML = makeTable(payments);
-      } catch (err) {
-        console.error('Payments error:', err);
-      }
+        document.getElementById('recentPaymentsList').innerHTML = makeTable(allPayments.slice(0, 5));
+        document.getElementById('allPaymentsList').innerHTML = makeTable(allPayments);
+      } catch (err) { console.error('Payments error:', err); }
     }
 
     async function loadSessions() {
@@ -949,9 +1135,7 @@
 
         document.getElementById('activeSessionsList').innerHTML = html;
         document.getElementById('sessionsList').innerHTML = html;
-      } catch (err) {
-        console.error('Sessions error:', err);
-      }
+      } catch (err) { console.error('Sessions error:', err); }
     }
 
     async function kickUser(sessionId, btn) {
@@ -959,9 +1143,7 @@
         await fetch(`${API}/api/sessions/kick/${sessionId}`, { method: 'DELETE', headers: headers() });
         btn.closest('.user-row').remove();
         loadSessions();
-      } catch (err) {
-        console.error('Kick error:', err);
-      }
+      } catch (err) { console.error('Kick error:', err); }
     }
 
     async function loadPackages() {
@@ -969,6 +1151,28 @@
         const res = await fetch(`${API}/api/packages`, { headers: headers() });
         const data = await res.json();
         const packages = data.packages || [];
+
+        if (packages.length > 0 && (currentPlan === 'business' || currentPlan === 'pro')) {
+          const top = packages.sort((a,b) => b.totalSold - a.totalSold)[0];
+          document.getElementById('topPkgName') && (document.getElementById('topPkgName').textContent = top.name);
+          document.getElementById('topPkgSales') && (document.getElementById('topPkgSales').textContent = top.totalSold + ' mauzo');
+
+          const pkgReportsEl = document.getElementById('packageReports');
+          if (pkgReportsEl) {
+            pkgReportsEl.innerHTML = packages.length === 0 ? '<div class="empty-state"><div>📦</div>Bado hakuna packages.</div>' :
+              `<table class="tx-table">
+                <thead><tr><th>Package</th><th>Bei</th><th>Mauzo Yote</th><th>Mapato</th></tr></thead>
+                <tbody>${packages.map(p => `
+                  <tr>
+                    <td style="font-weight:600;">${p.name}</td>
+                    <td style="color:var(--green);">${p.price.toLocaleString()} TZS</td>
+                    <td style="font-family:'Space Grotesk',sans-serif; font-weight:700;">${p.totalSold}</td>
+                    <td style="color:var(--green); font-weight:700;">${(p.price * p.totalSold).toLocaleString()} TZS</td>
+                  </tr>`).join('')}
+                </tbody>
+              </table>`;
+          }
+        }
 
         document.getElementById('packagesGrid').innerHTML = packages.length === 0
           ? '<div class="empty-state"><div>📦</div>Bado hakuna packages.</div>'
@@ -979,19 +1183,17 @@
                 <button class="pkg-toggle ${p.isActive ? '' : 'off'}" onclick="togglePackage('${p._id}', this)"></button>
               </div>
               <div class="pkg-price-big">${p.price.toLocaleString()} TZS</div>
-              <div class="pkg-duration">${p.durationMinutes < 60 ? p.durationMinutes + ' dakika' : (p.durationMinutes / 60) + ' saa'} · ${p.speedLimit === 'unlimited' ? 'Bila kikomo' : p.speedLimit}</div>
+              <div class="pkg-duration">${p.durationMinutes < 60 ? p.durationMinutes + ' dakika' : (p.durationMinutes / 60) + ' saa'} · Bila kikomo</div>
               <div style="margin-top:4px;">
                 <div style="font-family:'Space Grotesk',sans-serif; font-size:1.1rem; font-weight:700;">${p.totalSold}</div>
                 <div style="font-size:0.7rem; color:var(--muted);">Imeuliwa Jumla</div>
               </div>
               <div class="pkg-actions">
-                <button class="btn-edit-pkg" onclick="openEditModal('${p._id}', '${p.name}', ${p.price}, ${p.durationMinutes})">✏️ Hariri Bei</button>
+                <button class="btn-edit-pkg" onclick="openEditModal('${p._id}','${p.name}',${p.price},${p.durationMinutes})">✏️ Hariri Bei</button>
                 <button class="btn-delete-pkg" onclick="deletePackage('${p._id}')">🗑️</button>
               </div>
             </div>`).join('');
-      } catch (err) {
-        console.error('Packages error:', err);
-      }
+      } catch (err) { console.error('Packages error:', err); }
     }
 
     async function togglePackage(id, btn) {
@@ -999,9 +1201,7 @@
       try {
         await fetch(`${API}/api/packages/${id}`, { method: 'PUT', headers: headers(), body: JSON.stringify({ isActive: !isActive }) });
         btn.classList.toggle('off');
-      } catch (err) {
-        console.error('Toggle error:', err);
-      }
+      } catch (err) { console.error('Toggle error:', err); }
     }
 
     async function deletePackage(id) {
@@ -1009,9 +1209,7 @@
       try {
         await fetch(`${API}/api/packages/${id}`, { method: 'DELETE', headers: headers() });
         loadPackages();
-      } catch (err) {
-        console.error('Delete error:', err);
-      }
+      } catch (err) { console.error('Delete error:', err); }
     }
 
     function openEditModal(id, name, price, duration) {
@@ -1028,15 +1226,9 @@
       const name = document.getElementById('editPkgName').value.trim();
       const price = parseInt(document.getElementById('editPkgPrice').value);
       const durationMinutes = parseInt(document.getElementById('editPkgDuration').value);
-
       if (!name || !price) { showEditAlert('Tafadhali jaza sehemu zote.'); return; }
-
       try {
-        const res = await fetch(`${API}/api/packages/${id}`, {
-          method: 'PUT',
-          headers: headers(),
-          body: JSON.stringify({ name, price, durationMinutes })
-        });
+        const res = await fetch(`${API}/api/packages/${id}`, { method: 'PUT', headers: headers(), body: JSON.stringify({ name, price, durationMinutes }) });
         if (res.ok) { closeEditModal(); loadPackages(); }
         else { const d = await res.json(); showEditAlert(d.message); }
       } catch (err) { showEditAlert('Hitilafu ya mtandao.'); }
@@ -1077,14 +1269,17 @@
     }
 
     function copyPortalLink() {
-      const link = document.getElementById('portalLinkUrl').textContent;
-      navigator.clipboard.writeText(link);
+      navigator.clipboard.writeText(document.getElementById('portalLinkUrl').textContent);
       alert('Link ya portal imenakiliwa! Weka kwenye router yako.');
     }
 
+    function copyRouterUrl() {
+      navigator.clipboard.writeText(document.getElementById('routerPortalUrl').textContent);
+      alert('URL imenakiliwa! Weka kwenye router yako.');
+    }
+
     function copyApiKey() {
-      const key = document.getElementById('apiKey').textContent;
-      navigator.clipboard.writeText(key);
+      navigator.clipboard.writeText(document.getElementById('apiKey').textContent);
       alert('API Key imenakiliwa!');
     }
 
@@ -1106,7 +1301,7 @@
         document.getElementById('apiContent').style.display = locked ? 'none' : 'block';
       }
 
-      const titles = { overview: 'Muhtasari', payments: 'Malipo Yote', sessions: 'Watumiaji', packages: 'Packages', reports: 'Ripoti', api: 'API Access', settings: 'Mipangilio' };
+      const titles = { overview: 'Muhtasari', payments: 'Malipo Yote', sessions: 'Watumiaji', packages: 'Packages', router: 'Router Setup', reports: 'Ripoti', api: 'API Access', settings: 'Mipangilio' };
       document.getElementById('pageTitle').textContent = titles[name] || name;
       if (window.innerWidth < 900) document.getElementById('sidebar').classList.remove('open');
     }
@@ -1119,11 +1314,9 @@
 
     function openAddModal() { document.getElementById('addModalOverlay').classList.add('active'); document.body.style.overflow = 'hidden'; }
     function closeAddModal() { document.getElementById('addModalOverlay').classList.remove('active'); document.body.style.overflow = ''; document.getElementById('pkgName').value = ''; document.getElementById('pkgPrice').value = ''; }
-    function closeAddModalOutside(e) { if (e.target === document.getElementById('addModalOverlay')) closeAddModal(); }
     function showAddAlert(msg) { const el = document.getElementById('addModalAlert'); el.className = 'alert error'; el.textContent = '⚠ ' + msg; }
 
     function closeEditModal() { document.getElementById('editModalOverlay').classList.remove('active'); document.body.style.overflow = ''; }
-    function closeEditModalOutside(e) { if (e.target === document.getElementById('editModalOverlay')) closeEditModal(); }
     function showEditAlert(msg) { const el = document.getElementById('editModalAlert'); el.className = 'alert error'; el.textContent = '⚠ ' + msg; }
 
     document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeAddModal(); closeEditModal(); } });
