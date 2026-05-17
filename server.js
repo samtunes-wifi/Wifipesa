@@ -86,6 +86,15 @@ const paymentSchema = new mongoose.Schema({
 
 const Payment = mongoose.model('Payment', paymentSchema);
 
+// MODEL MPYA: Kuhifadhi miamala ya muda wakati mtu anajisajili kabla hajalipia
+const tempTransactionSchema = new mongoose.Schema({
+  transactionId: { type: String, required: true, unique: true },
+  status: { type: String, enum: ['PENDING', 'SUCCESS', 'FAILED'], default: 'PENDING' },
+  createdAt: { type: Date, default: Date.now, expires: 600 } // Inajifuta baada ya dk 10 isipolipwa
+});
+const TempTransaction = mongoose.model('TempTransaction', tempTransactionSchema);
+
+
 // ============================================================
 // MIDDLEWARE
 // ============================================================
@@ -120,60 +129,130 @@ const createDefaultPackages = async (clientId) => {
 };
 
 // ============================================================
-// ROUTES - AUTH
+// ROUTES - AUTH & REGISTRATION SYSTEM WITH PAYMENTS
 // ============================================================
 
-app.post('/api/auth/register', async (req, res) => {
+// 1. ANZA USAJILI NA RUSHA STK PUSH (MAJARIBIO YA ID)
+app.post('/api/auth/initiate-signup', async (req, res) => {
   try {
-    const { firstName, lastName, phone, password, businessName, region, routerType, location, network, plan } = req.body;
+    const { phone } = req.body;
+    if (!phone) return res.status(400).json({ success: false, message: 'Namba ya simu inahitajika.' });
 
-    if (!firstName || !lastName || !phone || !password) {
-      return res.status(400).json({ message: 'Jaza sehemu zote muhimu.' });
-    }
-
+    // Uhakiki kama tayari ana akaunti
     const existing = await Client.findOne({ phone });
-    if (existing) return res.status(400).json({ message: 'Namba ya simu hii tayari ipo.' });
+    if (existing) return res.status(400).json({ success: false, message: 'Namba ya simu hii tayari imeshasajiliwa.' });
 
-    const client = await Client.create({
-      firstName, lastName, phone, password,
-      businessName: businessName || '',
-      region: region || '',
-      routerType: routerType || 'Sijui',
-      location: location || '',
-      network: network || 'both',
-      plan: plan || 'free',
-      status: 'trial'
-    });
+    // --- HAPA BAADAYE UTAPIGA API YA KAMPUNI YA MALIPO KUTUMA STK PUSH ---
+    // Kwa sasa tunaunda ID ya uongo ya majaribio
+    const fakeTxnId = "WFP-" + Math.floor(100000 + Math.random() * 900000);
 
-    await createDefaultPackages(client._id);
-    const token = createToken(client._id);
+    // Kuhifadhi muamala huu kwenye kumbukumbu ya muda ukiwa PENDING
+    await TempTransaction.create({ transactionId: fakeTxnId, status: 'PENDING' });
 
-    res.status(201).json({
-      message: 'Akaunti imefunguliwa vizuri.',
-      token,
-      client: {
-        id: client._id,
-        firstName: client.firstName,
-        lastName: client.lastName,
-        phone: client.phone,
-        businessName: client.businessName,
-        plan: client.plan,
-        status: client.status
-      }
+    res.json({
+      success: true,
+      message: 'STK Push imerushwa kwenye simu yako.',
+      transactionId: fakeTxnId
     });
   } catch (err) {
-    console.error('Register error:', err.message);
-    res.status(500).json({ message: 'Hitilafu ya server.', error: err.message });
+    res.status(500).json({ success: false, message: 'Hitilafu ya server.', error: err.message });
   }
 });
 
+// 2. KAGUA MALIPO (POLLING KILA BAADA YA SEC 3) NA TENGENEZA AKAUNTI IKIKUBALI
+app.post('/api/auth/verify-payment/:txnId', async (req, res) => {
+  try {
+    const { txnId } = req.params;
+    const { firstName, lastName, phone, password, businessName, region, routerType, location, network, plan } = req.body;
+
+    const tempTxn = await TempTransaction.findOne({ transactionId: txnId });
+    if (!tempTxn) {
+      return res.status(404).json({ success: false, status: 'FAILED', message: 'Muamala haupo au umepitiliza muda.' });
+    }
+
+    // Kama mteja bado hajaweka PIN
+    if (tempTxn.status === 'PENDING') {
+      return res.json({ success: false, status: 'PENDING', message: 'Inasubiri PIN...' });
+    }
+
+    // Kama muamala umefeli/umesitishwa
+    if (tempTxn.status === 'FAILED') {
+      return res.json({ success: false, status: 'FAILED', message: 'Malipo yamefeli.' });
+    }
+
+    // MALIPO YAMEKUBALIWA (SUCCESS) -> TENGENEZA AKAUNTI RASMI!
+    if (tempTxn.status === 'SUCCESS') {
+      // Uhakiki wa ulinzi wa sekunde ya mwisho
+      const existing = await Client.findOne({ phone });
+      if (existing) return res.status(400).json({ success: false, message: 'Namba hii imesajiliwa tayari.' });
+
+      const client = await Client.create({
+        firstName, lastName, phone, password,
+        businessName: businessName || '',
+        region: region || '',
+        routerType: routerType || 'Sijui',
+        location: location || '',
+        network: network || 'both',
+        plan: plan || 'free',
+        status: 'active' // Inakuwa active moja kwa moja kwa sababu amelipa
+      });
+
+      // Kutengeneza vile vifurushi vyake vya kwanza (Defaults)
+      await createDefaultPackages(client._id);
+      const token = createToken(client._id);
+
+      // Futa muamala wa muda ili usirudiwe tena
+      await TempTransaction.deleteOne({ transactionId: txnId });
+
+      return res.json({
+        success: true,
+        status: 'SUCCESS',
+        token,
+        client: {
+          id: client._id,
+          firstName: client.firstName,
+          lastName: client.lastName,
+          phone: client.phone,
+          businessName: client.businessName,
+          plan: client.plan,
+          status: client.status
+        }
+      });
+    }
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Hitilafu ya server.', error: err.message });
+  }
+});
+
+// 3. WEBHOOK YA KAMPUNI YA MALIPO KUGEUZA HALI YA MUAMALA (CALLBACK)
+app.post('/api/auth/payment-webhook', async (req, res) => {
+  try {
+    const { status, reference } = req.body; // Mfano wa muundo: { status: 'COMPLETED', reference: 'WFP-123456' }
+    
+    const tempTxn = await TempTransaction.findOne({ transactionId: reference });
+    if (tempTxn) {
+      if (status === 'COMPLETED' || status === 'SUCCESS') {
+        tempTxn.status = 'SUCCESS';
+      } else {
+        tempTxn.status = 'FAILED';
+      }
+      await tempTxn.save();
+    }
+    res.status(200).send('OK');
+  } catch (err) {
+    res.status(500).send('Error');
+  }
+});
+
+// ZAMANI: KODI YA LOGIN (SASA IMEBORESHWA UTAMBUZI WA DATABASE)
 app.post('/api/auth/login', async (req, res) => {
   try {
     const { phone, password } = req.body;
     if (!phone || !password) return res.status(400).json({ message: 'Ingiza simu na nenosiri.' });
 
     const client = await Client.findOne({ phone });
-    if (!client) return res.status(400).json({ message: 'Namba ya simu au nelosiri si sahihi.' });
+    // Kama namba haipo kwenye database kabisa
+    if (!client) return res.status(400).json({ message: 'Namba ya simu au nenosiri si sahihi au akaunti haipo.' });
 
     const isMatch = await client.checkPassword(password);
     if (!isMatch) return res.status(400).json({ message: 'Namba ya simu au nenosiri si sahihi.' });
@@ -198,6 +277,39 @@ app.post('/api/auth/login', async (req, res) => {
     });
   } catch (err) {
     console.error('Login error:', err.message);
+    res.status(500).json({ message: 'Hitilafu ya server.', error: err.message });
+  }
+});
+
+// KODI YA ZAMANI YA REGISTER YA DIRECT (Tumeiacha kwa usalama wako wa kodi za nyuma)
+app.post('/api/auth/register', async (req, res) => {
+  try {
+    const { firstName, lastName, phone, password, businessName, region, routerType, location, network, plan } = req.body;
+    if (!firstName || !lastName || !phone || !password) return res.status(400).json({ message: 'Jaza sehemu zote muhimu.' });
+
+    const existing = await Client.findOne({ phone });
+    if (existing) return res.status(400).json({ message: 'Namba ya simu hii tayari ipo.' });
+
+    const client = await Client.create({
+      firstName, lastName, phone, password,
+      businessName: businessName || '',
+      region: region || '',
+      routerType: routerType || 'Sijui',
+      location: location || '',
+      network: network || 'both',
+      plan: plan || 'free',
+      status: 'trial'
+    });
+
+    await createDefaultPackages(client._id);
+    const token = createToken(client._id);
+
+    res.status(201).json({
+      message: 'Akaunti imefunguliwa vizuri.',
+      token,
+      client: { id: client._id, firstName: client.firstName, lastName: client.lastName, phone: client.phone, businessName: client.businessName, plan: client.plan, status: client.status }
+    });
+  } catch (err) {
     res.status(500).json({ message: 'Hitilafu ya server.', error: err.message });
   }
 });
@@ -299,45 +411,33 @@ app.post('/api/payments/confirm/:paymentId', async (req, res) => {
   try {
     const { status, transactionId, macAddress } = req.body;
 
-    // BYPASS YA MAJARIBIO YA HARAKA (Kwenye Postman au Thunder Client)
     if (req.params.paymentId === '660000000000000000000001') {
       if (status === 'success' && macAddress) {
-        // Tunatengeneza Instance mpya hapa ndani kwa kila unganisho
         const clientInstance = new RouterOSClient(routerConfig);
         try {
           console.log(`[MikroTik Test] Inafungua unganisho la MikroTik kwenye IP ya 10.5.50.1...`);
           const api = await clientInstance.connect();
-          
           await api.menu('/ip/hotspot/user').add({
             name: macAddress,
             password: 'password123',
             profile: 'default',
             comment: `Test Success: ${transactionId}`
           });
-          
           console.log(`[MikroTik Test] Mtumiaji ${macAddress} amewashwa!`);
-          
-          // Tunafunga unganisho kwa kutumia instance yenyewe
           await clientInstance.close(); 
           return res.json({ message: "Malipo yamefaulu (Majaribio ya Router Yamekamilika!)." });
-          
         } catch (routerErr) {
-          // Kufunga unganisho hata kama kuna error ili kuzuia "hang" au timeout
           try { await clientInstance.close(); } catch(e){}
-          
-          // ULINZI: Kama user tayari yupo, mpe majibu mazuri badala ya kuua server!
           if (routerErr.message.includes('already have')) {
             console.log(`[MikroTik Test] Ilani: Mtumiaji ${macAddress} tayari alikuwa ameshaongezwa.`);
             return res.json({ message: "Malipo yamefaulu (Mumiaji tayari alikuwa amewashwa!)." });
           }
-          
           console.error('[MikroTik API Error]:', routerErr.message);
           return res.status(500).json({ message: "Router imekataa unganisho.", error: routerErr.message });
         }
       }
     }
 
-    // --- MFUMO HALISI WA LIVE ---
     const payment = await Payment.findById(req.params.paymentId).populate('package');
     if (!payment) return res.status(404).json({ message: 'Malipo hayapatikani.' });
 
