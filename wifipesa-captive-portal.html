@@ -129,16 +129,17 @@
     .pkg-item-speed { font-size: 0.7rem; color: var(--muted); }
     .pkg-popular { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); background: var(--green); color: #000; font-size: 0.6rem; font-weight: 800; padding: 2px 8px; border-radius: 100px; white-space: nowrap; }
 
-    .pay-methods { display: flex; gap: 10px; margin-bottom: 20px; }
+    .pay-methods { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
 
     .pay-method {
-      flex: 1; border: 1px solid var(--border); border-radius: 10px; padding: 14px 10px;
-      cursor: pointer; text-align: center; transition: all 0.2s;
+      flex: 1 1 45%; border: 1px solid var(--border); border-radius: 10px; padding: 14px 10px;
+      cursor: pointer; text-align: center; transition: all 0.2s; display:flex; flex-direction:column; align-items:center; justify-content:center;
     }
 
     .pay-method:hover { border-color: var(--green); }
     .pay-method.selected { border-color: var(--green); background: rgba(0,200,83,0.08); }
-    .pay-method-logo { font-size: 1.4rem; margin-bottom: 6px; }
+    .pay-method-logo { display:flex; align-items:center; justify-content:center; margin-bottom:6px; }
+    .pay-method-img { width: 40px; height: 40px; object-fit: contain; }
     .pay-method-name { font-size: 0.75rem; font-weight: 700; color: var(--text); }
     .pay-method-net { font-size: 0.68rem; color: var(--muted); }
 
@@ -258,14 +259,24 @@
           <div style="font-size:0.82rem; color:var(--muted); margin-bottom:12px;">Chagua njia ya kulipa:</div>
           <div class="pay-methods">
             <div class="pay-method selected" id="method-mpesa" onclick="selectMethod('mpesa')">
-              <div class="pay-method-logo">💚</div>
+              <div class="pay-method-logo"><img src="IMAGES/MPESA.png" alt="M-Pesa" class="pay-method-img"></div>
               <div class="pay-method-name">M-Pesa</div>
               <div class="pay-method-net">Vodacom</div>
             </div>
             <div class="pay-method" id="method-airtel" onclick="selectMethod('airtel')">
-              <div class="pay-method-logo">❤️</div>
+              <div class="pay-method-logo"><img src="IMAGES/AIRTEL MONEY.png" alt="Airtel Money" class="pay-method-img"></div>
               <div class="pay-method-name">Airtel Money</div>
               <div class="pay-method-net">Airtel Tanzania</div>
+            </div>
+            <div class="pay-method" id="method-mixx" onclick="selectMethod('mixx')">
+              <div class="pay-method-logo"><img src="IMAGES/YAS.png" alt="Mixx by YAS" class="pay-method-img"></div>
+              <div class="pay-method-name">Mixx by YAS</div>
+              <div class="pay-method-net">Network</div>
+            </div>
+            <div class="pay-method" id="method-halopesa" onclick="selectMethod('halopesa')">
+              <div class="pay-method-logo"><img src="IMAGES/HALPESA.png" alt="HaloPesa" class="pay-method-img"></div>
+              <div class="pay-method-name">HaloPesa</div>
+              <div class="pay-method-net">Network</div>
             </div>
           </div>
 
@@ -333,6 +344,13 @@
     let paymentId = null;
     let countdownInterval = null;
     let remainingSeconds = 3600;
+
+    const METHOD_NAMES = {
+      mpesa: 'M-Pesa',
+      airtel: 'Airtel Money',
+      mixx: 'Mixx by YAS',
+      halopesa: 'HaloPesa'
+    };
 
     // 1. Vuta Vifurushi Moja kwa Moja kutoka kwenye Database yako ya Mfumo
     async function loadPortalData() {
@@ -412,9 +430,10 @@
     function selectMethod(method) {
       selectedMethod = method;
       document.querySelectorAll('.pay-method').forEach(m => m.classList.remove('selected'));
-      document.getElementById('method-' + method).classList.add('selected');
-      document.getElementById('summaryMethod').textContent = method === 'mpesa' ? 'M-Pesa' : 'Airtel Money';
-      document.getElementById('methodName').textContent = method === 'mpesa' ? 'M-Pesa' : 'Airtel Money';
+      const el = document.getElementById('method-' + method);
+      if (el) el.classList.add('selected');
+      document.getElementById('summaryMethod').textContent = METHOD_NAMES[method] || method;
+      document.getElementById('methodName').textContent = METHOD_NAMES[method] || method;
     }
 
     function goToStep2() {
@@ -433,7 +452,7 @@
 
       const formatted = phone.startsWith('0') ? '+255' + phone.slice(1) : phone;
       document.getElementById('waitPhone').textContent = formatted;
-      document.getElementById('waitMethod').textContent = selectedMethod === 'mpesa' ? 'M-Pesa' : 'Airtel Money';
+      document.getElementById('waitMethod').textContent = METHOD_NAMES[selectedMethod] || selectedMethod;
       document.getElementById('successPhone').textContent = formatted;
       document.getElementById('successPkg').textContent = selectedPkg.name;
 
