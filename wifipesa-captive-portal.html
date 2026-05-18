@@ -272,6 +272,11 @@
               <div class="pay-method-name">Mixx by YAS</div>
               <div class="pay-method-net">Yas Tanzania</div>
             </div>
+			<div class="pay-method" id="method-halopesa" onclick="selectMethod('halopesa')">
+              <div class="pay-method-logo">❤️</div>
+              <div class="pay-method-name">Halopesa</div>
+              <div class="pay-method-net">Halotel</div>
+            </div>
           </div>
 
           <div class="form-group">
@@ -418,8 +423,8 @@
       selectedMethod = method;
       document.querySelectorAll('.pay-method').forEach(m => m.classList.remove('selected'));
       document.getElementById('method-' + method).classList.add('selected');
-      document.getElementById('summaryMethod').textContent = method === 'mpesa' ? 'M-Pesa' : 'Airtel Money';
-      document.getElementById('methodName').textContent = method === 'mpesa' ? 'M-Pesa' : 'Airtel Money';
+      document.getElementById('summaryMethod').textContent = method === 'mpesa' ? 'M-Pesa' : 'Airtel Money':'Mixx by Yas' : 'Halopesa';
+      document.getElementById('methodName').textContent = method === 'mpesa' ? 'M-Pesa' : 'Airtel Money':'Mixx by Yas' : 'Halopesa';
     }
 
     function goToStep2() {
