@@ -155,7 +155,19 @@
 
     .stk-info { background: rgba(0,200,83,0.06); border: 1px solid rgba(0,200,83,0.2); border-radius: 10px; padding: 14px; font-size: 0.82rem; color: var(--muted); line-height: 1.6; margin-bottom: 16px; display: flex; gap: 10px; align-items: flex-start; }
     .stk-info-icon { font-size: 1rem; flex-shrink: 0; margin-top: 2px; }
+    
+    .wifi-icon {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 10px;
+    }
 
+    .portal-logo {
+      width: 60px;       /* Unaweza kuongeza au kupunguza namba hii kulingana na unavyotaka */
+      height: auto;      /* Inalinda umbo la picha lisijipinde vibaya */
+      object-fit: contain;
+    }
     .btn-pay {
       width: 100%; background: var(--green); color: #000;
       padding: 16px; border-radius: 12px; font-weight: 800;
@@ -214,7 +226,9 @@
   <div class="portal-wrap">
 
     <div class="portal-header">
-      <div class="wifi-icon">📶</div>
+      <div class="wifi-icon">
+	     <img src="WIFIPESA ICON.ico" alt="WifiPesa Logo" class="portal-logo">
+	  </div>
       <div class="biz-name" id="bizName">Wifi<span>Pesa</span></div>
       <div class="biz-tagline" id="bizTagline">Karibu! Lipa na upate internet ya haraka.</div>
     </div>
