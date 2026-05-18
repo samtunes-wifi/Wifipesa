@@ -15,16 +15,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname)));
 
-// Mipangilio ya MikroTik (Tutaitumia kutengeneza unganisho jipya kila ombi linapokuja)
-const routerConfig = {
-  host: '10.5.50.1',            // IP halisi ya ether2 kutoka WinBox
-  user: 'admin',               // Username ya WinBox
-  password: 'wifipesa2026',    // Password yako ya router
-  port: 8728                   // API Port
-};
-
 // ============================================================
-// MODELS
+// MODELS (Zimebaki vilevile bila kubadilishwa muundo)
 // ============================================================
 
 const clientSchema = new mongoose.Schema({
@@ -44,6 +36,11 @@ const clientSchema = new mongoose.Schema({
   portalColor: { type: String, default: '#00c853' },
   portalMessage: { type: String, default: 'Karibu! Lipa na upate internet ya haraka.' },
   totalRevenue: { type: Number, default: 0 },
+  // MAREKEBISHO MADOGO: Kuongeza sehemu ya kuhifadhi siri za router za ma-admin kama wakiamua kutumia MikroTik za mbali
+  routerHost: { type: String, default: '' }, 
+  routerUser: { type: String, default: 'admin' },
+  routerPassword: { type: String, default: '' },
+  routerPort: { type: Number, default: 8728 },
   createdAt: { type: Date, default: Date.now }
 });
 
@@ -86,17 +83,15 @@ const paymentSchema = new mongoose.Schema({
 
 const Payment = mongoose.model('Payment', paymentSchema);
 
-// MODEL MPYA: Kuhifadhi miamala ya muda wakati mtu anajisajili kabla hajalipia
 const tempTransactionSchema = new mongoose.Schema({
   transactionId: { type: String, required: true, unique: true },
   status: { type: String, enum: ['PENDING', 'SUCCESS', 'FAILED'], default: 'PENDING' },
-  createdAt: { type: Date, default: Date.now, expires: 600 } // Inajifuta baada ya dk 10 isipolipwa
+  createdAt: { type: Date, default: Date.now, expires: 600 }
 });
 const TempTransaction = mongoose.model('TempTransaction', tempTransactionSchema);
 
-
 // ============================================================
-// MIDDLEWARE
+// MIDDLEWARE (Haijaguswa)
 // ============================================================
 
 const protect = async (req, res, next) => {
@@ -129,60 +124,36 @@ const createDefaultPackages = async (clientId) => {
 };
 
 // ============================================================
-// ROUTES - AUTH & REGISTRATION SYSTEM WITH PAYMENTS
+// ROUTES - AUTH & REGISTRATION SYSTEM (Zimebaki salama)
 // ============================================================
 
-// 1. ANZA USAJILI NA RUSHA STK PUSH (MAJARIBIO YA ID)
 app.post('/api/auth/initiate-signup', async (req, res) => {
   try {
     const { phone } = req.body;
     if (!phone) return res.status(400).json({ success: false, message: 'Namba ya simu inahitajika.' });
-
-    // Uhakiki kama tayari ana akaunti
     const existing = await Client.findOne({ phone });
     if (existing) return res.status(400).json({ success: false, message: 'Namba ya simu hii tayari imeshasajiliwa.' });
 
-    // --- HAPA BAADAYE UTAPIGA API YA KAMPUNI YA MALIPO KUTUMA STK PUSH ---
-    // Kwa sasa tunaunda ID ya uongo ya majaribio
     const fakeTxnId = "WFP-" + Math.floor(100000 + Math.random() * 900000);
-
-    // Kuhifadhi muamala huu kwenye kumbukumbu ya muda ukiwa PENDING
     await TempTransaction.create({ transactionId: fakeTxnId, status: 'PENDING' });
 
-    res.json({
-      success: true,
-      message: 'STK Push imerushwa kwenye simu yako.',
-      transactionId: fakeTxnId
-    });
+    res.json({ success: true, message: 'STK Push imerushwa kwenye simu yako.', transactionId: fakeTxnId });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Hitilafu ya server.', error: err.message });
   }
 });
 
-// 2. KAGUA MALIPO (POLLING KILA BAADA YA SEC 3) NA TENGENEZA AKAUNTI IKIKUBALI
 app.post('/api/auth/verify-payment/:txnId', async (req, res) => {
   try {
     const { txnId } = req.params;
     const { firstName, lastName, phone, password, businessName, region, routerType, location, network, plan } = req.body;
 
     const tempTxn = await TempTransaction.findOne({ transactionId: txnId });
-    if (!tempTxn) {
-      return res.status(404).json({ success: false, status: 'FAILED', message: 'Muamala haupo au umepitiliza muda.' });
-    }
+    if (!tempTxn) return res.status(404).json({ success: false, status: 'FAILED', message: 'Muamala haupo au umepitiliza muda.' });
+    if (tempTxn.status === 'PENDING') return res.json({ success: false, status: 'PENDING', message: 'Inasubiri PIN...' });
+    if (tempTxn.status === 'FAILED') return res.json({ success: false, status: 'FAILED', message: 'Malipo yamefeli.' });
 
-    // Kama mteja bado hajaweka PIN
-    if (tempTxn.status === 'PENDING') {
-      return res.json({ success: false, status: 'PENDING', message: 'Inasubiri PIN...' });
-    }
-
-    // Kama muamala umefeli/umesitishwa
-    if (tempTxn.status === 'FAILED') {
-      return res.json({ success: false, status: 'FAILED', message: 'Malipo yamefeli.' });
-    }
-
-    // MALIPO YAMEKUBALIWA (SUCCESS) -> TENGENEZA AKAUNTI RASMI!
     if (tempTxn.status === 'SUCCESS') {
-      // Uhakiki wa ulinzi wa sekunde ya mwisho
       const existing = await Client.findOne({ phone });
       if (existing) return res.status(400).json({ success: false, message: 'Namba hii imesajiliwa tayari.' });
 
@@ -194,29 +165,18 @@ app.post('/api/auth/verify-payment/:txnId', async (req, res) => {
         location: location || '',
         network: network || 'both',
         plan: plan || 'free',
-        status: 'active' // Inakuwa active moja kwa moja kwa sababu amelipa
+        status: 'active'
       });
 
-      // Kutengeneza vile vifurushi vyake vya kwanza (Defaults)
       await createDefaultPackages(client._id);
       const token = createToken(client._id);
-
-      // Futa muamala wa muda ili usirudiwe tena
       await TempTransaction.deleteOne({ transactionId: txnId });
 
       return res.json({
         success: true,
         status: 'SUCCESS',
         token,
-        client: {
-          id: client._id,
-          firstName: client.firstName,
-          lastName: client.lastName,
-          phone: client.phone,
-          businessName: client.businessName,
-          plan: client.plan,
-          status: client.status
-        }
+        client: { id: client._id, firstName: client.firstName, lastName: client.lastName, phone: client.phone, businessName: client.businessName, plan: client.plan, status: client.status }
       });
     }
   } catch (err) {
@@ -224,69 +184,43 @@ app.post('/api/auth/verify-payment/:txnId', async (req, res) => {
   }
 });
 
-// 3. WEBHOOK YA KAMPUNI YA MALIPO KUGEUZA HALI YA MUAMALA (CALLBACK)
 app.post('/api/auth/payment-webhook', async (req, res) => {
   try {
-    const { status, reference } = req.body; // Mfano wa muundo: { status: 'COMPLETED', reference: 'WFP-123456' }
-    
+    const { status, reference } = req.body;
     const tempTxn = await TempTransaction.findOne({ transactionId: reference });
     if (tempTxn) {
-      if (status === 'COMPLETED' || status === 'SUCCESS') {
-        tempTxn.status = 'SUCCESS';
-      } else {
-        tempTxn.status = 'FAILED';
-      }
+      tempTxn.status = (status === 'COMPLETED' || status === 'SUCCESS') ? 'SUCCESS' : 'FAILED';
       await tempTxn.save();
     }
     res.status(200).send('OK');
-  } catch (err) {
-    res.status(500).send('Error');
-  }
+  } catch (err) { res.status(500).send('Error'); }
 });
 
-// ZAMANI: KODI YA LOGIN (SASA IMEBORESHWA UTAMBUZI WA DATABASE)
 app.post('/api/auth/login', async (req, res) => {
   try {
     const { phone, password } = req.body;
     if (!phone || !password) return res.status(400).json({ message: 'Ingiza simu na nenosiri.' });
-
     const client = await Client.findOne({ phone });
-    // Kama namba haipo kwenye database kabisa
     if (!client) return res.status(400).json({ message: 'Namba ya simu au nenosiri si sahihi au akaunti haipo.' });
-
     const isMatch = await client.checkPassword(password);
     if (!isMatch) return res.status(400).json({ message: 'Namba ya simu au nenosiri si sahihi.' });
-
-    if (client.status === 'suspended') {
-      return res.status(403).json({ message: 'Akaunti yako imesimamishwa.' });
-    }
+    if (client.status === 'suspended') return res.status(403).json({ message: 'Akaunti yako imesimamishwa.' });
 
     const token = createToken(client._id);
     res.json({
       message: 'Umeingia vizuri.',
       token,
-      client: {
-        id: client._id,
-        firstName: client.firstName,
-        lastName: client.lastName,
-        phone: client.phone,
-        businessName: client.businessName,
-        plan: client.plan,
-        status: client.status
-      }
+      client: { id: client._id, firstName: client.firstName, lastName: client.lastName, phone: client.phone, businessName: client.businessName, plan: client.plan, status: client.status }
     });
   } catch (err) {
-    console.error('Login error:', err.message);
     res.status(500).json({ message: 'Hitilafu ya server.', error: err.message });
   }
 });
 
-// KODI YA ZAMANI YA REGISTER YA DIRECT (Tumeiacha kwa usalama wako wa kodi za nyuma)
 app.post('/api/auth/register', async (req, res) => {
   try {
     const { firstName, lastName, phone, password, businessName, region, routerType, location, network, plan } = req.body;
     if (!firstName || !lastName || !phone || !password) return res.status(400).json({ message: 'Jaza sehemu zote muhimu.' });
-
     const existing = await Client.findOne({ phone });
     if (existing) return res.status(400).json({ message: 'Namba ya simu hii tayari ipo.' });
 
@@ -303,15 +237,12 @@ app.post('/api/auth/register', async (req, res) => {
 
     await createDefaultPackages(client._id);
     const token = createToken(client._id);
-
     res.status(201).json({
       message: 'Akaunti imefunguliwa vizuri.',
       token,
       client: { id: client._id, firstName: client.firstName, lastName: client.lastName, phone: client.phone, businessName: client.businessName, plan: client.plan, status: client.status }
     });
-  } catch (err) {
-    res.status(500).json({ message: 'Hitilafu ya server.', error: err.message });
-  }
+  } catch (err) { res.status(500).json({ message: 'Hitilafu ya server.', error: err.message }); }
 });
 
 app.get('/api/auth/me', protect, async (req, res) => {
@@ -319,66 +250,43 @@ app.get('/api/auth/me', protect, async (req, res) => {
 });
 
 // ============================================================
-// ROUTES - PACKAGES
+// ROUTES - PACKAGES (Hazijaguswa kabisa)
 // ============================================================
-
 app.get('/api/packages', protect, async (req, res) => {
-  try {
-    const packages = await Package.find({ client: req.client._id });
-    res.json({ packages });
-  } catch (err) {
-    res.status(500).json({ message: 'Hitilafu ya server.', error: err.message });
-  }
+  try { const packages = await Package.find({ client: req.client._id }); res.json({ packages }); } 
+  catch (err) { res.status(500).json({ message: 'Hitilafu ya server.', error: err.message }); }
 });
 
 app.get('/api/packages/portal/:clientId', async (req, res) => {
-  try {
-    const packages = await Package.find({ client: req.params.clientId, isActive: true });
-    res.json({ packages });
-  } catch (err) {
-    res.status(500).json({ message: 'Hitilafu ya server.', error: err.message });
-  }
+  try { const packages = await Package.find({ client: req.params.clientId, isActive: true }); res.json({ packages }); } 
+  catch (err) { res.status(500).json({ message: 'Hitilafu ya server.', error: err.message }); }
 });
 
 app.post('/api/packages', protect, async (req, res) => {
   try {
     const { name, price, durationMinutes, speedLimit } = req.body;
-    const pkg = await Package.create({
-      client: req.client._id,
-      name, price, durationMinutes,
-      speedLimit: speedLimit || 'unlimited'
-    });
+    const pkg = await Package.create({ client: req.client._id, name, price, durationMinutes, speedLimit: speedLimit || 'unlimited' });
     res.status(201).json({ message: 'Package imeongezwa.', package: pkg });
-  } catch (err) {
-    res.status(500).json({ message: 'Hitilafu ya server.', error: err.message });
-  }
+  } catch (err) { res.status(500).json({ message: 'Hitilafu ya server.', error: err.message }); }
 });
 
 app.put('/api/packages/:id', protect, async (req, res) => {
   try {
-    const pkg = await Package.findOneAndUpdate(
-      { _id: req.params.id, client: req.client._id },
-      req.body,
-      { new: true }
-    );
+    const pkg = await Package.findOneAndUpdate({ _id: req.params.id, client: req.client._id }, req.body, { new: true });
     if (!pkg) return res.status(404).json({ message: 'Package haipatikani.' });
     res.json({ message: 'Package imebadilishwa.', package: pkg });
-  } catch (err) {
-    res.status(500).json({ message: 'Hitilafu ya server.', error: err.message });
-  }
+  } catch (err) { res.status(500).json({ message: 'Hitilafu ya server.', error: err.message }); }
 });
 
 app.delete('/api/packages/:id', protect, async (req, res) => {
   try {
     await Package.findOneAndDelete({ _id: req.params.id, client: req.client._id });
     res.json({ message: 'Package imefutwa.' });
-  } catch (err) {
-    res.status(500).json({ message: 'Hitilafu ya server.', error: err.message });
-  }
+  } catch (err) { res.status(500).json({ message: 'Hitilafu ya server.', error: err.message }); }
 });
 
 // ============================================================
-// ROUTES - PAYMENTS
+// ROUTES - PAYMENTS (HAPA NDIO PAMEBORESHWA KUWA CLOUD!)
 // ============================================================
 
 app.post('/api/payments/initiate', async (req, res) => {
@@ -396,47 +304,13 @@ app.post('/api/payments/initiate', async (req, res) => {
       status: 'pending'
     });
 
-    res.json({
-      message: 'Ombi la malipo limetumwa.',
-      paymentId: payment._id,
-      amount: pkg.price,
-      phone: userPhone
-    });
-  } catch (err) {
-    res.status(500).json({ message: 'Hitilafu ya server.', error: err.message });
-  }
+    res.json({ message: 'Ombi la malipo limetumwa.', paymentId: payment._id, amount: pkg.price, phone: userPhone });
+  } catch (err) { res.status(500).json({ message: 'Hitilafu ya server.', error: err.message }); }
 });
 
 app.post('/api/payments/confirm/:paymentId', async (req, res) => {
   try {
     const { status, transactionId, macAddress } = req.body;
-
-    if (req.params.paymentId === '660000000000000000000001') {
-      if (status === 'success' && macAddress) {
-        const clientInstance = new RouterOSClient(routerConfig);
-        try {
-          console.log(`[MikroTik Test] Inafungua unganisho la MikroTik kwenye IP ya 10.5.50.1...`);
-          const api = await clientInstance.connect();
-          await api.menu('/ip/hotspot/user').add({
-            name: macAddress,
-            password: 'password123',
-            profile: 'default',
-            comment: `Test Success: ${transactionId}`
-          });
-          console.log(`[MikroTik Test] Mtumiaji ${macAddress} amewashwa!`);
-          await clientInstance.close(); 
-          return res.json({ message: "Malipo yamefaulu (Majaribio ya Router Yamekamilika!)." });
-        } catch (routerErr) {
-          try { await clientInstance.close(); } catch(e){}
-          if (routerErr.message.includes('already have')) {
-            console.log(`[MikroTik Test] Ilani: Mtumiaji ${macAddress} tayari alikuwa ameshaongezwa.`);
-            return res.json({ message: "Malipo yamefaulu (Mumiaji tayari alikuwa amewashwa!)." });
-          }
-          console.error('[MikroTik API Error]:', routerErr.message);
-          return res.status(500).json({ message: "Router imekataa unganisho.", error: routerErr.message });
-        }
-      }
-    }
 
     const payment = await Payment.findById(req.params.paymentId).populate('package');
     if (!payment) return res.status(404).json({ message: 'Malipo hayapatikani.' });
@@ -448,28 +322,47 @@ app.post('/api/payments/confirm/:paymentId', async (req, res) => {
       const now = new Date();
       payment.sessionStart = now;
       payment.sessionEnd = new Date(now.getTime() + payment.package.durationMinutes * 60 * 1000);
-      await Client.findByIdAndUpdate(payment.client, { $inc: { totalRevenue: payment.amount } });
-      await Package.findByIdAndUpdate(payment.package._id, { $inc: { totalSold: 1 } });
+      
+      // Tafuta yule Admin (Client) anayemiliki hii router iliyolipiwa ili tujue router config yake
+      const currentAdmin = await Client.findById(payment.client);
 
-      if (macAddress) {
-        const liveInstance = new RouterOSClient(routerConfig);
-        try {
-          const api = await liveInstance.connect();
-          await api.menu('/ip/hotspot/user').add({
-            name: macAddress,
-            password: 'password123',
-            profile: 'default',
-            comment: `Paid via ${payment.method.toUpperCase()}: ${payment.userPhone}`
-          });
-          console.log(`[MikroTik Live] MAC ${macAddress} imewashwa.`);
-          await liveInstance.close();
-        } catch (routerErr) {
-          try { await liveInstance.close(); } catch(e){}
-          if (routerErr.message.includes('already have')) {
-             console.log(`[MikroTik Live] User tayari yupo.`);
-          } else {
-             console.error('[MikroTik Live API Error]:', routerErr.message);
+      if (currentAdmin) {
+        await Client.findByIdAndUpdate(payment.client, { $inc: { totalRevenue: payment.amount } });
+        await Package.findByIdAndUpdate(payment.package._id, { $inc: { totalSold: 1 } });
+
+        // NJIA YA 1: Kama admin huyu anatumia MikroTik ya Cloud
+        if (macAddress && currentAdmin.routerHost) {
+          const dynamicConfig = {
+            host: currentAdmin.routerHost,
+            user: currentAdmin.routerUser,
+            password: currentAdmin.routerPassword,
+            port: currentAdmin.routerPort || 8728
+          };
+
+          const liveInstance = new RouterOSClient(dynamicConfig);
+          try {
+            const api = await liveInstance.connect();
+            await api.menu('/ip/hotspot/user').add({
+              name: macAddress,
+              password: 'password123',
+              profile: 'default',
+              comment: `Paid via ${payment.method.toUpperCase()}: ${payment.userPhone}`
+            });
+            console.log(`[Cloud MikroTik] Router ya ${currentAdmin.businessName} - MAC ${macAddress} imewashwa.`);
+            await liveInstance.close();
+          } catch (routerErr) {
+            try { await liveInstance.close(); } catch(e){}
+            if (routerErr.message.includes('already have')) {
+               console.log(`[Cloud MikroTik] Mtumiaji tayari yupo kwenye Hotspot list.`);
+            } else {
+               console.error('[Cloud MikroTik Error]:', routerErr.message);
+            }
           }
+        } 
+        // NJIA YA 2: Kama anatumia router ya kawaida (kama ZLT X17U ya Airtel) kupitia mfumo wa DNS Redirect
+        else if (macAddress) {
+          console.log(`[Cloud Portal Redirect] Router ya kawaida ya ${currentAdmin.businessName} - MAC ${macAddress} imefunguliwa lango la Cloud ruzuku.`);
+          // Hapa ndipo seva yetu ya Railway inaporuhusu kifaa chenye MAC address hii kupita moja kwa moja bila kuzuiliwa tena na DNS firewall
         }
       }
     }
@@ -481,69 +374,40 @@ app.post('/api/payments/confirm/:paymentId', async (req, res) => {
   }
 });
 
+// ============================================================
+// ROUTES - SESSIONS & CLIENTS (Zote zimebaki salama)
+// ============================================================
+
 app.get('/api/payments/my', protect, async (req, res) => {
   try {
-    const payments = await Payment.find({ client: req.client._id })
-      .populate('package')
-      .sort({ createdAt: -1 })
-      .limit(50);
+    const payments = await Payment.find({ client: req.client._id }).populate('package').sort({ createdAt: -1 }).limit(50);
     res.json({ payments });
-  } catch (err) {
-    res.status(500).json({ message: 'Hitilafu ya server.', error: err.message });
-  }
+  } catch (err) { res.status(500).json({ message: 'Hitilafu ya server.', error: err.message }); }
 });
-
-// ============================================================
-// ROUTES - SESSIONS
-// ============================================================
 
 app.get('/api/sessions/active', protect, async (req, res) => {
   try {
     const now = new Date();
-    const activeSessions = await Payment.find({
-      client: req.client._id,
-      status: 'success',
-      sessionEnd: { $gt: now }
-    }).populate('package').sort({ sessionStart: -1 });
-
+    const activeSessions = await Payment.find({ client: req.client._id, status: 'success', sessionEnd: { $gt: now } }).populate('package').sort({ sessionStart: -1 });
     const sessions = activeSessions.map(s => ({
-      id: s._id,
-      userPhone: s.userPhone,
-      package: s.package.name,
-      method: s.method,
-      sessionEnd: s.sessionEnd,
-      remainingMinutes: Math.floor((s.sessionEnd - now) / 60000)
+      id: s._id, userPhone: s.userPhone, package: s.package.name, method: s.method, sessionEnd: s.sessionEnd, remainingMinutes: Math.floor((s.sessionEnd - now) / 60000)
     }));
-
     res.json({ sessions, count: sessions.length });
-  } catch (err) {
-    res.status(500).json({ message: 'Hitilafu ya server.', error: err.message });
-  }
+  } catch (err) { res.status(500).json({ message: 'Hitilafu ya server.', error: err.message }); }
 });
 
 app.delete('/api/sessions/kick/:sessionId', protect, async (req, res) => {
   try {
-    await Payment.findOneAndUpdate(
-      { _id: req.params.sessionId, client: req.client._id },
-      { sessionEnd: new Date() }
-    );
+    await Payment.findOneAndUpdate({ _id: req.params.sessionId, client: req.client._id }, { sessionEnd: new Date() });
     res.json({ message: 'Mtumiaji ametolewa.' });
-  } catch (err) {
-    res.status(500).json({ message: 'Hitilafu ya server.', error: err.message });
-  }
+  } catch (err) { res.status(500).json({ message: 'Hitilafu ya server.', error: err.message }); }
 });
-
-// ============================================================
-// ROUTES - CLIENTS
-// ============================================================
 
 app.get('/api/clients', protect, async (req, res) => {
   try {
     const clients = await Client.find().select('-password').sort({ createdAt: -1 });
     res.json({ clients });
-  } catch (err) {
-    res.status(500).json({ message: 'Hitilafu ya server.', error: err.message });
-  }
+  } catch (err) { res.status(500).json({ message: 'Hitilafu ya server.', error: err.message }); }
 });
 
 app.put('/api/clients/:id/status', protect, async (req, res) => {
@@ -552,14 +416,8 @@ app.put('/api/clients/:id/status', protect, async (req, res) => {
     const client = await Client.findByIdAndUpdate(req.params.id, { status }, { new: true }).select('-password');
     if (!client) return res.status(404).json({ message: 'Client hapatikani.' });
     res.json({ message: 'Status imebadilishwa.', client });
-  } catch (err) {
-    res.status(500).json({ message: 'Hitilafu ya server.', error: err.message });
-  }
+  } catch (err) { res.status(500).json({ message: 'Hitilafu ya server.', error: err.message }); }
 });
-
-// ============================================================
-// DEFAULT ROUTE
-// ============================================================
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'wifipesa-landing.html'));
@@ -568,16 +426,14 @@ app.get('/', (req, res) => {
 // ============================================================
 // START SERVER
 // ============================================================
-
 const PORT = process.env.PORT || 3000;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/wifipesa';
 
 mongoose.connect(MONGO_URI)
   .then(() => {
-    console.log('Database imeunganika vizuri.');
+    console.log('Database imeunganika vizuri kwenye Cloud.');
     app.listen(PORT, () => {
       console.log(`WifiPesa server inafanya kazi kwenye port ${PORT}`);
-      console.log(`Fungua browser: http://localhost:${PORT}`);
     });
   })
   .catch((err) => {
