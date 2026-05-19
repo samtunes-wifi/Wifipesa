@@ -240,24 +240,62 @@ app.post('/api/auth/payment-webhook', async (req, res) => {
 });
 
 app.post('/api/auth/login', async (req, res) => {
-  try {
-    const { phone, password } = req.body;
-    if (!phone || !password) return res.status(400).json({ message: 'Ingiza simu na nenosiri.' });
-    const client = await Client.findOne({ phone });
-    if (!client) return res.status(400).json({ message: 'Namba ya simu au nenosiri si sahihi au akaunti haipo.' });
-    const isMatch = await client.checkPassword(password);
-    if (!isMatch) return res.status(400).json({ message: 'Namba ya simu au nenosiri si sahihi.' });
-    if (client.status === 'suspended') return res.status(403).json({ message: 'Akaunti yako imesimamishwa.' });
+    try {
+        const { phone, password } = req.body;
+        if (!phone || !password) {
+            return res.status(400).json({ success: false, message: 'Ingiza simu na nenosiri.' });
+        }
 
-    const token = createToken(client._id);
-    res.json({
-      message: 'Umeingia vizuri.',
-      token,
-      client: { id: client._id, firstName: client.firstName, lastName: client.lastName, phone: client.phone, businessName: client.businessName, plan: client.plan, status: client.status, role: client.role }
-    });
-  } catch (err) {
-    res.status(500).json({ message: 'Hitilafu ya server.', error: err.message });
-  }
+        const cleanedPhone = phone.trim();
+        const cleanedPassword = password.trim();
+
+        // 👑 ADMIN BYPASS
+        if ((cleanedPhone === '+255695745084' || cleanedPhone === '0695745084') && cleanedPassword === 'admin123') {
+            return res.json({
+                success: true,
+                message: 'Umeingia vizuri kama Admin. Unyama mwingi! 🚀',
+                redirectUrl: '/wifipesa-admin.html', 
+                role: 'admin'
+            });
+        }
+
+        // --- NJIA YA WATEJA KUTOKA ATLAS ---
+        const client = await Client.findOne({ phone: cleanedPhone });
+        if (!client) {
+            return res.status(400).json({ success: false, message: 'Namba ya simu au nenosiri si sahihi au akaunti haipo.' });
+        }
+
+        const isMatch = await client.checkPassword(cleanedPassword);
+        if (!isMatch) {
+            return res.status(400).json({ success: false, message: 'Namba ya simu au nenosiri si sahihi.' });
+        }
+
+        if (client.status === 'suspended') {
+            return res.status(403).json({ success: false, message: 'Akaunti yako imesimamishwa.' });
+        }
+
+        const token = createToken(client._id);
+
+        res.json({
+            success: true,
+            message: 'Umeingia vizuri.',
+            token,
+            redirectUrl: '/wifipesa-landing.html', 
+            role: 'client',
+            client: {
+                id: client._id,
+                firstName: client.firstName,
+                lastName: client.lastName,
+                phone: client.phone,
+                businessName: client.businessName,
+                plan: client.plan
+            }
+        });
+
+    } catch (err) {
+        console.error('Hitilafu ya Login:', err);
+        res.status(500).json({ success: false, message: 'Hitilafu ya server.', error: err.message });
+    }
 });
 
 app.post('/api/auth/register', async (req, res) => {
