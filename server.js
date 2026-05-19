@@ -280,7 +280,7 @@ app.post('/api/auth/login', async (req, res) => {
             success: true,
             message: 'Umeingia vizuri.',
             token,
-            redirectUrl: '/wifipesa-landing.html', 
+            redirectUrl: '/wifipesa-dashboard.html', 
             role: 'client',
             client: {
                 id: client._id,
