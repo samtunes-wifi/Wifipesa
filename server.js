@@ -1,5 +1,9 @@
 const express = require('express');
-const mongoose = require('mongoose');
+const mongoose = require('mongoose'); 
+const mongoURI = process.env.MONGO_URI || "mongodb+srv://SAMTUNES:Samtunes2026@samtunes.zef7zos.mongodb.net/wifipesa?retryWrites=true&w=majority";
+mongoose.connect(mongoURI)
+.then(() => console.log('Mtambo umeunganishwa na MongoDB Atlas kikamilifu! ☁️🚀'))
+.catch(err => console.error('Dhoruba la muunganisho wa Atlas:', err));
 const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
@@ -856,15 +860,28 @@ app.get('/', (req, res) => {
 // START SERVER
 // ============================================================
 const PORT = process.env.PORT || 3000;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/wifipesa';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://SAMTUNES:Samtunes2026@samtunes.zef7zos.mongodb.net/wifipesa?retryWrites=true&w=majority';
 
-mongoose.connect(MONGO_URI)
-  .then(() => {
-    console.log('Database imeunganika vizuri kwenye Cloud.');
-    app.listen(PORT, () => {
-      console.log(`WifiPesa server inafanya kazi kwenye port ${PORT}`);
+// Mbinu ya Kijasusi: Kama tayari kuna connection ilishafunguka juu, tunaitumia hiyo hiyo!
+if (mongoose.connection.readyState === 0) {
+  mongoose.connect(MONGO_URI)
+    .then(() => {
+      console.log('Database imeunganika vizuri kwenye Cloud (Muunganisho Mpya).');
+      washaServer();
+    })
+    .catch((err) => {
+      console.error('Database haikuunganika:', err.message);
     });
-  })
-  .catch((err) => {
-    console.error('Database haikuunganika:', err.message);
-  });
+} else {
+  console.log('Database tayari ilikuwa imeunganishwa juu kabisa! 🚀');
+  washaServer();
+}
+
+function washaServer() {
+  // Ili kuzuia server isijirun mara mbili kama kuna app.listen nyingine juu
+  if (!app.expressServerWicked) {
+    app.expressServerWicked = app.listen(PORT, () => {
+      console.log('WifiPesa server inafanya kazi kwenye port ' + PORT);
+    });
+  }
+}
