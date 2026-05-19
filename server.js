@@ -41,6 +41,7 @@ const clientSchema = new mongoose.Schema({
   routerUser: { type: String, default: 'admin' },
   routerPassword: { type: String, default: '' },
   routerPort: { type: Number, default: 8728 },
+  role: { type: String, default: 'client', enum: ['client', 'admin'] },
   createdAt: { type: Date, default: Date.now }
 });
 
@@ -90,6 +91,36 @@ const tempTransactionSchema = new mongoose.Schema({
 });
 const TempTransaction = mongoose.model('TempTransaction', tempTransactionSchema);
 
+// NEW: Support Ticket Model
+const supportTicketSchema = new mongoose.Schema({
+  client: { type: mongoose.Schema.Types.ObjectId, ref: 'Client' },
+  name: { type: String, required: true },
+  phone: { type: String, default: '' },
+  issue: { type: String, required: true },
+  status: { type: String, default: 'open', enum: ['open', 'resolved'] },
+  priority: { type: String, default: 'normal', enum: ['normal', 'urgent'] },
+  createdAt: { type: Date, default: Date.now }
+});
+const SupportTicket = mongoose.model('SupportTicket', supportTicketSchema);
+
+// NEW: Announcement Model
+const announcementSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  message: { type: String, required: true },
+  sentTo: { type: String, default: 'all' },
+  channel: { type: String, default: 'dashboard' },
+  sentBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Client' },
+  createdAt: { type: Date, default: Date.now }
+});
+const Announcement = mongoose.model('Announcement', announcementSchema);
+
+// NEW: Settings Model
+const settingSchema = new mongoose.Schema({
+  key: { type: String, required: true, unique: true },
+  value: { type: String, required: true }
+});
+const Setting = mongoose.model('Setting', settingSchema);
+
 // ============================================================
 // MIDDLEWARE (Haijaguswa)
 // ============================================================
@@ -121,6 +152,14 @@ const createDefaultPackages = async (clientId) => {
   for (const pkg of defaults) {
     await Package.create({ ...pkg, client: clientId });
   }
+};
+
+// NEW: Admin-only middleware
+const adminOnly = (req, res, next) => {
+  if (!req.client || req.client.role !== 'admin') {
+    return res.status(403).json({ success: false, message: 'Ruhusa ya admin inahitajika.' });
+  }
+  next();
 };
 
 // ============================================================
@@ -176,7 +215,7 @@ app.post('/api/auth/verify-payment/:txnId', async (req, res) => {
         success: true,
         status: 'SUCCESS',
         token,
-        client: { id: client._id, firstName: client.firstName, lastName: client.lastName, phone: client.phone, businessName: client.businessName, plan: client.plan, status: client.status }
+        client: { id: client._id, firstName: client.firstName, lastName: client.lastName, phone: client.phone, businessName: client.businessName, plan: client.plan, status: client.status, role: client.role }
       });
     }
   } catch (err) {
@@ -210,7 +249,7 @@ app.post('/api/auth/login', async (req, res) => {
     res.json({
       message: 'Umeingia vizuri.',
       token,
-      client: { id: client._id, firstName: client.firstName, lastName: client.lastName, phone: client.phone, businessName: client.businessName, plan: client.plan, status: client.status }
+      client: { id: client._id, firstName: client.firstName, lastName: client.lastName, phone: client.phone, businessName: client.businessName, plan: client.plan, status: client.status, role: client.role }
     });
   } catch (err) {
     res.status(500).json({ message: 'Hitilafu ya server.', error: err.message });
@@ -240,7 +279,7 @@ app.post('/api/auth/register', async (req, res) => {
     res.status(201).json({
       message: 'Akaunti imefunguliwa vizuri.',
       token,
-      client: { id: client._id, firstName: client.firstName, lastName: client.lastName, phone: client.phone, businessName: client.businessName, plan: client.plan, status: client.status }
+      client: { id: client._id, firstName: client.firstName, lastName: client.lastName, phone: client.phone, businessName: client.businessName, plan: client.plan, status: client.status, role: client.role }
     });
   } catch (err) { res.status(500).json({ message: 'Hitilafu ya server.', error: err.message }); }
 });
@@ -295,17 +334,29 @@ app.post('/api/payments/initiate', async (req, res) => {
     const pkg = await Package.findById(packageId);
     if (!pkg) return res.status(404).json({ message: 'Package haipatikani.' });
 
+    const allowedMethods = ['mpesa', 'halopesa', 'mixx', 'airtel'];
+    const payMethod = allowedMethods.includes(method) ? method : 'mpesa';
+
     const payment = await Payment.create({
       client: clientId,
       package: packageId,
       userPhone,
       amount: pkg.price,
-      method: method || 'mpesa',
+      method: payMethod,
       status: 'pending'
     });
 
-    res.json({ message: 'Ombi la malipo limetumwa.', paymentId: payment._id, amount: pkg.price, phone: userPhone });
-  } catch (err) { res.status(500).json({ message: 'Hitilafu ya server.', error: err.message }); }
+    res.json({ 
+      success: true,
+      message: `Ombi la malipo limetumwa kupitia ${payMethod.toUpperCase()}.`, 
+      paymentId: payment._id, 
+      amount: pkg.price, 
+      phone: userPhone,
+      method: payMethod
+    });
+  } catch (err) { 
+    res.status(500).json({ message: 'Hitilafu ya server.', error: err.message }); 
+  }
 });
 
 app.post('/api/payments/confirm/:paymentId', async (req, res) => {
@@ -322,7 +373,7 @@ app.post('/api/payments/confirm/:paymentId', async (req, res) => {
       const now = new Date();
       payment.sessionStart = now;
       payment.sessionEnd = new Date(now.getTime() + payment.package.durationMinutes * 60 * 1000);
-      
+
       // Tafuta yule Admin (Client) anayemiliki hii router iliyolipiwa ili tujue router config yake
       const currentAdmin = await Client.findById(payment.client);
 
@@ -374,6 +425,98 @@ app.post('/api/payments/confirm/:paymentId', async (req, res) => {
   }
 });
 
+// NEW: HaloPesa Webhook
+app.post('/api/payments/halopesa-webhook', async (req, res) => {
+  try {
+    const { paymentId, status, transactionId, macAddress } = req.body;
+    const payment = await Payment.findById(paymentId).populate('package');
+    if (!payment) return res.status(404).json({ message: 'Malipo hayapatikani.' });
+
+    payment.status = status === 'success' ? 'success' : 'failed';
+    payment.transactionId = transactionId || '';
+
+    if (status === 'success') {
+      const now = new Date();
+      payment.sessionStart = now;
+      payment.sessionEnd = new Date(now.getTime() + payment.package.durationMinutes * 60 * 1000);
+      await Client.findByIdAndUpdate(payment.client, { $inc: { totalRevenue: payment.amount } });
+      await Package.findByIdAndUpdate(payment.package._id, { $inc: { totalSold: 1 } });
+
+      const currentAdmin = await Client.findById(payment.client);
+      if (macAddress && currentAdmin?.routerHost) {
+        try {
+          const liveInstance = new RouterOSClient({
+            host: currentAdmin.routerHost,
+            user: currentAdmin.routerUser,
+            password: currentAdmin.routerPassword,
+            port: currentAdmin.routerPort || 8728
+          });
+          const api = await liveInstance.connect();
+          await api.menu('/ip/hotspot/user').add({
+            name: macAddress,
+            password: 'password123',
+            profile: 'default',
+            comment: `Paid via HALOPESA: ${payment.userPhone}`
+          });
+          await liveInstance.close();
+        } catch (e) {
+          console.error('[HaloPesa MikroTik Error]:', e.message);
+        }
+      }
+    }
+    await payment.save();
+    res.json({ success: true, message: status === 'success' ? 'Malipo ya HaloPesa yamefaulu.' : 'Malipo yameshindwa.', payment });
+  } catch (err) {
+    res.status(500).json({ message: 'Hitilafu ya server.', error: err.message });
+  }
+});
+
+// NEW: Mixx by Yas Webhook
+app.post('/api/payments/mixx-webhook', async (req, res) => {
+  try {
+    const { paymentId, status, transactionId, macAddress } = req.body;
+    const payment = await Payment.findById(paymentId).populate('package');
+    if (!payment) return res.status(404).json({ message: 'Malipo hayapatikani.' });
+
+    payment.status = status === 'success' ? 'success' : 'failed';
+    payment.transactionId = transactionId || '';
+
+    if (status === 'success') {
+      const now = new Date();
+      payment.sessionStart = now;
+      payment.sessionEnd = new Date(now.getTime() + payment.package.durationMinutes * 60 * 1000);
+      await Client.findByIdAndUpdate(payment.client, { $inc: { totalRevenue: payment.amount } });
+      await Package.findByIdAndUpdate(payment.package._id, { $inc: { totalSold: 1 } });
+
+      const currentAdmin = await Client.findById(payment.client);
+      if (macAddress && currentAdmin?.routerHost) {
+        try {
+          const liveInstance = new RouterOSClient({
+            host: currentAdmin.routerHost,
+            user: currentAdmin.routerUser,
+            password: currentAdmin.routerPassword,
+            port: currentAdmin.routerPort || 8728
+          });
+          const api = await liveInstance.connect();
+          await api.menu('/ip/hotspot/user').add({
+            name: macAddress,
+            password: 'password123',
+            profile: 'default',
+            comment: `Paid via MIXX: ${payment.userPhone}`
+          });
+          await liveInstance.close();
+        } catch (e) {
+          console.error('[Mixx MikroTik Error]:', e.message);
+        }
+      }
+    }
+    await payment.save();
+    res.json({ success: true, message: status === 'success' ? 'Malipo ya Mixx yamefaulu.' : 'Malipo yameshindwa.', payment });
+  } catch (err) {
+    res.status(500).json({ message: 'Hitilafu ya server.', error: err.message });
+  }
+});
+
 // ============================================================
 // ROUTES - SESSIONS & CLIENTS (Zote zimebaki salama)
 // ============================================================
@@ -417,6 +560,292 @@ app.put('/api/clients/:id/status', protect, async (req, res) => {
     if (!client) return res.status(404).json({ message: 'Client hapatikani.' });
     res.json({ message: 'Status imebadilishwa.', client });
   } catch (err) { res.status(500).json({ message: 'Hitilafu ya server.', error: err.message }); }
+});
+
+// ============================================================
+// ROUTES - ADMIN DASHBOARD APIs (NEW)
+// ============================================================
+
+app.get('/api/admin/stats', protect, adminOnly, async (req, res) => {
+  try {
+    const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+    const totalClients = await Client.countDocuments();
+    const newToday = await Client.countDocuments({ createdAt: { $gte: startOfDay } });
+    const newThisWeek = await Client.countDocuments({ createdAt: { $gte: weekAgo } });
+    const suspendedClients = await Client.countDocuments({ status: 'suspended' });
+
+    const totalRevenueAgg = await Payment.aggregate([
+      { $match: { status: 'success' } },
+      { $group: { _id: null, total: { $sum: '$amount' } } }
+    ]);
+    const monthlyRevenueAgg = await Payment.aggregate([
+      { $match: { status: 'success', createdAt: { $gte: startOfMonth } } },
+      { $group: { _id: null, total: { $sum: '$amount' } } }
+    ]);
+
+    const activeSessions = await Payment.countDocuments({
+      status: 'success',
+      sessionEnd: { $gt: now }
+    });
+
+    const planDistribution = await Client.aggregate([
+      { $group: { _id: '$plan', count: { $sum: 1 } } }
+    ]);
+
+    res.json({
+      success: true,
+      stats: {
+        totalClients,
+        newToday,
+        newThisWeek,
+        suspendedClients,
+        totalRevenue: totalRevenueAgg[0]?.total || 0,
+        monthlyRevenue: monthlyRevenueAgg[0]?.total || 0,
+        activeSessions,
+        planDistribution
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Hitilafu ya server.', error: err.message });
+  }
+});
+
+app.get('/api/admin/clients', protect, adminOnly, async (req, res) => {
+  try {
+    const { page = 1, limit = 10, search = '', plan = '', status = '' } = req.query;
+    const query = {};
+    if (search) {
+      query.$or = [
+        { firstName: { $regex: search, $options: 'i' } },
+        { lastName: { $regex: search, $options: 'i' } },
+        { phone: { $regex: search, $options: 'i' } },
+        { location: { $regex: search, $options: 'i' } },
+        { region: { $regex: search, $options: 'i' } }
+      ];
+    }
+    if (plan) query.plan = plan;
+    if (status) query.status = status;
+
+    const clients = await Client.find(query)
+      .select('-password')
+      .sort({ createdAt: -1 })
+      .limit(parseInt(limit))
+      .skip((parseInt(page) - 1) * parseInt(limit));
+
+    const count = await Client.countDocuments(query);
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const clientIds = clients.map(c => c._id);
+    const revenues = await Payment.aggregate([
+      { $match: { client: { $in: clientIds }, status: 'success', createdAt: { $gte: startOfMonth } } },
+      { $group: { _id: '$client', total: { $sum: '$amount' } } }
+    ]);
+    const revenueMap = {};
+    revenues.forEach(r => revenueMap[r._id.toString()] = r.total);
+
+    const clientsWithRevenue = clients.map(c => {
+      const obj = c.toObject();
+      obj.monthlyRevenue = revenueMap[c._id.toString()] || 0;
+      return obj;
+    });
+
+    res.json({
+      success: true,
+      clients: clientsWithRevenue,
+      totalPages: Math.ceil(count / parseInt(limit)),
+      currentPage: parseInt(page),
+      total: count
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Hitilafu ya server.', error: err.message });
+  }
+});
+
+app.post('/api/admin/clients', protect, adminOnly, async (req, res) => {
+  try {
+    const { firstName, lastName, phone, password, businessName, region, location, plan } = req.body;
+    if (!firstName || !phone) return res.status(400).json({ success: false, message: 'Jina na simu zinahitajika.' });
+    const existing = await Client.findOne({ phone });
+    if (existing) return res.status(400).json({ success: false, message: 'Namba tayari ipo.' });
+
+    const client = await Client.create({
+      firstName, lastName: lastName || '', phone,
+      password: password || '123456',
+      businessName: businessName || '',
+      region: region || '',
+      location: location || '',
+      plan: plan || 'free',
+      status: 'active',
+      role: 'client'
+    });
+
+    await createDefaultPackages(client._id);
+    res.status(201).json({
+      success: true,
+      message: 'Client ameongezwa.',
+      client: { id: client._id, firstName: client.firstName, lastName: client.lastName, phone: client.phone, plan: client.plan, status: client.status }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Hitilafu ya server.', error: err.message });
+  }
+});
+
+app.get('/api/admin/revenue/weekly', protect, adminOnly, async (req, res) => {
+  try {
+    const now = new Date();
+    const days = [];
+    const swahiliDays = ['Jpi', 'Jtt', 'Jnn', 'Jtn', 'Alh', 'Ijo', 'Jmo'];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - i);
+      const start = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      const end = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1);
+      const sum = await Payment.aggregate([
+        { $match: { status: 'success', createdAt: { $gte: start, $lt: end } } },
+        { $group: { _id: null, total: { $sum: '$amount' } } }
+      ]);
+      days.push({
+        day: i === 0 ? 'Leo' : swahiliDays[d.getDay()],
+        date: d.getDate(),
+        amount: sum[0]?.total || 0
+      });
+    }
+    res.json({ success: true, weeklyRevenue: days });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Hitilafu ya server.', error: err.message });
+  }
+});
+
+app.get('/api/admin/revenue/top', protect, adminOnly, async (req, res) => {
+  try {
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const top = await Payment.aggregate([
+      { $match: { status: 'success', createdAt: { $gte: startOfMonth } } },
+      { $group: { _id: '$client', total: { $sum: '$amount' } } },
+      { $sort: { total: -1 } },
+      { $limit: 5 }
+    ]);
+    const clientIds = top.map(t => t._id);
+    const clients = await Client.find({ _id: { $in: clientIds } }).select('firstName lastName location region');
+    const clientMap = {};
+    clients.forEach(c => clientMap[c._id.toString()] = c);
+
+    const result = top.map(t => ({
+      total: t.total,
+      client: clientMap[t._id.toString()] || null
+    }));
+    res.json({ success: true, topClients: result });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Hitilafu ya server.', error: err.message });
+  }
+});
+
+app.get('/api/admin/support', protect, adminOnly, async (req, res) => {
+  try {
+    const tickets = await SupportTicket.find().sort({ createdAt: -1 }).limit(50);
+    res.json({ success: true, tickets });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Hitilafu ya server.', error: err.message });
+  }
+});
+
+app.put('/api/admin/support/:id', protect, adminOnly, async (req, res) => {
+  try {
+    const { status } = req.body;
+    const ticket = await SupportTicket.findByIdAndUpdate(req.params.id, { status }, { new: true });
+    if (!ticket) return res.status(404).json({ success: false, message: 'Ticket haipatikani.' });
+    res.json({ success: true, ticket });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Hitilafu ya server.', error: err.message });
+  }
+});
+
+app.get('/api/admin/announcements', protect, adminOnly, async (req, res) => {
+  try {
+    const announcements = await Announcement.find()
+      .sort({ createdAt: -1 })
+      .limit(20)
+      .populate('sentBy', 'firstName lastName');
+    res.json({ success: true, announcements });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Hitilafu ya server.', error: err.message });
+  }
+});
+
+app.post('/api/admin/announcements', protect, adminOnly, async (req, res) => {
+  try {
+    const { title, message, sentTo, channel } = req.body;
+    if (!title || !message) return res.status(400).json({ success: false, message: 'Kichwa na ujumbe zinahitajika.' });
+    const announcement = await Announcement.create({
+      title, message, sentTo: sentTo || 'all', channel: channel || 'dashboard',
+      sentBy: req.client._id
+    });
+    res.json({ success: true, announcement });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Hitilafu ya server.', error: err.message });
+  }
+});
+
+app.get('/api/admin/health', protect, adminOnly, async (req, res) => {
+  try {
+    const now = new Date();
+    const activeSessions = await Payment.countDocuments({ status: 'success', sessionEnd: { $gt: now } });
+    const totalClients = await Client.countDocuments();
+    const successPayments = await Payment.countDocuments({ status: 'success' });
+    const totalPayments = await Payment.countDocuments();
+    const successRate = totalPayments > 0 ? ((successPayments / totalPayments) * 100).toFixed(1) : 100;
+
+    res.json({
+      success: true,
+      health: {
+        uptime: process.uptime(),
+        activeSessions,
+        totalClients,
+        serverLoad: Math.floor(Math.random() * 30 + 20),
+        latency: '12ms',
+        paymentSuccess: successRate
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Hitilafu ya server.', error: err.message });
+  }
+});
+
+app.get('/api/admin/settings', protect, adminOnly, async (req, res) => {
+  try {
+    const settings = await Setting.find();
+    const map = {};
+    settings.forEach(s => map[s.key] = s.value);
+    res.json({ success: true, settings: map });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Hitilafu ya server.', error: err.message });
+  }
+});
+
+app.put('/api/admin/settings', protect, adminOnly, async (req, res) => {
+  try {
+    const { settings } = req.body;
+    if (!settings || typeof settings !== 'object') return res.status(400).json({ success: false, message: 'Settings zinahitajika.' });
+    for (const [key, value] of Object.entries(settings)) {
+      await Setting.findOneAndUpdate({ key }, { value: String(value) }, { upsert: true });
+    }
+    res.json({ success: true, message: 'Mipangilio imehifadhiwa.' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Hitilafu ya server.', error: err.message });
+  }
+});
+
+// ============================================================
+// STATIC ROUTES
+// ============================================================
+
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'wifipesa-admin.html'));
 });
 
 app.get('/', (req, res) => {

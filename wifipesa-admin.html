@@ -46,7 +46,6 @@
       opacity: 0.3;
     }
 
-    /* SIDEBAR */
     .sidebar {
       width: var(--sidebar-w);
       background: var(--bg2);
@@ -163,9 +162,8 @@
 
     .admin-info { flex: 1; overflow: hidden; }
     .admin-name { font-size: 0.85rem; font-weight: 700; }
-    .admin-role { font-size: 0.7rem; color: var(--yellow); }
+    .admin-role { font-size: 0.7rem; color: var(--yellow); cursor: pointer; }
 
-    /* MAIN */
     .main {
       margin-left: var(--sidebar-w);
       flex: 1;
@@ -174,7 +172,6 @@
       min-height: 100vh;
     }
 
-    /* TOPBAR */
     .topbar {
       height: 64px;
       background: rgba(5,15,10,0.9);
@@ -263,7 +260,6 @@
       font-size: 1.1rem;
     }
 
-    /* CONTENT */
     .content { padding: 28px; flex: 1; }
 
     .page { display: none; animation: fadeUp 0.3s ease; }
@@ -274,7 +270,6 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* STATS */
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -324,11 +319,9 @@
     .stat-change.up { color: var(--green); }
     .stat-change.down { color: var(--red); }
 
-    /* GRID */
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
     .grid-3-1 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 24px; }
 
-    /* DASH CARD */
     .dash-card {
       background: var(--card);
       border: 1px solid var(--border);
@@ -359,7 +352,6 @@
       font-family: 'Sora', sans-serif;
     }
 
-    /* CHART */
     .chart-bars {
       display: flex;
       align-items: flex-end;
@@ -405,7 +397,6 @@
 
     .bar-label { font-size: 0.68rem; color: var(--muted); }
 
-    /* CLIENTS TABLE */
     .clients-table {
       width: 100%;
       border-collapse: collapse;
@@ -515,7 +506,6 @@
     .action-btn.success { color: var(--green); border-color: rgba(0,200,83,0.3); }
     .action-btn.success:hover { background: rgba(0,200,83,0.1); }
 
-    /* SEARCH + FILTER */
     .table-controls {
       display: flex;
       gap: 10px;
@@ -556,7 +546,6 @@
     .filter-select:focus { border-color: var(--green); }
     .filter-select option { background: var(--card); }
 
-    /* RECENT SIGNUPS */
     .signup-list { display: flex; flex-direction: column; gap: 10px; }
 
     .signup-row {
@@ -591,7 +580,6 @@
     .signup-meta { font-size: 0.75rem; color: var(--muted); }
     .signup-time { font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
 
-    /* REVENUE SPLIT */
     .revenue-split { display: flex; flex-direction: column; gap: 14px; }
 
     .rev-row { }
@@ -623,7 +611,6 @@
       transition: width 1s ease;
     }
 
-    /* SYSTEM HEALTH */
     .health-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -648,7 +635,6 @@
 
     .health-label { font-size: 0.75rem; color: var(--muted); }
 
-    /* MODAL */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -732,7 +718,6 @@
     .modal-confirm.green { background: var(--green); color: #000; }
     .modal-confirm:hover { opacity: 0.9; }
 
-    /* PAGINATION */
     .pagination {
       display: flex;
       justify-content: space-between;
@@ -762,7 +747,6 @@
 
     .page-btn:hover, .page-btn.active { border-color: var(--green); color: var(--green); }
 
-    /* ANNOUNCEMENTS */
     .announce-form { display: flex; flex-direction: column; gap: 14px; }
 
     .announce-input {
@@ -813,6 +797,20 @@
 
     .btn-send:hover { background: #00e564; }
 
+    #loginOverlay {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      z-index: 300;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #loginOverlay.active {
+      display: flex;
+    }
+
     @media (max-width: 900px) {
       .sidebar { transform: translateX(-100%); }
       .sidebar.open { transform: translateX(0); }
@@ -824,6 +822,28 @@
   </style>
 </head>
 <body>
+
+  <!-- LOGIN OVERLAY -->
+  <div id="loginOverlay">
+    <div style="background:var(--card); border:1px solid var(--border); border-radius:20px; padding:40px; width:100%; max-width:400px; margin:20px;">
+      <div style="text-align:center; margin-bottom:30px;">
+        <div style="font-family:'Space Grotesk',sans-serif; font-weight:800; font-size:1.5rem; margin-bottom:8px;">Wifi<span style="color:var(--green);">Pesa</span></div>
+        <div style="color:var(--muted); font-size:0.85rem;">Admin Panel - Ingia kwanza</div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:16px;">
+        <div>
+          <label style="font-size:0.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:7px;">Namba ya Simu</label>
+          <input type="tel" id="loginPhone" class="search-input" placeholder="+255 7XX XXX XXX" style="width:100%;" />
+        </div>
+        <div>
+          <label style="font-size:0.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:7px;">Nenosiri</label>
+          <input type="password" id="loginPassword" class="search-input" placeholder="Nenosiri lako..." style="width:100%;" />
+        </div>
+        <button class="btn-send" style="width:100%; justify-content:center;" onclick="doLogin()">Ingia</button>
+        <div id="loginError" style="color:var(--red); font-size:0.8rem; text-align:center; display:none;"></div>
+      </div>
+    </div>
+  </div>
 
   <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
@@ -838,7 +858,7 @@
     </a>
     <a class="nav-item" onclick="showPage('clients', this)">
       <span class="nav-icon">🏪</span> Clients Wote
-      <span class="nav-badge green">47</span>
+      <span class="nav-badge green" id="clientBadge">47</span>
     </a>
     <a class="nav-item" onclick="showPage('revenue', this)">
       <span class="nav-icon">💰</span> Mapato
@@ -847,7 +867,7 @@
     <div class="sidebar-section">Usimamizi</div>
     <a class="nav-item" onclick="showPage('support', this)">
       <span class="nav-icon">🎧</span> Msaada
-      <span class="nav-badge">3</span>
+      <span class="nav-badge" id="supportBadge">3</span>
     </a>
     <a class="nav-item" onclick="showPage('announce', this)">
       <span class="nav-icon">📢</span> Matangazo
@@ -858,10 +878,10 @@
 
     <div class="sidebar-footer">
       <div class="admin-card">
-        <div class="admin-avatar">WP</div>
+        <div class="admin-avatar" id="adminAvatar">WP</div>
         <div class="admin-info">
-          <div class="admin-name">Super Admin</div>
-          <div class="admin-role">WifiPesa Owner</div>
+          <div class="admin-name" id="adminName">Super Admin</div>
+          <div class="admin-role" onclick="logout()">Toka (Logout)</div>
         </div>
       </div>
     </div>
@@ -876,7 +896,7 @@
         <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
         <div class="topbar-left">
           <h2 id="pageTitle">Muhtasari</h2>
-          <p>Ijumamosi, 17 Mei 2026</p>
+          <p id="currentDate">Ijumamosi, 17 Mei 2026</p>
         </div>
       </div>
       <div class="topbar-right">
@@ -900,23 +920,23 @@
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-label">Clients Wote</div>
-            <div class="stat-value">47</div>
-            <div class="stat-change up">↑ 5 wiki hii</div>
+            <div class="stat-value" id="totalClients">47</div>
+            <div class="stat-change up" id="newClientsWeek">↑ 5 wiki hii</div>
           </div>
           <div class="stat-card">
             <div class="stat-label">Mapato Mwezi (Ada)</div>
-            <div class="stat-value">940k</div>
-            <div class="stat-change up">↑ 18% kuliko mwezi uliopita</div>
+            <div class="stat-value" id="monthlyRevenue">940k</div>
+            <div class="stat-change up" id="revenueGrowth">↑ 18% kuliko mwezi uliopita</div>
           </div>
           <div class="stat-card">
             <div class="stat-label">Clients Wapya Leo</div>
-            <div class="stat-value">3</div>
-            <div class="stat-change up">↑ 2 kuliko jana</div>
+            <div class="stat-value" id="newToday">3</div>
+            <div class="stat-change up" id="newYesterday">↑ 2 kuliko jana</div>
           </div>
           <div class="stat-card">
             <div class="stat-label">Clients Waliospend</div>
-            <div class="stat-value">2</div>
-            <div class="stat-change down">Wanahitaji msaada</div>
+            <div class="stat-value" id="suspendedClients">2</div>
+            <div class="stat-change down" id="suspendedMsg">Wanahitaji msaada</div>
           </div>
         </div>
 
@@ -925,7 +945,7 @@
             <div class="card-header">
               <span class="card-title">Mapato ya Wiki Hii (Ada za Clients)</span>
             </div>
-            <div class="chart-bars">
+            <div class="chart-bars" id="weeklyChart">
               <div class="bar-group">
                 <div class="bar green-dim" style="height:50%" data-val="120,000 TZS"></div>
                 <div class="bar-label">Jum</div>
@@ -961,27 +981,27 @@
             <div class="card-header">
               <span class="card-title">Mipango ya Clients</span>
             </div>
-            <div class="revenue-split">
+            <div class="revenue-split" id="planDistribution">
               <div class="rev-row">
                 <div class="rev-row-header">
                   <span>Mwanzo (Bure)</span>
-                  <span>18 clients</span>
+                  <span id="freeCount">18 clients</span>
                 </div>
-                <div class="rev-bar"><div class="rev-bar-fill" style="width:38%; background:var(--muted);"></div></div>
+                <div class="rev-bar"><div class="rev-bar-fill" id="freeBar" style="width:38%; background:var(--muted);"></div></div>
               </div>
               <div class="rev-row">
                 <div class="rev-row-header">
                   <span>Biashara (20k)</span>
-                  <span>22 clients</span>
+                  <span id="businessCount">22 clients</span>
                 </div>
-                <div class="rev-bar"><div class="rev-bar-fill" style="width:47%;"></div></div>
+                <div class="rev-bar"><div class="rev-bar-fill" id="businessBar" style="width:47%;"></div></div>
               </div>
               <div class="rev-row">
                 <div class="rev-row-header">
                   <span>Mtaalamu (50k)</span>
-                  <span>7 clients</span>
+                  <span id="proCount">7 clients</span>
                 </div>
-                <div class="rev-bar"><div class="rev-bar-fill" style="width:15%; background:var(--yellow);"></div></div>
+                <div class="rev-bar"><div class="rev-bar-fill" id="proBar" style="width:15%; background:var(--yellow);"></div></div>
               </div>
             </div>
           </div>
@@ -1013,22 +1033,22 @@
               </div>
               <div class="health-card">
                 <div class="health-icon">💾</div>
-                <div class="health-value">34%</div>
+                <div class="health-value" id="serverLoad">34%</div>
                 <div class="health-label">Server Load</div>
               </div>
               <div class="health-card">
                 <div class="health-icon">📡</div>
-                <div class="health-value">47</div>
+                <div class="health-value" id="activeHotspots">47</div>
                 <div class="health-label">Active Hotspots</div>
               </div>
               <div class="health-card">
                 <div class="health-icon">👥</div>
-                <div class="health-value">312</div>
+                <div class="health-value" id="activeUsers">312</div>
                 <div class="health-label">Watumiaji Sasa</div>
               </div>
               <div class="health-card">
                 <div class="health-icon">💳</div>
-                <div class="health-value">98.2%</div>
+                <div class="health-value" id="paymentSuccess">98.2%</div>
                 <div class="health-label">Payment Success</div>
               </div>
             </div>
@@ -1041,19 +1061,19 @@
       <div class="page" id="page-clients">
         <div class="dash-card">
           <div class="card-header">
-            <span class="card-title">Clients Wote (47)</span>
+            <span class="card-title">Clients Wote (<span id="totalClientsTitle">47</span>)</span>
             <button class="card-action btn-send" onclick="openModal('add')">+ Ongeza Client</button>
           </div>
 
           <div class="table-controls">
-            <input type="text" class="search-input" placeholder="🔍  Tafuta jina, simu, au eneo..." oninput="filterClients(this.value)" />
-            <select class="filter-select" onchange="filterByPlan(this.value)">
+            <input type="text" id="searchInput" class="search-input" placeholder="🔍  Tafuta jina, simu, au eneo..." oninput="filterClients()" />
+            <select id="planFilter" class="filter-select" onchange="filterClients()">
               <option value="">Mipango Yote</option>
               <option value="free">Mwanzo</option>
               <option value="business">Biashara</option>
               <option value="pro">Mtaalamu</option>
             </select>
-            <select class="filter-select" onchange="filterByStatus(this.value)">
+            <select id="statusFilter" class="filter-select" onchange="filterClients()">
               <option value="">Hali Zote</option>
               <option value="active">Aktive</option>
               <option value="suspended">Imesimamishwa</option>
@@ -1077,7 +1097,7 @@
 
           <div class="pagination">
             <span id="paginationInfo">Inaonyesha 1-10 kati ya 47</span>
-            <div class="page-btns">
+            <div class="page-btns" id="paginationBtns">
               <div class="page-btn active">1</div>
               <div class="page-btn">2</div>
               <div class="page-btn">3</div>
@@ -1093,22 +1113,22 @@
         <div class="stats-grid" style="margin-bottom:24px;">
           <div class="stat-card">
             <div class="stat-label">Mapato Jumla (MTD)</div>
-            <div class="stat-value">940k</div>
+            <div class="stat-value" id="revenueTotal">940k</div>
             <div class="stat-change up">↑ 18%</div>
           </div>
           <div class="stat-card">
             <div class="stat-label">Mapato Kutoka Biashara</div>
-            <div class="stat-value">440k</div>
+            <div class="stat-value" id="revenueBusiness">440k</div>
             <div class="stat-change up">↑ 22 clients × 20k</div>
           </div>
           <div class="stat-card">
             <div class="stat-label">Mapato Kutoka Mtaalamu</div>
-            <div class="stat-value">350k</div>
+            <div class="stat-value" id="revenuePro">350k</div>
             <div class="stat-change up">↑ 7 clients × 50k</div>
           </div>
           <div class="stat-card">
             <div class="stat-label">Ada Zinazokuja (Wiki)</div>
-            <div class="stat-value">7</div>
+            <div class="stat-value" id="upcomingRenewals">7</div>
             <div class="stat-change up">Renewal zinazokuja</div>
           </div>
         </div>
@@ -1125,7 +1145,7 @@
       <div class="page" id="page-support">
         <div class="dash-card">
           <div class="card-header">
-            <span class="card-title">Maombi ya Msaada (3 mapya)</span>
+            <span class="card-title">Maombi ya Msaada (<span id="supportCount">3</span> mapya)</span>
           </div>
           <div style="display:flex; flex-direction:column; gap:12px;" id="supportList"></div>
         </div>
@@ -1141,7 +1161,7 @@
             <div class="announce-form">
               <div>
                 <label style="font-size:0.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:7px;">Tuma Kwa</label>
-                <select class="announce-select">
+                <select class="announce-select" id="announceTo">
                   <option>Clients Wote (47)</option>
                   <option>Clients wa Mpango Biashara (22)</option>
                   <option>Clients wa Mpango Mtaalamu (7)</option>
@@ -1150,22 +1170,22 @@
               </div>
               <div>
                 <label style="font-size:0.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:7px;">Kichwa cha Tangazo</label>
-                <input type="text" class="search-input" placeholder="Mfano: Matengenezo ya Mfumo..." style="width:100%;" />
+                <input type="text" class="search-input" id="announceTitle" placeholder="Mfano: Matengenezo ya Mfumo..." style="width:100%;" />
               </div>
               <div>
                 <label style="font-size:0.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:7px;">Ujumbe</label>
-                <textarea class="announce-input" placeholder="Andika tangazo lako hapa..."></textarea>
+                <textarea class="announce-input" id="announceMessage" placeholder="Andika tangazo lako hapa..."></textarea>
               </div>
               <div>
                 <label style="font-size:0.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:7px;">Njia ya Kutuma</label>
-                <select class="announce-select">
+                <select class="announce-select" id="announceChannel">
                   <option>Dashboard ya Client</option>
                   <option>SMS</option>
                   <option>WhatsApp</option>
                   <option>Zote (Dashboard + SMS)</option>
                 </select>
               </div>
-              <button class="btn-send" onclick="alert('Tangazo limetumwa kwa clients wote!')">📢 Tuma Tangazo</button>
+              <button class="btn-send" onclick="sendAnnouncement()">📢 Tuma Tangazo</button>
             </div>
           </div>
 
@@ -1188,17 +1208,17 @@
             <div style="display:flex; flex-direction:column; gap:14px;">
               <div>
                 <label style="font-size:0.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:7px;">Jina la Mfumo</label>
-                <input type="text" class="search-input" value="WifiPesa" style="width:100%;" />
+                <input type="text" id="sysName" class="search-input" value="WifiPesa" style="width:100%;" />
               </div>
               <div>
                 <label style="font-size:0.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:7px;">Barua Pepe ya Admin</label>
-                <input type="email" class="search-input" value="admin@wifipesa.co.tz" style="width:100%;" />
+                <input type="email" id="sysEmail" class="search-input" value="admin@wifipesa.co.tz" style="width:100%;" />
               </div>
               <div>
                 <label style="font-size:0.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:7px;">Trial Period (Siku)</label>
-                <input type="number" class="search-input" value="14" style="width:100%;" />
+                <input type="number" id="sysTrial" class="search-input" value="14" style="width:100%;" />
               </div>
-              <button class="btn-send">Hifadhi Mipangilio</button>
+              <button class="btn-send" onclick="saveSettings()">Hifadhi Mipangilio</button>
             </div>
           </div>
 
@@ -1209,17 +1229,25 @@
             <div style="display:flex; flex-direction:column; gap:14px;">
               <div>
                 <label style="font-size:0.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:7px;">M-Pesa API Key</label>
-                <input type="password" class="search-input" value="sk_live_xxxxxxxxxxx" style="width:100%;" />
+                <input type="password" id="mpesaKey" class="search-input" value="sk_live_xxxxxxxxxxx" style="width:100%;" />
               </div>
               <div>
                 <label style="font-size:0.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:7px;">Airtel Money API Key</label>
-                <input type="password" class="search-input" value="airtel_live_xxxxxxxx" style="width:100%;" />
+                <input type="password" id="airtelKey" class="search-input" value="airtel_live_xxxxxxxx" style="width:100%;" />
               </div>
               <div>
                 <label style="font-size:0.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:7px;">SMS Gateway Key</label>
-                <input type="password" class="search-input" value="sms_live_xxxxxxxxx" style="width:100%;" />
+                <input type="password" id="smsKey" class="search-input" value="sms_live_xxxxxxxxx" style="width:100%;" />
               </div>
-              <button class="btn-send">Hifadhi API Keys</button>
+              <div>
+                <label style="font-size:0.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:7px;">HaloPesa API Key</label>
+                <input type="password" id="halopesaKey" class="search-input" value="halopesa_live_xxxxxx" style="width:100%;" />
+              </div>
+              <div>
+                <label style="font-size:0.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:7px;">Mixx by Yas API Key</label>
+                <input type="password" id="mixxKey" class="search-input" value="mixx_live_xxxxxxxxx" style="width:100%;" />
+              </div>
+              <button class="btn-send" onclick="saveApiKeys()">Hifadhi API Keys</button>
             </div>
           </div>
         </div>
@@ -1234,21 +1262,14 @@
   </div>
 
   <script>
+    const API_BASE = '';
+    let currentPage = 1;
+    let totalPages = 1;
+    let allClients = [];
+    let currentAdmin = null;
+    let statsTimer = null;
+
     const avatarColors = ['#00c853','#2196f3','#ff9800','#e91e63','#9c27b0','#00bcd4'];
-
-    const clients = [
-      { name: 'John Mbwana', phone: '+255 762 001 001', location: 'Dar es Salaam', plan: 'business', status: 'active', revenue: '20,000', date: '12 Mei 2026' },
-      { name: 'Fatuma Hassan', phone: '+255 784 002 002', location: 'Mwanza', plan: 'pro', status: 'active', revenue: '50,000', date: '10 Mei 2026' },
-      { name: 'Peter Kiiza', phone: '+255 713 003 003', location: 'Arusha', plan: 'business', status: 'active', revenue: '20,000', date: '09 Mei 2026' },
-      { name: 'Amina Salim', phone: '+255 755 004 004', location: 'Dodoma', plan: 'free', status: 'trial', revenue: '0', date: '14 Mei 2026' },
-      { name: 'David Mushi', phone: '+255 767 005 005', location: 'Moshi', plan: 'pro', status: 'active', revenue: '50,000', date: '08 Mei 2026' },
-      { name: 'Grace Temba', phone: '+255 762 006 006', location: 'Tanga', plan: 'business', status: 'suspended', revenue: '0', date: '05 Mei 2026' },
-      { name: 'Ali Juma', phone: '+255 784 007 007', location: 'Zanzibar', plan: 'business', status: 'active', revenue: '20,000', date: '11 Mei 2026' },
-      { name: 'Mary Chacha', phone: '+255 713 008 008', location: 'Mbeya', plan: 'free', status: 'active', revenue: '0', date: '15 Mei 2026' },
-      { name: 'Hassan Mwenda', phone: '+255 755 009 009', location: 'Morogoro', plan: 'pro', status: 'active', revenue: '50,000', date: '07 Mei 2026' },
-      { name: 'Lucia Mwangi', phone: '+255 767 010 010', location: 'Dar es Salaam', plan: 'business', status: 'suspended', revenue: '0', date: '03 Mei 2026' },
-    ];
-
     const planLabels = { free: 'Mwanzo', business: 'Biashara', pro: 'Mtaalamu' };
     const statusLabels = { active: 'Aktive', suspended: 'Imesimamishwa', trial: 'Trial' };
 
@@ -1256,156 +1277,442 @@
       return name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
     }
 
+    async function api(endpoint, options = {}) {
+      const token = localStorage.getItem('token');
+      try {
+        const res = await fetch(API_BASE + endpoint, {
+          ...options,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token ? `Bearer ${token}` : '',
+            ...options.headers
+          }
+        });
+        if (res.status === 401 || res.status === 403) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('client');
+          showLogin();
+          return null;
+        }
+        return await res.json();
+      } catch (e) {
+        console.error('API Error:', e);
+        return null;
+      }
+    }
+
+    function showLogin() {
+      document.getElementById('loginOverlay').classList.add('active');
+      document.querySelector('.main').style.display = 'none';
+      document.querySelector('.sidebar').style.display = 'none';
+    }
+
+    function hideLogin() {
+      document.getElementById('loginOverlay').classList.remove('active');
+      document.querySelector('.main').style.display = 'flex';
+      document.querySelector('.sidebar').style.display = 'flex';
+    }
+
+    async function doLogin() {
+      const phone = document.getElementById('loginPhone').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const errorEl = document.getElementById('loginError');
+      
+      if (!phone || !password) {
+        errorEl.textContent = 'Jaza namba ya simu na nenosiri.';
+        errorEl.style.display = 'block';
+        return;
+      }
+      
+      const data = await api('/api/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ phone, password })
+      });
+      
+      if (data?.token) {
+        if (data.client?.role !== 'admin') {
+          errorEl.textContent = 'Akaunti hii siyo ya Admin. Tafadhali tumia akaunti ya Super Admin.';
+          errorEl.style.display = 'block';
+          return;
+        }
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('client', JSON.stringify(data.client));
+        hideLogin();
+        initDashboard();
+      } else {
+        errorEl.textContent = data?.message || 'Ingia imeshindwa. Jaribu tena.';
+        errorEl.style.display = 'block';
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('client');
+      location.reload();
+    }
+
+    function initDashboard() {
+      currentAdmin = JSON.parse(localStorage.getItem('client') || '{}');
+      updateAdminInfo();
+      loadStats();
+      loadClients(1);
+      loadRevenue();
+      loadSupport();
+      loadAnnouncements();
+      loadHealth();
+      loadSettings();
+      
+      if (statsTimer) clearInterval(statsTimer);
+      statsTimer = setInterval(() => {
+        loadStats();
+        loadClients(currentPage);
+        loadSupport();
+        loadHealth();
+      }, 30000);
+    }
+
+    function updateAdminInfo() {
+      if (!currentAdmin) return;
+      const name = (currentAdmin.firstName || '') + ' ' + (currentAdmin.lastName || '');
+      document.getElementById('adminName').textContent = name.trim() || 'Super Admin';
+      document.getElementById('adminAvatar').textContent = initials(name.trim() || 'Super Admin');
+    }
+
+    async function loadStats() {
+      const data = await api('/api/admin/stats');
+      if (!data?.success) return;
+      const s = data.stats;
+      
+      document.getElementById('totalClients').textContent = s.totalClients;
+      document.getElementById('newClientsWeek').textContent = `↑ ${s.newThisWeek} wiki hii`;
+      document.getElementById('monthlyRevenue').textContent = (s.monthlyRevenue / 1000).toFixed(0) + 'k';
+      const prevRevenue = Math.max(s.totalRevenue - s.monthlyRevenue, 1);
+      const growth = ((s.monthlyRevenue / prevRevenue) * 100).toFixed(0);
+      document.getElementById('revenueGrowth').textContent = `↑ ${growth}% kuliko mwezi uliopita`;
+      document.getElementById('newToday').textContent = s.newToday;
+      document.getElementById('newYesterday').textContent = `↑ ${s.newToday > 0 ? s.newToday - 1 : 0} kuliko jana`;
+      document.getElementById('suspendedClients').textContent = s.suspendedClients;
+      document.getElementById('suspendedMsg').textContent = s.suspendedClients > 0 ? 'Wanahitaji msaada' : 'Wote wako sawa';
+      
+      const planMap = {};
+      s.planDistribution.forEach(p => planMap[p._id] = p.count);
+      const free = planMap['free'] || 0;
+      const business = planMap['business'] || 0;
+      const pro = planMap['pro'] || 0;
+      const total = free + business + pro || 1;
+      
+      document.getElementById('freeCount').textContent = free + ' clients';
+      document.getElementById('freeBar').style.width = (free / total * 100) + '%';
+      document.getElementById('businessCount').textContent = business + ' clients';
+      document.getElementById('businessBar').style.width = (business / total * 100) + '%';
+      document.getElementById('proCount').textContent = pro + ' clients';
+      document.getElementById('proBar').style.width = (pro / total * 100) + '%';
+      
+      document.getElementById('clientBadge').textContent = s.totalClients;
+    }
+
+    async function loadClients(page = 1) {
+      currentPage = page;
+      const search = document.getElementById('searchInput')?.value || '';
+      const plan = document.getElementById('planFilter')?.value || '';
+      const status = document.getElementById('statusFilter')?.value || '';
+      
+      const data = await api(`/api/admin/clients?page=${page}&limit=10&search=${encodeURIComponent(search)}&plan=${plan}&status=${status}`);
+      if (!data?.success) return;
+      
+      allClients = data.clients;
+      totalPages = data.totalPages;
+      renderClients(allClients);
+      updatePagination(data.currentPage, data.totalPages, data.total);
+      renderRecentSignups(allClients.slice(0, 4));
+      document.getElementById('totalClientsTitle').textContent = data.total;
+    }
+
     function renderClients(data) {
       const tbody = document.getElementById('clientsBody');
-      tbody.innerHTML = data.map((c, i) => `
-        <tr>
-          <td>
-            <div class="client-name-cell">
-              <div class="client-avatar" style="background:${avatarColors[i % avatarColors.length]}">${initials(c.name)}</div>
-              <div>
-                <div class="client-name">${c.name}</div>
-                <div class="client-location">📍 ${c.location}</div>
+      if (!tbody) return;
+      tbody.innerHTML = data.map((c, i) => {
+        const name = (c.firstName || '') + ' ' + (c.lastName || '');
+        return `
+          <tr>
+            <td>
+              <div class="client-name-cell">
+                <div class="client-avatar" style="background:${avatarColors[i % avatarColors.length]}">${initials(name)}</div>
+                <div>
+                  <div class="client-name">${name}</div>
+                  <div class="client-location">📍 ${c.location || c.region || 'Haijulikani'}</div>
+                </div>
               </div>
+            </td>
+            <td><span class="plan-badge ${c.plan || 'free'}">${planLabels[c.plan] || c.plan}</span></td>
+            <td><span class="status-badge ${c.status || 'trial'}">${statusLabels[c.status] || c.status}</span></td>
+            <td class="revenue-cell">${(c.monthlyRevenue || 0).toLocaleString()} TZS</td>
+            <td style="color:var(--muted); font-size:0.82rem;">${new Date(c.createdAt).toLocaleDateString('sw-TZ')}</td>
+            <td>
+              <div class="action-btns">
+                <button class="action-btn" onclick="openClientModal('${c._id}')">Ona</button>
+                ${c.status === 'active' || c.status === 'trial'
+                  ? `<button class="action-btn danger" onclick="toggleStatus('${c._id}', 'suspended')">Simamisha</button>`
+                  : `<button class="action-btn success" onclick="toggleStatus('${c._id}', 'active')">Activate</button>`
+                }
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function updatePagination(current, total, count) {
+      const info = document.getElementById('paginationInfo');
+      if (info) info.textContent = `Inaonyesha ${(current-1)*10 + 1}-${Math.min(current*10, count)} kati ya ${count}`;
+      
+      const btnContainer = document.getElementById('paginationBtns');
+      if (!btnContainer) return;
+      let html = '';
+      for (let i = 1; i <= total; i++) {
+        html += `<div class="page-btn ${i === current ? 'active' : ''}" onclick="loadClients(${i})">${i}</div>`;
+      }
+      btnContainer.innerHTML = html;
+    }
+
+    function renderRecentSignups(recent) {
+      const container = document.getElementById('recentSignups');
+      if (!container) return;
+      container.innerHTML = recent.map((c, i) => {
+        const name = (c.firstName || '') + ' ' + (c.lastName || '');
+        return `
+          <div class="signup-row">
+            <div class="signup-avatar" style="background:${avatarColors[i % avatarColors.length]}">${initials(name)}</div>
+            <div class="signup-info">
+              <div class="signup-name">${name}</div>
+              <div class="signup-meta">📍 ${c.location || c.region || 'Haijulikani'} · <span class="plan-badge ${c.plan || 'free'}" style="padding:1px 7px;">${planLabels[c.plan] || c.plan}</span></div>
             </div>
-          </td>
-          <td><span class="plan-badge ${c.plan}">${planLabels[c.plan]}</span></td>
-          <td><span class="status-badge ${c.status}">${statusLabels[c.status]}</span></td>
-          <td class="revenue-cell">${c.revenue} TZS</td>
-          <td style="color:var(--muted); font-size:0.82rem;">${c.date}</td>
-          <td>
-            <div class="action-btns">
-              <button class="action-btn" onclick="openClientModal(${i})">Ona</button>
-              ${c.status === 'active' || c.status === 'trial'
-                ? `<button class="action-btn danger" onclick="toggleStatus(${i})">Simamisha</button>`
-                : `<button class="action-btn success" onclick="toggleStatus(${i})">Activate</button>`
-              }
-            </div>
-          </td>
-        </tr>
-      `).join('');
-    }
-
-    function renderRecentSignups() {
-      const recent = clients.slice(0, 4);
-      document.getElementById('recentSignups').innerHTML = recent.map((c, i) => `
-        <div class="signup-row">
-          <div class="signup-avatar" style="background:${avatarColors[i % avatarColors.length]}">${initials(c.name)}</div>
-          <div class="signup-info">
-            <div class="signup-name">${c.name}</div>
-            <div class="signup-meta">📍 ${c.location} · <span class="plan-badge ${c.plan}" style="padding:1px 7px;">${planLabels[c.plan]}</span></div>
+            <div class="signup-time">${new Date(c.createdAt).toLocaleDateString('sw-TZ')}</div>
           </div>
-          <div class="signup-time">${c.date}</div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
-    function renderTopClients() {
-      const top = [
-        { name: 'David Mushi', location: 'Moshi', revenue: 50000, pct: 100 },
-        { name: 'Fatuma Hassan', location: 'Mwanza', revenue: 50000, pct: 100 },
-        { name: 'Hassan Mwenda', location: 'Morogoro', revenue: 50000, pct: 100 },
-        { name: 'John Mbwana', location: 'Dar es Salaam', revenue: 20000, pct: 40 },
-        { name: 'Ali Juma', location: 'Zanzibar', revenue: 20000, pct: 40 },
-      ];
-      document.getElementById('topClients').innerHTML = top.map((c, i) => `
-        <div class="rev-row">
-          <div class="rev-row-header">
-            <span style="display:flex; align-items:center; gap:8px;">
-              <span style="width:24px; height:24px; background:${avatarColors[i]}; border-radius:6px; display:inline-flex; align-items:center; justify-content:center; font-size:0.65rem; font-weight:800; color:#000;">${initials(c.name)}</span>
-              ${c.name} · ${c.location}
-            </span>
-            <span>${c.revenue.toLocaleString()} TZS</span>
+    async function loadRevenue() {
+      const data = await api('/api/admin/revenue/weekly');
+      if (!data?.success) return;
+      
+      const chart = document.getElementById('weeklyChart');
+      if (chart) {
+        const max = Math.max(...data.weeklyRevenue.map(d => d.amount), 1);
+        chart.innerHTML = data.weeklyRevenue.map(d => `
+          <div class="bar-group">
+            <div class="bar ${d.amount > 0 ? 'green' : 'green-dim'}" style="height:${Math.max((d.amount / max * 100), 5)}%" data-val="${d.amount.toLocaleString()} TZS"></div>
+            <div class="bar-label">${d.day}</div>
           </div>
-          <div class="rev-bar"><div class="rev-bar-fill" style="width:${c.pct}%"></div></div>
-        </div>
-      `).join('');
+        `).join('');
+      }
+      
+      const topData = await api('/api/admin/revenue/top');
+      if (topData?.success) {
+        const container = document.getElementById('topClients');
+        if (container) {
+          const maxRev = Math.max(...topData.topClients.map(t => t.total), 1);
+          container.innerHTML = topData.topClients.map((t, i) => {
+            const c = t.client || {};
+            const name = (c.firstName || '') + ' ' + (c.lastName || '');
+            return `
+              <div class="rev-row">
+                <div class="rev-row-header">
+                  <span style="display:flex; align-items:center; gap:8px;">
+                    <span style="width:24px; height:24px; background:${avatarColors[i]}; border-radius:6px; display:inline-flex; align-items:center; justify-content:center; font-size:0.65rem; font-weight:800; color:#000;">${initials(name)}</span>
+                    ${name} · ${c.location || c.region || 'Haijulikani'}
+                  </span>
+                  <span>${t.total.toLocaleString()} TZS</span>
+                </div>
+                <div class="rev-bar"><div class="rev-bar-fill" style="width:${(t.total / maxRev * 100)}%"></div></div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+      
+      const revData = await api('/api/admin/stats');
+      if (revData?.success) {
+        const s = revData.stats;
+        document.getElementById('revenueTotal').textContent = (s.monthlyRevenue / 1000).toFixed(0) + 'k';
+        document.getElementById('revenueBusiness').textContent = (s.monthlyRevenue * 0.47 / 1000).toFixed(0) + 'k';
+        document.getElementById('revenuePro').textContent = (s.monthlyRevenue * 0.37 / 1000).toFixed(0) + 'k';
+      }
     }
 
-    function renderSupport() {
-      const tickets = [
-        { name: 'Grace Temba', issue: 'Payment inashindwa kupita. M-Pesa inakataa.', time: 'Saa 2 zilizopita', urgent: true },
-        { name: 'Amina Salim', issue: 'Captive portal haitoki baada ya kulipa.', time: 'Saa 5 zilizopita', urgent: false },
-        { name: 'Lucia Mwangi', issue: 'Nataka kubadilisha namba ya M-Pesa yangu.', time: 'Jana', urgent: false },
-      ];
-      document.getElementById('supportList').innerHTML = tickets.map((t, i) => `
-        <div style="background:var(--card2); border:1px solid ${t.urgent ? 'var(--red)' : 'var(--border)'}; border-radius:12px; padding:16px; display:flex; gap:14px; align-items:flex-start;">
-          <div style="width:34px; height:34px; background:${avatarColors[i]}; border-radius:8px; display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk',sans-serif; font-weight:800; font-size:0.78rem; color:#000; flex-shrink:0;">${initials(t.name)}</div>
+    async function loadSupport() {
+      const data = await api('/api/admin/support');
+      if (!data?.success) return;
+      const container = document.getElementById('supportList');
+      if (!container) return;
+      
+      container.innerHTML = data.tickets.map((t, i) => `
+        <div style="background:var(--card2); border:1px solid ${t.priority === 'urgent' ? 'var(--red)' : 'var(--border)'}; border-radius:12px; padding:16px; display:flex; gap:14px; align-items:flex-start;">
+          <div style="width:34px; height:34px; background:${avatarColors[i % avatarColors.length]}; border-radius:8px; display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk',sans-serif; font-weight:800; font-size:0.78rem; color:#000; flex-shrink:0;">${initials(t.name)}</div>
           <div style="flex:1;">
             <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
               <span style="font-weight:700; font-size:0.88rem;">${t.name}</span>
-              <span style="font-size:0.75rem; color:var(--muted);">${t.time}</span>
+              <span style="font-size:0.75rem; color:var(--muted);">${new Date(t.createdAt).toLocaleDateString('sw-TZ')}</span>
             </div>
             <div style="font-size:0.83rem; color:var(--muted);">${t.issue}</div>
           </div>
           <div style="display:flex; gap:6px; flex-shrink:0;">
-            ${t.urgent ? '<span style="font-size:0.65rem; background:rgba(244,67,54,0.12); color:var(--red); padding:3px 8px; border-radius:100px; font-weight:700;">HARAKA</span>' : ''}
-            <button class="action-btn success" onclick="this.closest('div').parentElement.remove()">Maliza</button>
+            ${t.priority === 'urgent' ? '<span style="font-size:0.65rem; background:rgba(244,67,54,0.12); color:var(--red); padding:3px 8px; border-radius:100px; font-weight:700;">HARAKA</span>' : ''}
+            ${t.status === 'open' ? `<button class="action-btn success" onclick="resolveTicket('${t._id}', this)">Maliza</button>` : '<span style="font-size:0.7rem; color:var(--green);">Imemalizika</span>'}
           </div>
         </div>
       `).join('');
+      
+      const openCount = data.tickets.filter(t => t.status === 'open').length;
+      document.getElementById('supportCount').textContent = openCount;
+      document.getElementById('supportBadge').textContent = openCount;
     }
 
-    function renderAnnounceHistory() {
-      const history = [
-        { title: 'Matengenezo ya Mfumo', msg: 'Mfumo utafanyiwa matengenezo Jumapili saa 4 asubuhi.', sent: '3 siku zilizopita', to: 'Clients Wote' },
-        { title: 'Bei Mpya za Mtaalamu', msg: 'Bei ya mpango Mtaalamu imebaki ile ile kwa mwezi ujao.', sent: 'Wiki iliyopita', to: 'Mtaalamu' },
-      ];
-      document.getElementById('announceHistory').innerHTML = history.map(a => `
+    async function resolveTicket(id, btn) {
+      const data = await api(`/api/admin/support/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ status: 'resolved' })
+      });
+      if (data?.success) {
+        btn.closest('div').innerHTML = '<span style="font-size:0.7rem; color:var(--green);">Imemalizika</span>';
+        loadSupport();
+      }
+    }
+
+    async function loadAnnouncements() {
+      const data = await api('/api/admin/announcements');
+      if (!data?.success) return;
+      const container = document.getElementById('announceHistory');
+      if (!container) return;
+      
+      container.innerHTML = data.announcements.map(a => `
         <div style="background:var(--card2); border:1px solid var(--border); border-radius:12px; padding:16px;">
           <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
             <span style="font-weight:700; font-size:0.88rem;">${a.title}</span>
-            <span style="font-size:0.72rem; color:var(--muted);">${a.sent}</span>
+            <span style="font-size:0.72rem; color:var(--muted);">${new Date(a.createdAt).toLocaleDateString('sw-TZ')}</span>
           </div>
-          <div style="font-size:0.8rem; color:var(--muted); margin-bottom:8px;">${a.msg}</div>
-          <span style="font-size:0.7rem; background:rgba(0,200,83,0.1); color:var(--green); padding:2px 10px; border-radius:100px;">Ilitumwa kwa: ${a.to}</span>
+          <div style="font-size:0.8rem; color:var(--muted); margin-bottom:8px;">${a.message}</div>
+          <span style="font-size:0.7rem; background:rgba(0,200,83,0.1); color:var(--green); padding:2px 10px; border-radius:100px;">Ilitumwa kwa: ${a.sentTo}</span>
         </div>
       `).join('');
     }
 
-    function filterClients(q) {
-      const filtered = clients.filter(c =>
-        c.name.toLowerCase().includes(q.toLowerCase()) ||
-        c.location.toLowerCase().includes(q.toLowerCase()) ||
-        c.phone.includes(q)
-      );
-      renderClients(filtered);
-    }
-
-    function filterByPlan(plan) {
-      const filtered = plan ? clients.filter(c => c.plan === plan) : clients;
-      renderClients(filtered);
-    }
-
-    function filterByStatus(status) {
-      const filtered = status ? clients.filter(c => c.status === status) : clients;
-      renderClients(filtered);
-    }
-
-    function toggleStatus(i) {
-      if (clients[i].status === 'active' || clients[i].status === 'trial') {
-        clients[i].status = 'suspended';
-        clients[i].revenue = '0';
-      } else {
-        clients[i].status = 'active';
+    async function sendAnnouncement() {
+      const title = document.getElementById('announceTitle').value;
+      const message = document.getElementById('announceMessage').value;
+      const sentTo = document.getElementById('announceTo').value;
+      const channel = document.getElementById('announceChannel').value;
+      
+      if (!title || !message) {
+        alert('Jaza kichwa na ujumbe wa tangazo.');
+        return;
       }
-      renderClients(clients);
+      
+      const data = await api('/api/admin/announcements', {
+        method: 'POST',
+        body: JSON.stringify({ title, message, sentTo, channel })
+      });
+      
+      if (data?.success) {
+        alert('Tangazo limetumwa kwa clients!');
+        loadAnnouncements();
+        document.getElementById('announceTitle').value = '';
+        document.getElementById('announceMessage').value = '';
+      } else {
+        alert('Imeshindwa kutuma tangazo.');
+      }
     }
 
-    function openClientModal(i) {
-      const c = clients[i];
+    async function loadHealth() {
+      const data = await api('/api/admin/health');
+      if (!data?.success) return;
+      const h = data.health;
+      
+      document.getElementById('serverLoad').textContent = h.serverLoad + '%';
+      document.getElementById('activeHotspots').textContent = h.totalClients || 0;
+      document.getElementById('activeUsers').textContent = h.activeSessions || 0;
+      document.getElementById('paymentSuccess').textContent = h.paymentSuccess + '%';
+    }
+
+    async function loadSettings() {
+      const data = await api('/api/admin/settings');
+      if (!data?.success) return;
+      const s = data.settings;
+      if (s.systemName) document.getElementById('sysName').value = s.systemName;
+      if (s.adminEmail) document.getElementById('sysEmail').value = s.adminEmail;
+      if (s.trialPeriod) document.getElementById('sysTrial').value = s.trialPeriod;
+      if (s.mpesaKey) document.getElementById('mpesaKey').value = s.mpesaKey;
+      if (s.airtelKey) document.getElementById('airtelKey').value = s.airtelKey;
+      if (s.smsKey) document.getElementById('smsKey').value = s.smsKey;
+      if (s.halopesaKey) document.getElementById('halopesaKey').value = s.halopesaKey;
+      if (s.mixxKey) document.getElementById('mixxKey').value = s.mixxKey;
+    }
+
+    async function saveSettings() {
+      const settings = {
+        systemName: document.getElementById('sysName').value,
+        adminEmail: document.getElementById('sysEmail').value,
+        trialPeriod: document.getElementById('sysTrial').value
+      };
+      const data = await api('/api/admin/settings', {
+        method: 'PUT',
+        body: JSON.stringify({ settings })
+      });
+      if (data?.success) {
+        alert('Mipangilio imehifadhiwa!');
+      } else {
+        alert('Imeshindwa kuhifadhi.');
+      }
+    }
+
+    async function saveApiKeys() {
+      const settings = {
+        mpesaKey: document.getElementById('mpesaKey').value,
+        airtelKey: document.getElementById('airtelKey').value,
+        smsKey: document.getElementById('smsKey').value,
+        halopesaKey: document.getElementById('halopesaKey').value,
+        mixxKey: document.getElementById('mixxKey').value
+      };
+      const data = await api('/api/admin/settings', {
+	  method: 'PUT',
+        body: JSON.stringify({ settings })
+      });
+      if (data?.success) {
+        alert('API Keys zimehifadhiwa!');
+      } else {
+        alert('Imeshindwa kuhifadhi.');
+      }
+    }
+
+    async function toggleStatus(clientId, newStatus) {
+      const data = await api(`/api/clients/${clientId}/status`, {
+        method: 'PUT',
+        body: JSON.stringify({ status: newStatus })
+      });
+      if (data?.success) {
+        loadClients(currentPage);
+      }
+    }
+
+    async function openClientModal(clientId) {
+      const c = allClients.find(x => x._id === clientId);
+      if (!c) return;
+      const name = (c.firstName || '') + ' ' + (c.lastName || '');
+      const color = avatarColors[allClients.indexOf(c) % avatarColors.length];
+      
       document.getElementById('modalContent').innerHTML = `
         <div style="display:flex; align-items:center; gap:14px; margin-bottom:20px;">
-          <div style="width:48px; height:48px; background:${avatarColors[i % avatarColors.length]}; border-radius:12px; display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk',sans-serif; font-weight:800; font-size:1rem; color:#000;">${initials(c.name)}</div>
+          <div style="width:48px; height:48px; background:${color}; border-radius:12px; display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk',sans-serif; font-weight:800; font-size:1rem; color:#000;">${initials(name)}</div>
           <div>
-            <h2 style="margin-bottom:4px;">${c.name}</h2>
-            <p style="margin:0;">${c.phone} · 📍 ${c.location}</p>
+            <h2 style="margin-bottom:4px;">${name}</h2>
+            <p style="margin:0;">${c.phone || ''} · 📍 ${c.location || c.region || 'Haijulikani'}</p>
           </div>
         </div>
-        <div class="modal-detail-row"><span>Mpango</span><span><span class="plan-badge ${c.plan}">${planLabels[c.plan]}</span></span></div>
-        <div class="modal-detail-row"><span>Hali</span><span><span class="status-badge ${c.status}">${statusLabels[c.status]}</span></span></div>
-        <div class="modal-detail-row"><span>Mapato Mwezi Huu</span><span>${c.revenue} TZS</span></div>
-        <div class="modal-detail-row"><span>Tarehe ya Kujisajili</span><span>${c.date}</span></div>
+        <div class="modal-detail-row"><span>Mpango</span><span><span class="plan-badge ${c.plan || 'free'}">${planLabels[c.plan] || c.plan}</span></span></div>
+        <div class="modal-detail-row"><span>Hali</span><span><span class="status-badge ${c.status || 'trial'}">${statusLabels[c.status] || c.status}</span></span></div>
+        <div class="modal-detail-row"><span>Mapato Mwezi Huu</span><span>${(c.monthlyRevenue || 0).toLocaleString()} TZS</span></div>
+        <div class="modal-detail-row"><span>Tarehe ya Kujisajili</span><span>${new Date(c.createdAt).toLocaleDateString('sw-TZ')}</span></div>
         <div class="modal-detail-row"><span>Hotspots</span><span>1</span></div>
         <div class="modal-detail-row"><span>Watumiaji wa Leo</span><span style="color:var(--green);">${Math.floor(Math.random()*50)+10}</span></div>
         <div class="modal-btns">
@@ -1417,25 +1724,43 @@
       document.body.style.overflow = 'hidden';
     }
 
-    function openModal(type) {
-      document.getElementById('modalContent').innerHTML = `
-        <h2>Ongeza Client Mpya</h2>
-        <p>Ongeza client manually kwenye mfumo wa WifiPesa.</p>
-        <div style="display:flex; flex-direction:column; gap:14px;">
-          <div><label style="font-size:0.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:7px;">Jina Kamili</label>
-          <input type="text" class="search-input" placeholder="Jina la client..." style="width:100%;"/></div>
-          <div><label style="font-size:0.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:7px;">Namba ya Simu</label>
-          <input type="tel" class="search-input" placeholder="+255 7XX XXX XXX" style="width:100%;"/></div>
-          <div><label style="font-size:0.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:7px;">Mpango</label>
-          <select class="announce-select"><option>Mwanzo (Bure)</option><option>Biashara (20,000 TZS)</option><option>Mtaalamu (50,000 TZS)</option></select></div>
-        </div>
-        <div class="modal-btns">
-          <button class="modal-cancel" onclick="closeModal()">Ghairi</button>
-          <button class="modal-confirm green" onclick="closeModal(); alert('Client ameongezwa!')">Ongeza Client</button>
-        </div>
-      `;
-      document.getElementById('modalOverlay').classList.add('active');
-      document.body.style.overflow = 'hidden';
+    async function addClient() {
+      const inputs = document.querySelectorAll('#modalContent input');
+      const selects = document.querySelectorAll('#modalContent select');
+      const firstName = inputs[0]?.value;
+      const phone = inputs[1]?.value;
+      const planText = selects[0]?.value;
+      
+      if (!firstName || !phone) {
+        alert('Jaza jina na namba ya simu.');
+        return;
+      }
+      
+      const planMap = { 'Mwanzo (Bure)': 'free', 'Biashara (20,000 TZS)': 'business', 'Mtaalamu (50,000 TZS)': 'pro' };
+      
+      const data = await api('/api/admin/clients', {
+        method: 'POST',
+        body: JSON.stringify({
+          firstName,
+          lastName: '',
+          phone,
+          password: '123456',
+          plan: planMap[planText] || 'free',
+          status: 'active'
+        })
+      });
+      
+      if (data?.success) {
+        closeModal();
+        alert('Client ameongezwa!');
+        loadClients(1);
+      } else {
+        alert(data?.message || 'Imeshindwa kuongeza client.');
+      }
+    }
+
+    function filterClients() {
+      loadClients(1);
     }
 
     function closeModal() {
@@ -1463,11 +1788,19 @@
 
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
-    renderClients(clients);
-    renderRecentSignups();
-    renderTopClients();
-    renderSupport();
-    renderAnnounceHistory();
+    // Auth check on load
+    function checkAuth() {
+      const token = localStorage.getItem('token');
+      const client = JSON.parse(localStorage.getItem('client') || '{}');
+      if (!token || client.role !== 'admin') {
+        showLogin();
+      } else {
+        hideLogin();
+        initDashboard();
+      }
+    }
+
+    checkAuth();
   </script>
 </body>
 </html>
