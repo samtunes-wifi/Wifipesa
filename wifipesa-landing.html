@@ -521,6 +521,55 @@
       .nav-links { display: none; }
       .stats-bar { gap: 32px; }
     }
+  
+    /* TRUSTED PAYMENT LOGOS STRIP */
+    .logos-strip {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 56px;
+      padding: 40px 5%;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+      background: var(--bg);
+    }
+
+    .logo-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      text-align: center;
+    }
+
+    .logo-item img {
+      height: 100px;
+      width: auto;
+      max-width: 180px;
+      object-fit: contain;
+      filter: brightness(1.1) grayscale(0.2);
+      transition: filter 0.3s, transform 0.3s;
+    }
+
+    .logo-item:hover img {
+      filter: brightness(1.3) grayscale(0);
+      transform: scale(1.05);
+    }
+
+    .logo-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.5px;
+    }
+
+    @media (max-width: 640px) {
+      .logos-strip { gap: 32px; padding: 32px 5%; }
+      .logo-item img { height: 70px; max-width: 130px; }
+      .logo-name { font-size: 0.8rem; }
+    }
+
   </style>
 </head>
 <body>
@@ -548,23 +597,23 @@
     </div>
   </div>
 
-  <!-- STATS -->
-  <div class="stats-bar">
-    <div class="stat">
-      <div class="stat-num">M-Pesa</div>
-      <div class="stat-label">Malipo Yanakubaliwa</div>
+  <!-- TRUSTED PAYMENT LOGOS -->
+  <div class="logos-strip">
+    <div class="logo-item">
+      <img src="IMAGES/MPESA.png" alt="M-Pesa">
+      <span class="logo-name">M-Pesa</span>
     </div>
-    <div class="stat">
-      <div class="stat-num">Airtel</div>
-      <div class="stat-label">Money Inakubaliwa</div>
+    <div class="logo-item">
+      <img src="IMAGES/AIRTEL MONEY.png" alt="Airtel Money">
+      <span class="logo-name">Airtel Tanzania</span>
     </div>
-    <div class="stat">
-      <div class="stat-num">24/7</div>
-      <div class="stat-label">Mfumo Unaofanya Kazi</div>
+    <div class="logo-item">
+      <img src="IMAGES/YAS.png" alt="Mixx by YAS">
+      <span class="logo-name">Mixx by YAS</span>
     </div>
-    <div class="stat">
-      <div class="stat-num">5 min</div>
-      <div class="stat-label">Kuanza Kutumia</div>
+    <div class="logo-item">
+      <img src="IMAGES/HALOPESA.png" alt="Halopesa">
+      <span class="logo-name">Halopesa</span>
     </div>
   </div>
 
