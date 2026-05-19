@@ -797,20 +797,6 @@
 
     .btn-send:hover { background: #00e564; }
 
-    #loginOverlay {
-      position: fixed;
-      inset: 0;
-      background: var(--bg);
-      z-index: 300;
-      display: none;
-      align-items: center;
-      justify-content: center;
-    }
-
-    #loginOverlay.active {
-      display: flex;
-    }
-
     @media (max-width: 900px) {
       .sidebar { transform: translateX(-100%); }
       .sidebar.open { transform: translateX(0); }
@@ -822,28 +808,6 @@
   </style>
 </head>
 <body>
-
-  <!-- LOGIN OVERLAY -->
-  <div id="loginOverlay">
-    <div style="background:var(--card); border:1px solid var(--border); border-radius:20px; padding:40px; width:100%; max-width:400px; margin:20px;">
-      <div style="text-align:center; margin-bottom:30px;">
-        <div style="font-family:'Space Grotesk',sans-serif; font-weight:800; font-size:1.5rem; margin-bottom:8px;">Wifi<span style="color:var(--green);">Pesa</span></div>
-        <div style="color:var(--muted); font-size:0.85rem;">Admin Panel - Ingia kwanza</div>
-      </div>
-      <div style="display:flex; flex-direction:column; gap:16px;">
-        <div>
-          <label style="font-size:0.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:7px;">Namba ya Simu</label>
-          <input type="tel" id="loginPhone" class="search-input" placeholder="+255 7XX XXX XXX" style="width:100%;" />
-        </div>
-        <div>
-          <label style="font-size:0.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:7px;">Nenosiri</label>
-          <input type="password" id="loginPassword" class="search-input" placeholder="Nenosiri lako..." style="width:100%;" />
-        </div>
-        <button class="btn-send" style="width:100%; justify-content:center;" onclick="doLogin()">Ingia</button>
-        <div id="loginError" style="color:var(--red); font-size:0.8rem; text-align:center; display:none;"></div>
-      </div>
-    </div>
-  </div>
 
   <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
@@ -1291,7 +1255,7 @@
         if (res.status === 401 || res.status === 403) {
           localStorage.removeItem('token');
           localStorage.removeItem('client');
-          showLogin();
+          window.location.href = 'wifipesa-auth.html';
           return null;
         }
         return await res.json();
@@ -1301,54 +1265,10 @@
       }
     }
 
-    function showLogin() {
-      document.getElementById('loginOverlay').classList.add('active');
-      document.querySelector('.main').style.display = 'none';
-      document.querySelector('.sidebar').style.display = 'none';
-    }
-
-    function hideLogin() {
-      document.getElementById('loginOverlay').classList.remove('active');
-      document.querySelector('.main').style.display = 'flex';
-      document.querySelector('.sidebar').style.display = 'flex';
-    }
-
-    async function doLogin() {
-      const phone = document.getElementById('loginPhone').value.trim();
-      const password = document.getElementById('loginPassword').value;
-      const errorEl = document.getElementById('loginError');
-      
-      if (!phone || !password) {
-        errorEl.textContent = 'Jaza namba ya simu na nenosiri.';
-        errorEl.style.display = 'block';
-        return;
-      }
-      
-      const data = await api('/api/auth/login', {
-        method: 'POST',
-        body: JSON.stringify({ phone, password })
-      });
-      
-      if (data?.token) {
-        if (data.client?.role !== 'admin') {
-          errorEl.textContent = 'Akaunti hii siyo ya Admin. Tafadhali tumia akaunti ya Super Admin.';
-          errorEl.style.display = 'block';
-          return;
-        }
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('client', JSON.stringify(data.client));
-        hideLogin();
-        initDashboard();
-      } else {
-        errorEl.textContent = data?.message || 'Ingia imeshindwa. Jaribu tena.';
-        errorEl.style.display = 'block';
-      }
-    }
-
     function logout() {
       localStorage.removeItem('token');
       localStorage.removeItem('client');
-      location.reload();
+      window.location.href = 'wifipesa-auth.html';
     }
 
     function initDashboard() {
@@ -1788,16 +1708,19 @@
 
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
-    // Auth check on load
+    // Auth check on load - redirect to unified login if not admin
     function checkAuth() {
       const token = localStorage.getItem('token');
       const client = JSON.parse(localStorage.getItem('client') || '{}');
       if (!token || client.role !== 'admin') {
-        showLogin();
-      } else {
-        hideLogin();
-        initDashboard();
+        // Not logged in or not admin - redirect to unified login
+        localStorage.removeItem('token');
+        localStorage.removeItem('client');
+        window.location.href = 'wifipesa-auth.html';
+        return;
       }
+      // Admin confirmed - init dashboard
+      initDashboard();
     }
 
     checkAuth();

@@ -1099,7 +1099,13 @@
         if (res.ok) {
           localStorage.setItem('token', result.token);
           localStorage.setItem('client', JSON.stringify(result.client));
-          window.location.href = '/wifipesa-dashboard.html';
+          // ===== ROLE-BASED REDIRECT =====
+          if (result.client?.role === 'admin') {
+            window.location.href = 'wifipesa-admin.html';
+          } else {
+            window.location.href = 'wifipesa-dashboard.html';
+          }
+          // ===== END =====
         } else {
           // Kama akaunti haipo au nenosiri ni la uongo, inatupa ujumbe hapa hapa
           showAlert('error', result.message || 'Namba ya simu au nenosiri sio sahihi!');

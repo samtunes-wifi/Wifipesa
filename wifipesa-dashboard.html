@@ -229,7 +229,6 @@
     .page.active { display: block; }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* UPGRADE BANNER */
     .upgrade-banner {
       background: linear-gradient(135deg, rgba(0,200,83,0.1), rgba(255,230,0,0.05));
       border: 1px solid var(--green);
@@ -263,7 +262,6 @@
 
     .btn-upgrade:hover { background: #00e564; }
 
-    /* STATS */
     .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
 
     .stat-card {
@@ -292,7 +290,6 @@
     .card-title { font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 700; }
     .card-action { font-size: 0.8rem; color: var(--green); cursor: pointer; font-weight: 600; background: none; border: none; font-family: 'Sora', sans-serif; }
 
-    /* TABLE */
     .tx-table { width: 100%; border-collapse: collapse; }
     .tx-table th { font-size: 0.72rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); padding: 0 0 14px 0; text-align: left; border-bottom: 1px solid var(--border); }
     .tx-table td { padding: 12px 0; font-size: 0.85rem; border-bottom: 1px solid rgba(26,58,40,0.5); }
@@ -303,7 +300,6 @@
     .tx-badge.pending { background: rgba(255,230,0,0.12); color: var(--yellow); }
     .tx-badge.failed { background: rgba(244,67,54,0.12); color: var(--red); }
 
-    /* USERS */
     .users-list { display: flex; flex-direction: column; gap: 10px; }
 
     .user-row {
@@ -337,7 +333,6 @@
 
     .kick-btn:hover { background: rgba(244,67,54,0.2); }
 
-    /* PACKAGES */
     .packages-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-bottom: 24px; }
 
     .pkg-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; transition: all 0.3s; }
@@ -405,7 +400,6 @@
 
     .add-pkg-btn:hover { border-color: var(--green); color: var(--green); }
 
-    /* PORTAL LINK */
     .portal-link-box {
       background: var(--card2);
       border: 1px solid var(--green);
@@ -437,7 +431,6 @@
 
     .copy-link-btn:hover { background: #00e564; }
 
-    /* ROUTER INTEGRATION */
     .router-steps { display: flex; flex-direction: column; gap: 12px; }
 
     .router-step {
@@ -468,18 +461,15 @@
     .router-step-info p { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
     .router-step-info code { background: var(--bg); border: 1px solid var(--border); padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; color: var(--green); font-family: monospace; }
 
-    /* REPORTS CHARTS */
     .chart-bars { display: flex; align-items: flex-end; gap: 8px; height: 120px; }
     .bar-group { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end; }
     .bar { width: 100%; background: rgba(0,200,83,0.3); border-radius: 6px 6px 0 0; position: relative; cursor: pointer; }
     .bar.today { background: var(--green); }
     .bar-label { font-size: 0.68rem; color: var(--muted); }
 
-    /* API */
     .api-card { background: var(--card2); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
     .api-key { font-family: 'Space Grotesk', sans-serif; font-size: 0.85rem; background: var(--bg); padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border); word-break: break-all; color: var(--green); margin: 10px 0; }
 
-    /* LOCKED */
     .locked-page {
       display: flex;
       flex-direction: column;
@@ -496,7 +486,6 @@
     .locked-page h2 { font-family: 'Space Grotesk', sans-serif; font-size: 1.5rem; font-weight: 800; margin-bottom: 10px; }
     .locked-page p { color: var(--muted); font-size: 0.9rem; margin-bottom: 28px; max-width: 400px; }
 
-    /* SETTINGS */
     .settings-section { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 16px; }
     .settings-section h3 { font-family: 'Space Grotesk', sans-serif; font-size: 0.95rem; font-weight: 700; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
 
@@ -508,7 +497,6 @@
     .btn-save { background: var(--green); color: #000; padding: 12px 24px; border-radius: 10px; font-weight: 700; font-size: 0.9rem; border: none; cursor: pointer; font-family: 'Sora', sans-serif; transition: all 0.2s; }
     .btn-save:hover { background: #00e564; }
 
-    /* MODAL */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200; display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
     .modal-overlay.active { display: flex; }
 
@@ -540,7 +528,6 @@
     .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--green); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 40px auto; display: block; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* PRO FEATURES */
     .pro-badge { background: rgba(255,230,0,0.12); color: var(--yellow); border: 1px solid var(--yellow); border-radius: 6px; padding: 2px 8px; font-size: 0.65rem; font-weight: 800; letter-spacing: 1px; }
     .business-badge { background: rgba(0,200,83,0.12); color: var(--green); border: 1px solid var(--green); border-radius: 6px; padding: 2px 8px; font-size: 0.65rem; font-weight: 800; letter-spacing: 1px; }
 
@@ -961,7 +948,16 @@
     let currentPlan = 'free';
     let allPayments = [];
 
-    if (!token) window.location.href = '/wifipesa-auth.html';
+    // Role guard: Admins should be on admin dashboard
+    (function roleGuard() {
+      const client = JSON.parse(localStorage.getItem('client') || '{}');
+      if (client.role === 'admin') {
+        window.location.href = 'wifipesa-admin.html';
+        return;
+      }
+    })();
+
+    if (!token) window.location.href = 'wifipesa-auth.html';
 
     const headers = () => ({
       'Content-Type': 'application/json',
@@ -1310,7 +1306,7 @@
     function logout() {
       localStorage.removeItem('token');
       localStorage.removeItem('client');
-      window.location.href = '/wifipesa-auth.html';
+      window.location.href = 'wifipesa-auth.html';
     }
 
     function openAddModal() { document.getElementById('addModalOverlay').classList.add('active'); document.body.style.overflow = 'hidden'; }
