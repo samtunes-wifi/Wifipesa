@@ -806,6 +806,40 @@
       .grid-2, .grid-3-1, .health-grid { grid-template-columns: 1fr; }
     }
   </style>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    // Real-time admin dashboard
+    let adminSocket = io();
+    adminSocket.on('connect', () => {
+      console.log('🔌 Admin connected to real-time');
+      adminSocket.emit('join-admin');
+    });
+
+    adminSocket.on('new-client-registered', (data) => {
+      console.log('👤 New client:', data);
+      loadStats(); loadClients(1); loadSupport();
+      showAdminToast('🎉 Mteja mpya amejisajili: ' + data.client.firstName);
+    });
+
+    adminSocket.on('new-payment', (data) => {
+      console.log('💰 New payment:', data);
+      loadStats(); loadRevenue();
+      showAdminToast('💰 Malipo mapya: ' + data.payment.amount + ' TZS');
+    });
+
+    adminSocket.on('payment-confirmed', () => {
+      loadStats(); loadRevenue(); loadHealth();
+    });
+
+    function showAdminToast(msg) {
+      const t = document.createElement('div');
+      t.style.cssText = 'position:fixed;top:80px;right:20px;background:#00c853;color:#000;padding:12px 20px;border-radius:10px;font-weight:600;z-index:1000;animation:fadeUp 0.3s ease;box-shadow:0 4px 12px rgba(0,200,83,0.3);';
+      t.textContent = msg;
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 5000);
+    }
+  </script>
+<base target="_blank">
 </head>
 <body>
 
@@ -912,31 +946,31 @@
             <div class="chart-bars" id="weeklyChart">
               <div class="bar-group">
                 <div class="bar green-dim" style="height:50%" data-val="120,000 TZS"></div>
-                <div class="bar-label">Jum</div>
+                <div class="bar-label">J3</div>
               </div>
               <div class="bar-group">
                 <div class="bar green-dim" style="height:65%" data-val="160,000 TZS"></div>
-                <div class="bar-label">Alh</div>
+                <div class="bar-label">J4</div>
               </div>
               <div class="bar-group">
                 <div class="bar green-dim" style="height:42%" data-val="100,000 TZS"></div>
-                <div class="bar-label">Ijo</div>
+                <div class="bar-label">J5</div>
               </div>
               <div class="bar-group">
                 <div class="bar green-dim" style="height:88%" data-val="220,000 TZS"></div>
-                <div class="bar-label">Moz</div>
+                <div class="bar-label">Alh</div>
               </div>
               <div class="bar-group">
                 <div class="bar green-dim" style="height:70%" data-val="180,000 TZS"></div>
-                <div class="bar-label">Ikh</div>
+                <div class="bar-label">Iju</div>
               </div>
               <div class="bar-group">
                 <div class="bar green-dim" style="height:78%" data-val="200,000 TZS"></div>
-                <div class="bar-label">Ijm</div>
+                <div class="bar-label">Jmosi</div>
               </div>
               <div class="bar-group">
                 <div class="bar green" style="height:60%" data-val="160,000 TZS"></div>
-                <div class="bar-label">Leo</div>
+                <div class="bar-label">J2</div>
               </div>
             </div>
           </div>
@@ -1039,7 +1073,7 @@
             </select>
             <select id="statusFilter" class="filter-select" onchange="filterClients()">
               <option value="">Hali Zote</option>
-              <option value="active">Aktive</option>
+              <option value="active">Active</option>
               <option value="suspended">Imesimamishwa</option>
               <option value="trial">Trial</option>
             </select>
@@ -1052,6 +1086,7 @@
                 <th>Mpango</th>
                 <th>Hali</th>
                 <th>Mapato (Mwezi)</th>
+                <th>Subscription</th>
                 <th>Tarehe ya Kujisajili</th>
                 <th>Vitendo</th>
               </tr>
@@ -1236,6 +1271,15 @@
     const avatarColors = ['#00c853','#2196f3','#ff9800','#e91e63','#9c27b0','#00bcd4'];
     const planLabels = { free: 'Mwanzo', business: 'Biashara', pro: 'Mtaalamu' };
     const statusLabels = { active: 'Aktive', suspended: 'Imesimamishwa', trial: 'Trial' };
+
+    function getSubscriptionBadge(client) {
+      if (!client.subscriptionExpiry) return '<span style="font-size:0.7rem; color:var(--muted);">Haijawekwa</span>';
+      const days = Math.ceil((new Date(client.subscriptionExpiry) - new Date()) / (1000 * 60 * 60 * 24));
+      const isExpired = days <= 0;
+      const color = isExpired ? 'var(--red)' : days < 10 ? 'var(--yellow)' : 'var(--green)';
+      const bg = isExpired ? 'rgba(244,67,54,0.12)' : days < 10 ? 'rgba(255,230,0,0.12)' : 'rgba(0,200,83,0.12)';
+      return '<span style="font-size:0.7rem; padding:3px 10px; border-radius:100px; font-weight:700; background:' + bg + '; color:' + color + ';">' + (isExpired ? 'IMEKWISHA' : days + ' siku') + '</span>';
+    }
 
     function initials(name) {
       return name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
@@ -1709,21 +1753,92 @@
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
     // Auth check on load - redirect to unified login if not admin
-    function checkAuth() {
-      const token = localStorage.getItem('token');
-      const client = JSON.parse(localStorage.getItem('client') || '{}');
-      if (!token || client.role !== 'admin') {
-        // Not logged in or not admin - redirect to unified login
-        localStorage.removeItem('token');
-        localStorage.removeItem('client');
+     function checkAuth() {
+      try {
+        const client = JSON.parse(localStorage.getItem('client'));
+        const token = localStorage.getItem('token');
+
+        // Ulinzi wa Admin: Kama data hazipo au sio Admin, mtoe nje!
+        if (!token || !client || client.role !== 'admin') {
+            window.location.href = 'wifipesa-auth.html';
+            return;
+        }
+        
+        const adminNameEl = document.querySelector('.admin-name');
+        if (adminNameEl) adminNameEl.textContent = client.firstName || 'Admin';
+        
+      } catch (e) {
         window.location.href = 'wifipesa-auth.html';
-        return;
       }
-      // Admin confirmed - init dashboard
-      initDashboard();
     }
 
-    checkAuth();
+    document.addEventListener('DOMContentLoaded', checkAuth);
+	// 🔄 Function maalum ya kuvuta data na kuchora vijiti vya Graph real-time
+async function vutaDataRealtime() {
+  try {
+    const token = localStorage.getItem('token');
+    const res = await fetch('/api/admin/dashboard-stats', {
+      method: 'GET',
+      headers: { 
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!res.ok) return;
+    const backendData = await res.json();
+
+    // 1. Sasisha Kadi ya CLIENTS WOTE
+    const clientsWoteEl = document.querySelector('.card:nth-child(1) h2') || document.getElementById('totalClientsId');
+    if (clientsWoteEl) clientsWoteEl.textContent = backendData.totalClients;
+
+    // 2. Sasisha Kadi ya MAPATO YA MWEZI
+    const mapatoEl = document.querySelector('.card:nth-child(2) h2') || document.getElementById('totalRevenueId');
+    if (mapatoEl) {
+      if (backendData.mapatoMwezi >= 1000) {
+        mapatoEl.textContent = (backendData.mapatoMwezi / 1000).toFixed(0) + 'k';
+      } else {
+        mapatoEl.textContent = backendData.mapatoMwezi;
+      }
+    }
+
+    // 3. Sasisha Kadi ya CLIENTS WAPYA LEO
+    const clientsLeoEl = document.querySelector('.card:nth-child(3) h2') || document.getElementById('newClientsId');
+    if (clientsLeoEl) clientsLeoEl.textContent = backendData.clientsLeo;
+
+    // ========================================================
+    // 📊 4. CHORA VIJITI VYA GRAPH LIVE (Kodi yako uliyopiga picha!)
+    // ========================================================
+    const chart = document.getElementById('weeklyChart');
+    if (chart) {
+        // Tunatengeneza muundo ule ule wa data yako kulingana na majina ya siku
+        const sikuZote = ['J3', 'J4', 'J5', 'Alh', 'Iju', 'Jmosi', 'J2'];
+        const muundoWaRevenue = sikuZote.map((siku, i) => {
+            return { day: siku, amount: backendData.mapatoYaWiki[i] || 0 };
+        });
+
+        // Hapa sasa ndio ile hesabu yako ya kutafuta kijiti kirefu zaidi
+        const max = Math.max(...muundoWaRevenue.map(d => d.amount), 1);
+
+        // Kazi ya kusukuma HTML kwenye peji live kila baada ya sekunde 5
+        chart.innerHTML = muundoWaRevenue.map(d => `
+            <div class="bar-group">
+                <div class="bar ${d.amount > 0 ? 'green' : 'green-dim'}" style="height:${Math.max((d.amount / max * 100), 5)}%" data-val="${d.amount.toLocaleString()} TZS"></div>
+                <div class="bar-label">${d.day}</div>
+            </div>
+        `).join('');
+    }
+
+  } catch (error) {
+    console.error("Imefeli kuvuta takwimu kwenye graph:", error);
+  }
+}
+
+// ⏱️ Washa mtambo wa kujiendesha wenyewe kila baada ya sekunde 5
+document.addEventListener('DOMContentLoaded', () => {
+    vutaDataRealtime(); // Inapiga peji ikifunguka tu
+    setInterval(vutaDataRealtime, 5000); // Kila baada ya sekunde 5 inapiga upya yenyewe
+});
   </script>
 </body>
 </html>

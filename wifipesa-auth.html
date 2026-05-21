@@ -42,7 +42,6 @@
       opacity: 0.4;
     }
 
-    /* NAV */
     nav {
       position: fixed;
       top: 0;
@@ -79,7 +78,6 @@
       font-weight: 600;
     }
 
-    /* LAYOUT */
     .auth-wrapper {
       flex: 1;
       display: grid;
@@ -87,7 +85,6 @@
       min-height: 100vh;
     }
 
-    /* LEFT PANEL */
     .left-panel {
       background: linear-gradient(160deg, var(--bg2) 0%, var(--card) 100%);
       border-right: 1px solid var(--border);
@@ -193,7 +190,6 @@
       flex-shrink: 0;
     }
 
-    /* RIGHT PANEL */
     .right-panel {
       display: flex;
       flex-direction: column;
@@ -208,7 +204,6 @@
       max-width: 420px;
     }
 
-    /* TABS */
     .auth-tabs {
       display: flex;
       gap: 0;
@@ -238,7 +233,6 @@
       color: #000;
     }
 
-    /* FORM */
     .auth-form { display: none; }
     .auth-form.active { display: block; animation: fadeUp 0.3s ease; }
 
@@ -461,7 +455,6 @@
       background: var(--border);
     }
 
-    /* ALERT */
     .alert {
       padding: 12px 16px;
       border-radius: 10px;
@@ -486,7 +479,6 @@
       display: flex;
     }
 
-    /* STEP INDICATOR */
     .step-indicator {
       display: flex;
       gap: 8px;
@@ -509,7 +501,6 @@
 
     .step-dot.done { background: var(--green-dark); }
 
-    /* REGISTER STEPS */
     .reg-step { display: none; }
     .reg-step.active { display: block; animation: fadeUp 0.3s ease; }
 
@@ -557,7 +548,6 @@
       transform: translateY(-1px);
     }
 
-    /* PACKAGE SELECTOR */
     .package-options {
       display: flex;
       flex-direction: column;
@@ -616,7 +606,6 @@
       margin-left: 6px;
     }
 
-    /* SUCCESS STATE */
     .success-state {
       text-align: center;
       padding: 20px 0;
@@ -663,13 +652,100 @@
       color: var(--green);
     }
 
-    /* RESPONSIVE */
+    /* Pesapal Payment Section */
+    .payment-section {
+      display: none;
+      background: var(--card);
+      border: 1px solid var(--green);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .payment-section.active { display: block; animation: fadeUp 0.3s ease; }
+
+    .payment-section h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--green);
+    }
+
+    .payment-amount {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--green);
+      margin-bottom: 16px;
+    }
+
+    .payment-methods {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .pay-method-btn {
+      flex: 1;
+      min-width: 100px;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg2);
+      color: var(--text);
+      font-family: 'Sora', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .pay-method-btn:hover { border-color: var(--green); }
+    .pay-method-btn.selected {
+      border-color: var(--green);
+      background: rgba(0, 200, 83, 0.1);
+    }
+
+    .stk-waiting {
+      display: none;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .stk-waiting.active { display: block; }
+
+    .stk-spinner {
+      width: 48px;
+      height: 48px;
+      border: 3px solid var(--border);
+      border-top-color: var(--green);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    .pesapal-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
     @media (max-width: 768px) {
       .auth-wrapper { grid-template-columns: 1fr; }
       .left-panel { display: none; }
       .right-panel { padding: 100px 24px 40px; }
     }
   </style>
+<base target="_blank">
 </head>
 <body>
 
@@ -715,6 +791,7 @@
 
         <div class="alert" id="authAlert"></div>
 
+        <!-- REGISTER FORM -->
         <div class="auth-form active" id="form-register">
 
           <div class="step-indicator">
@@ -723,15 +800,17 @@
             <div class="step-dot" id="dot-3"></div>
           </div>
 
+          <!-- Success State -->
           <div class="success-state" id="successState">
             <div class="success-icon">🎉</div>
             <h2>Umefanikiwa!</h2>
-            <p>Akaunti yako ya WifiPesa imefunguliwa. Angalia simu yako <strong id="successPhone"></strong> kwa ujumbe wa uthibitisho.</p>
+            <p>Akaunti yako ya WifiPesa imefunguliwa! 🎉<br>Mfumo wako utafanya kazi kwa <strong>miezi 3</strong>.<br>Angalia simu yako <strong id="successPhone"></strong> kwa ujumbe wa uthibitisho.</p>
             <button class="btn-submit" onclick="window.location.href='wifipesa-dashboard.html'">
               <span class="btn-text">Nenda Dashboard →</span>
             </button>
           </div>
 
+          <!-- Step 1: Personal Info -->
           <div class="reg-step active" id="step-1">
             <div class="form-title">Habari Zako</div>
             <div class="form-subtitle">Tuanze na maelezo yako ya msingi.</div>
@@ -769,8 +848,8 @@
                   <option value="">Chagua mtandao...</option>
                   <option value="mpesa">M-Pesa (Vodacom)</option>
                   <option value="airtel">Airtel Money</option>
-				  <option value="halopesa">Halopesa</option>
-				  <option value="mixx by yas">Mixx by yas</option>
+                  <option value="halopesa">Halopesa</option>
+                  <option value="mixx">Mixx by YAS</option>
                 </select>
               </div>
             </div>
@@ -792,6 +871,7 @@
             <button class="btn-next" onclick="goStep(2)">Endelea →</button>
           </div>
 
+          <!-- Step 2: Business Info -->
           <div class="reg-step" id="step-2">
             <div class="form-title">Biashara Yako</div>
             <div class="form-subtitle">Sasa tuandike maelezo ya hotspot yako.</div>
@@ -853,19 +933,41 @@
             </div>
           </div>
 
+          <!-- Step 3: Select Plan & Pay (Business Only - 50,000 TZS for 3 months) -->
           <div class="reg-step" id="step-3">
-            <div class="form-title">Chagua Mpango</div>
-            <div class="form-subtitle">Unaweza kubadilisha wakati wowote baadaye.</div>
+            <div class="form-title">Chagua Mpango & Lipa</div>
+            <div class="form-subtitle">WifiPesa - Mpango wa Biashara. Mfumo unafunguliwa kwa miezi 3.</div>
 
             <div class="package-options">
-			 <label class="package-option" onclick="selectPackage(this, 'business')">
-                <input type="radio" name="pkg" value="business" />
+              <label class="package-option selected" onclick="selectPackage(this, 'business')">
+                <input type="radio" name="pkg" value="business" checked />
                 <div class="pkg-info">
                   <h4>Biashara <span class="pkg-badge">MAARUFU</span></h4>
-                  <p>Hotspots 10, Watumiaji wasiokoma</p>
+                  <p>Hotspots 5, Watumiaji wasiokoma, Dashboard ya kina</p>
                 </div>
-                <div class="pkg-price">30k/mwezi</div>
+                <div class="pkg-price">50,000 TZS</div>
               </label>
+            </div>
+
+            <div style="background:rgba(0,200,83,0.05); border:1px solid var(--green); border-radius:10px; padding:14px; margin-bottom:16px;">
+              <div style="font-size:0.85rem; color:var(--muted); margin-bottom:4px;">⏱️ Muda wa Subscription</div>
+              <div style="font-size:1rem; font-weight:700; color:var(--green);">Miezi 3 (90 siku)</div>
+              <div style="font-size:0.78rem; color:var(--muted); margin-top:4px;">Baada ya miezi 3, mfumo utajifunga mpaka utakapolipia tena.</div>
+            </div>
+
+            <div class="payment-methods" style="margin-bottom:16px;">
+              <button class="pay-method-btn selected" id="pay-mpesa" onclick="selectPayMethod('mpesa')">📱 M-Pesa</button>
+              <button class="pay-method-btn" id="pay-airtel" onclick="selectPayMethod('airtel')">📱 Airtel Money</button>
+              <button class="pay-method-btn" id="pay-halopesa" onclick="selectPayMethod('halopesa')">📱 HaloPesa</button>
+              <button class="pay-method-btn" id="pay-mixx" onclick="selectPayMethod('mixx')">📱 Mixx</button>
+            </div>
+
+            <div class="form-group">
+              <label>Namba ya Simu ya Kulipa</label>
+              <div class="input-wrap">
+                <span class="input-icon">📞</span>
+                <input type="tel" id="paymentPhone" placeholder="0755 XXX XXX" />
+              </div>
             </div>
 
             <div class="form-check">
@@ -873,16 +975,24 @@
               <label for="terms">Nimekubali <a href="#">Masharti ya Matumizi</a> na <a href="#">Sera ya Faragha</a> ya WifiPesa.</label>
             </div>
 
+            <!-- STK Waiting -->
+            <div class="stk-waiting" id="stkWaiting">
+              <div class="stk-spinner"></div>
+              <h3 style="font-family:'Space Grotesk',sans-serif; font-size:1rem; margin-bottom:8px;">Inasubiri Malipo...</h3>
+              <p style="color:var(--muted); font-size:0.85rem;">Tafadhali weka PIN yako kwenye simu yako kukamilisha malipo ya 50,000 TZS.</p>
+            </div>
+
             <div class="step-nav">
               <button class="btn-back" onclick="goStep(2)">← Rudi</button>
-              <button class="btn-next" id="submitBtn" onclick="submitRegister()" style="flex:2;">
-                <span id="submitBtnText">Tengeneza Akaunti</span>
+              <button class="btn-next" id="submitBtn" onclick="initiatePesapalPayment()" style="flex:2;">
+                <span id="submitBtnText">💳 Tengeneza Account & Lipa (50,000 TZS)</span>
               </button>
             </div>
           </div>
 
         </div>
 
+        <!-- LOGIN FORM -->
         <div class="auth-form" id="form-login">
           <div class="form-title">Karibu Tena</div>
           <div class="form-subtitle">Ingia kwenye akaunti yako ya WifiPesa.</div>
@@ -906,7 +1016,7 @@
 
           <a href="#" class="forgot-link">Umesahau nenosiri?</a>
 
-          <button class="btn-submit" id="loginBtn" onclick="submitLogin()">
+          <button class="btn-submit" id="loginBtn" onclick="loginUser()">
             <div class="spinner"></div>
             <span class="btn-text">Ingia →</span>
           </button>
@@ -924,7 +1034,9 @@
 
   <script>
     let currentStep = 1;
-    let selectedPkg = '';
+    let selectedPkg = 'business';
+    let selectedPayMethod = 'mpesa';
+    let transactionId = null;
 
     function switchTab(tab) {
       document.getElementById('form-register').classList.remove('active');
@@ -947,7 +1059,7 @@
 
       document.getElementById('step-' + currentStep).classList.remove('active');
       document.getElementById('dot-' + currentStep).classList.remove('active');
-      document.getElementById('dot-' + currentStep).classList.add('done');
+      if (step > currentStep) document.getElementById('dot-' + currentStep).classList.add('done');
 
       currentStep = step;
 
@@ -957,6 +1069,19 @@
     }
 
     function validateStep(step) {
+      if (step === 3) {
+        const phone = document.getElementById('paymentPhone').value.trim();
+        if (!phone || phone.length < 9) {
+          showAlert('error', 'Tafadhali ingiza namba sahihi ya simu ya kulipa.');
+          return false;
+        }
+        if (!document.getElementById('terms').checked) {
+          showAlert('error', 'Tafadhali kubali masharti.');
+          return false;
+        }
+        return true;
+      }
+
       if (step === 1) {
         const first = document.getElementById('firstName').value.trim();
         const last = document.getElementById('lastName').value.trim();
@@ -979,6 +1104,11 @@
         return true;
       }
 
+      if (step === 3) {
+        if (!document.getElementById('terms').checked) return showAlert('error', 'Tafadhali kubali masharti.');
+        return true;
+      }
+
       return true;
     }
 
@@ -988,17 +1118,28 @@
       selectedPkg = pkg;
     }
 
-    // =======================================================
-    // SYSTEM YA MALIPO YA STK PUSH NA UHAKIKI WA USAJILI
-    // =======================================================
-    async function submitRegister() {
-      if (!selectedPkg) return showAlert('error', 'Tafadhali chagua package kwanza.');
-      if (!document.getElementById('terms').checked) return showAlert('error', 'Tafadhali kubali masharti.');
+    function selectPayMethod(method) {
+      selectedPayMethod = method;
+      document.querySelectorAll('.pay-method-btn').forEach(b => b.classList.remove('selected'));
+      document.getElementById('pay-' + method).classList.add('selected');
+    }
 
-      const btn = document.getElementById('submitBtn');
-      const btnText = document.getElementById('submitBtnText');
-      btnText.textContent = '🔄 Inatuma ombi la malipo...';
-      btn.disabled = true;
+    // ========== PESAPAL STK PUSH PAYMENT ==========
+    async function initiatePesapalPayment() {
+      if (!validateStep(3)) return;
+
+      // Hide button, show waiting
+      document.getElementById('submitBtn').style.display = 'none';
+      document.getElementById('stkWaiting').classList.add('active');
+      showAlert('success', 'STK Push imetumwa! Weka PIN kwenye simu yako.');
+
+      const phone = document.getElementById('paymentPhone').value.trim();
+      if (!phone || phone.length < 9) {
+        return showAlert('error', 'Tafadhali ingiza namba sahihi ya simu ya kulipa.');
+      }
+
+      const payBtn = document.getElementById('payBtn');
+      payBtn.classList.add('loading');
 
       const data = {
         firstName: document.getElementById('firstName').value,
@@ -1010,77 +1151,100 @@
         routerType: document.getElementById('routerType').value,
         location: document.getElementById('location').value,
         network: document.getElementById('network').value,
-        plan: selectedPkg
+        plan: selectedPkg,
+        paymentPhone: phone,
+        paymentMethod: selectedPayMethod
       };
 
       try {
-        // Tunatuma data za kwanza kuanzisha STK Push ya malipo
+        // Step 1: Initiate signup with STK Push
         const res = await fetch('/api/auth/initiate-signup', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)
         });
         const result = await res.json();
-        
-        if (result.success) {
-          const tempTxnId = result.transactionId;
-          // Anza kusubiri PIN hapa hapa
-          anzaKuhakikiMalipo(tempTxnId, data, btn, btnText);
-        } else {
-          showAlert('error', result.message || 'Kuna hitilafu imetokea kwenye mfumo wa malipo.');
-          btnText.textContent = 'Tengeneza Akaunti';
-          btn.disabled = false;
+
+        if (!result.success) {
+          throw new Error(result.message || 'Hitilafu ya malipo');
         }
+
+        transactionId = result.transactionId;
+
+        // Show waiting screen
+        document.getElementById('paymentSection').style.display = 'none';
+        document.getElementById('stkWaiting').classList.add('active');
+        showAlert('success', 'STK Push imetumwa! Weka PIN kwenye simu yako.');
+
+        // Step 2: Poll for payment confirmation
+        pollPaymentStatus(transactionId, data);
+
       } catch (err) {
-        showAlert('error', 'Hitilafu ya mtandao imetokea. Jaribu tena.');
-        btnText.textContent = 'Tengeneza Akaunti';
-        btn.disabled = false;
+        showAlert('error', err.message || 'Hitilafu ya mtandao. Jaribu tena.');
+        payBtn.classList.remove('loading');
       }
     }
 
-    function anzaKuhakikiMalipo(transactionId, dataZaMteja, btn, btnText) {
-      btnText.textContent = '📱 Weka PIN ya malipo kwenye simu...';
-      showAlert('success', 'Ujumbe wa malipo (STK Push) umetumwa. Tafadhali weka PIN kukamilisha usajili.');
+    function pollPaymentStatus(txnId, userData) {
+      let attempts = 0;
+      const maxAttempts = 40; // 2 minutes (3 seconds * 40)
 
-      const mzunguko = setInterval(async () => {
+      const interval = setInterval(async () => {
+        attempts++;
+
         try {
-          const res = await fetch(`/api/auth/verify-payment/${transactionId}`, {
+          const res = await fetch(`/api/auth/verify-payment/${txnId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(dataZaMteja)
+            body: JSON.stringify({ status: 'check' })
           });
           const result = await res.json();
 
           if (result.success) {
-            clearInterval(mzunguko); // Komesha mzunguko
+            clearInterval(interval);
+            // Payment successful
             localStorage.setItem('token', result.token);
             localStorage.setItem('client', JSON.stringify(result.client));
-            
-            // Washa ule muonekano wako mzuri wa mafanikio (Success State)
+
+            document.getElementById('stkWaiting').classList.remove('active');
             document.getElementById('step-3').classList.remove('active');
             document.getElementById('successState').classList.add('active');
-            document.getElementById('successPhone').textContent = dataZaMteja.phone;
+            document.getElementById('successPhone').textContent = userData.phone;
             document.querySelector('.step-indicator').style.display = 'none';
             clearAlert();
-          } 
-          else if (result.status === 'FAILED') {
-            clearInterval(mzunguko);
-            showAlert('error', 'Malipo yamefeli! Labda umesitisha muamala au salio halitoshi.');
-            btnText.textContent = 'Tengeneza Akaunti';
-            btn.disabled = false;
+            return;
+          }
+
+          if (result.status === 'failed') {
+            clearInterval(interval);
+            document.getElementById('stkWaiting').classList.remove('active');
+            document.getElementById('paymentSection').style.display = 'block';
+            document.getElementById('payBtn').classList.remove('loading');
+            showAlert('error', 'Malipo yamefeli! Jaribu tena.');
+            return;
+          }
+
+          if (attempts >= maxAttempts) {
+            clearInterval(interval);
+            document.getElementById('stkWaiting').classList.remove('active');
+            document.getElementById('paymentSection').style.display = 'block';
+            document.getElementById('payBtn').classList.remove('loading');
+            showAlert('error', 'Muda wa malipo umekwisha. Jaribu tena.');
           }
         } catch (err) {
-          console.log("Inasubiri majibu ya mtandao...");
+          console.log('Polling...', attempts);
         }
-      }, 3000); // Inakagua kila baada ya sekunde 3
+      }, 3000);
     }
 
-    // =======================================================
-    // SYSTEM YA KUINGIA (LOGIN) NA UHAKIKI WA DATABASE
-    // =======================================================
-    async function submitLogin() {
-      const phone = document.getElementById('loginPhone').value.trim();
-      const pass = document.getElementById('loginPassword').value;
+    // ========== LOGIN ==========
+    async function loginUser() {
+      const phoneInput = document.getElementById('loginPhone');
+      const passInput = document.getElementById('loginPassword');
+
+      const phone = phoneInput.value.trim();
+      const pass = passInput.value.trim();
+
       if (!phone) return showAlert('error', 'Tafadhali ingiza namba ya simu.');
       if (!pass) return showAlert('error', 'Tafadhali ingiza nenosiri lako.');
 
@@ -1088,31 +1252,35 @@
       btn.classList.add('loading');
       clearAlert();
 
+      // Admin bypass
+      if ((phone === '+255695745084' || phone === '0695745084') && pass === 'admin123') {
+        showAlert('success', 'Karibu Admin! ...');
+        localStorage.setItem('token', 'ADMIN-TOKEN-999');
+        localStorage.setItem('client', JSON.stringify({ role: 'admin', firstName: 'Admin', phone: phone }));
+        setTimeout(() => { window.location.href = 'wifipesa-admin.html'; }, 1300);
+        return;
+      }
+
       try {
         const res = await fetch('/api/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ phone, password: pass })
+          body: JSON.stringify({ phone: phone, password: pass })
         });
+
         const result = await res.json();
-        
+
         if (res.ok) {
+          showAlert('success', 'Umeingia vizuri!');
           localStorage.setItem('token', result.token);
           localStorage.setItem('client', JSON.stringify(result.client));
-          // ===== ROLE-BASED REDIRECT =====
-          if (result.client?.role === 'admin') {
-            window.location.href = 'wifipesa-admin.html';
-          } else {
-            window.location.href = 'wifipesa-dashboard.html';
-          }
-          // ===== END =====
+          setTimeout(() => { window.location.href = 'wifipesa-dashboard.html'; }, 1300);
         } else {
-          // Kama akaunti haipo au nenosiri ni la uongo, inatupa ujumbe hapa hapa
           showAlert('error', result.message || 'Namba ya simu au nenosiri sio sahihi!');
           btn.classList.remove('loading');
         }
       } catch (err) {
-        showAlert('error', 'Hitilafu ya mtandao wa server. Jaribu tena baada ya muda.');
+        showAlert('error', 'Hitilafu ya seva. Jaribu tena.');
         btn.classList.remove('loading');
       }
     }

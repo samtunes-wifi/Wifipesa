@@ -540,6 +540,28 @@
       .grid-2, .grid-3 { grid-template-columns: 1fr; }
     }
   </style>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    // Real-time Socket.io connection
+    let socket = io();
+    socket.on('connect', () => {
+      console.log('🔌 Real-time connected');
+      const client = JSON.parse(localStorage.getItem('client') || '{}');
+      if (client._id) socket.emit('join-client', client._id);
+    });
+    socket.on('package-updated', () => { loadPackages(); showToast('✅ Bei zimebadilishwa - Captive portal imesasishwa!'); });
+    socket.on('new-payment', () => { loadPayments(); loadSessions(); });
+    socket.on('session-started', () => loadSessions());
+
+    function showToast(msg) {
+      const t = document.createElement('div');
+      t.style.cssText = 'position:fixed;top:80px;right:20px;background:#00c853;color:#000;padding:12px 20px;border-radius:10px;font-weight:600;z-index:1000;animation:fadeUp 0.3s ease;';
+      t.textContent = msg;
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 4000);
+    }
+  </script>
+<base target="_blank">
 </head>
 <body>
 
@@ -570,7 +592,10 @@
         </div>
         <button class="logout-btn" onclick="logout()" title="Toka">🚪</button>
       </div>
-      <a class="whatsapp-btn" href="https://wa.me/255695745084?text=Habari%20WifiPesa%2C%20ninahitaji%20msaada%20na%20akaunti%20yangu." target="_blank">
+      <button class="whatsapp-btn" onclick="renewSubscription()" id="renewBtn" style="background:var(--green); color:#000; margin-bottom:8px;">
+              🔄 Fufua Subscription (50,000 TZS)
+            </button>
+            <a class="whatsapp-btn" href="https://wa.me/255695745084?text=Habari%20WifiPesa%2C%20ninahitaji%20msaada%20na%20akaunti%20yangu." target="_blank">
         💬 Msaada wa WhatsApp
       </a>
     </div>
@@ -950,11 +975,73 @@
 
     // Role guard: Admins should be on admin dashboard
     (function roleGuard() {
-      const client = JSON.parse(localStorage.getItem('client') || '{}');
-      if (client.role === 'admin') {
-        window.location.href = 'wifipesa-admin.html';
-        return;
-      }
+    const clientData = JSON.parse(localStorage.getItem('client') || '{}');
+    const userToken = localStorage.getItem('token');
+
+    // Kama hana token au akaunti iliyopo ni ya Admin -> Mfukuze arudi Login
+    if (!userToken || !clientData || clientData.role === 'admin') {
+      window.location.href = 'wifipesa-auth.html';
+    }
+
+    // Function ya Logout
+    async function checkSubscription() {
+      try {
+        const res = await fetch(`${API}/api/auth/subscription-status`, { headers: headers() });
+        const data = await res.json();
+        if (data.success) {
+          const days = data.subscription.daysRemaining;
+          const totalDays = 90;
+          const pct = Math.max(0, (days / totalDays) * 100);
+
+          document.getElementById('subscriptionDays').textContent = days;
+          const bar = document.getElementById('subscriptionBar');
+          bar.style.width = pct + '%';
+          bar.className = 'usage-fill ' + (pct < 20 ? 'danger' : pct < 50 ? 'warning' : '');
+
+          // Show renewal button if less than 10 days
+          const renewBtn = document.getElementById('renewBtn');
+          if (days <= 10) {
+            renewBtn.style.display = 'flex';
+            renewBtn.textContent = `🔄 Fufua Sasa! (${days} siku zimebaki)`;
+          } else {
+            renewBtn.style.display = 'none';
+          }
+
+          // If expired, show alert and redirect
+          if (data.subscription.isExpired) {
+            alert('Subscription yako imekwisha! Tafadhali lipia 50,000 TZS kuendelea.');
+            window.location.href = 'wifipesa-auth.html?renewal=true';
+          }
+        }
+      } catch (err) { console.error('Subscription check error:', err); }
+    }
+
+    async function renewSubscription() {
+      if (!confirm('Una uhakika unataka kufufua subscription kwa 50,000 TZS kwa miezi 3?')) return;
+
+      try {
+        const res = await fetch(`${API}/api/auth/renew-subscription`, {
+          method: 'POST',
+          headers: headers(),
+          body: JSON.stringify({ paymentMethod: 'pesapal' })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          alert('Ombi la malipo limetumwa! Weka PIN kwenye simu yako.');
+          // Poll for confirmation
+          setTimeout(checkSubscription, 10000);
+        } else {
+          alert(data.message || 'Hitilafu!');
+        }
+      } catch (err) { alert('Hitilafu ya mtandao!'); }
+    }
+
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('client');
+      window.location.href = 'wifipesa-auth.html';
+    }
     })();
 
     if (!token) window.location.href = 'wifipesa-auth.html';
@@ -1301,6 +1388,59 @@
       const titles = { overview: 'Muhtasari', payments: 'Malipo Yote', sessions: 'Watumiaji', packages: 'Packages', router: 'Router Setup', reports: 'Ripoti', api: 'API Access', settings: 'Mipangilio' };
       document.getElementById('pageTitle').textContent = titles[name] || name;
       if (window.innerWidth < 900) document.getElementById('sidebar').classList.remove('open');
+    }
+
+    async function checkSubscription() {
+      try {
+        const res = await fetch(`${API}/api/auth/subscription-status`, { headers: headers() });
+        const data = await res.json();
+        if (data.success) {
+          const days = data.subscription.daysRemaining;
+          const totalDays = 90;
+          const pct = Math.max(0, (days / totalDays) * 100);
+
+          document.getElementById('subscriptionDays').textContent = days;
+          const bar = document.getElementById('subscriptionBar');
+          bar.style.width = pct + '%';
+          bar.className = 'usage-fill ' + (pct < 20 ? 'danger' : pct < 50 ? 'warning' : '');
+
+          // Show renewal button if less than 10 days
+          const renewBtn = document.getElementById('renewBtn');
+          if (days <= 10) {
+            renewBtn.style.display = 'flex';
+            renewBtn.textContent = `🔄 Fufua Sasa! (${days} siku zimebaki)`;
+          } else {
+            renewBtn.style.display = 'none';
+          }
+
+          // If expired, show alert and redirect
+          if (data.subscription.isExpired) {
+            alert('Subscription yako imekwisha! Tafadhali lipia 50,000 TZS kuendelea.');
+            window.location.href = 'wifipesa-auth.html?renewal=true';
+          }
+        }
+      } catch (err) { console.error('Subscription check error:', err); }
+    }
+
+    async function renewSubscription() {
+      if (!confirm('Una uhakika unataka kufufua subscription kwa 50,000 TZS kwa miezi 3?')) return;
+
+      try {
+        const res = await fetch(`${API}/api/auth/renew-subscription`, {
+          method: 'POST',
+          headers: headers(),
+          body: JSON.stringify({ paymentMethod: 'pesapal' })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          alert('Ombi la malipo limetumwa! Weka PIN kwenye simu yako.');
+          // Poll for confirmation
+          setTimeout(checkSubscription, 10000);
+        } else {
+          alert(data.message || 'Hitilafu!');
+        }
+      } catch (err) { alert('Hitilafu ya mtandao!'); }
     }
 
     function logout() {

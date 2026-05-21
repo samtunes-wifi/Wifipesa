@@ -502,7 +502,139 @@
       flex-wrap: wrap;
       gap: 20px;
     }
+    .plan-section {
+      padding: 40px 5% 80px;
+      position: relative;
+      z-index: 1;
+    }
 
+    .plan-card {
+      max-width: 480px;
+      margin: 0 auto;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 40px;
+      text-align: center;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .plan-card:hover {
+      border-color: var(--green);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px rgba(0, 200, 83, 0.15);
+    }
+
+    .plan-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--green), var(--yellow));
+    }
+
+    .plan-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0, 200, 83, 0.12);
+      border: 1px solid var(--green);
+      border-radius: 100px;
+      padding: 4px 14px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--green);
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .plan-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .plan-price {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 4rem;
+      font-weight: 800;
+      color: var(--green);
+      letter-spacing: -2px;
+      margin-bottom: 4px;
+    }
+
+    .plan-price span {
+      font-size: 1rem;
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    .plan-period {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .plan-features {
+      list-style: none;
+      text-align: left;
+      margin-bottom: 32px;
+    }
+
+    .plan-features li {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.9rem;
+    }
+
+    .plan-features li::before {
+      content: '✓';
+      color: var(--green);
+      font-weight: 700;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .btn-plan {
+      display: block;
+      width: 100%;
+      background: var(--green);
+      color: #000;
+      padding: 16px;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 1rem;
+      border: none;
+      cursor: pointer;
+      font-family: 'Sora', sans-serif;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn-plan:hover {
+      background: #00e564;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(0, 200, 83, 0.35);
+    }
+
+    .subscription-note {
+      margin-top: 16px;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .subscription-note strong {
+      color: var(--yellow);
+    }
     footer p {
       color: var(--muted);
       font-size: 0.85rem;
@@ -686,27 +818,32 @@
   </section>
 
   <!-- PRICING -->
-  <section id="bei">
-    <p class="section-label">Bei Zetu</p>
-    <h2 class="section-title">Chagua Mpango Wako</h2>
-    <div class="pricing-grid">
-        <div class="price-card featured">
-        <div class="price-name">Biashara</div>
-        <div class="price-amount">30,000 <span>TZS / mwezi</span></div>
-        <div class="price-desc">Kwa biashara zinazokua na hotspots nyingi.</div>
-        <ul class="price-features">
-          <li>Hotspots 5</li>
-          <li>Watumiaji Wasiokoma</li>
-          <li>M-Pesa na Airtel Money</li>
-          <li>Dashboard ya Kina</li>
-          <li>Ripoti za Kila Siku</li>
-          <li>Msaada wa WhatsApp</li>
-        </ul>
-        <a href="wifipesa-auth.html" class="btn-primary" style="width:100%; padding:14px; border-radius:10px; cursor:pointer; font-family:'Sora',sans-serif; font-size:0.95rem; text-align:center; text-decoration:none; display:block;">Chagua Mpango Huu</a>
+<section class="plan-section" id="plan">
+    <div class="plan-card">
+      <div class="plan-badge">Biashara Plan</div>
+      <div class="plan-name">Biashara</div>
+      <div class="plan-price">50,000 <span>TZS</span></div>
+      <div class="plan-period">Kwa miezi 3 ya kwanza</div>
+
+      <ul class="plan-features">
+        <li>Hotspots 5 za WiFi</li>
+        <li>Watumiaji wasiokoma</li>
+        <li>Captive Portal yako mwenyewe</li>
+        <li>Dashboard ya mapato live</li>
+        <li>STK Push ya M-Pesa, Airtel, HaloPesa, Mixx</li>
+        <li>Msaada wa WhatsApp 24/7</li>
+        <li>Router integration (MikroTik, ZLT, TP-Link)</li>
+        <li>Reports za mauzo na watumiaji</li>
+      </ul>
+
+      <a href="wifipesa-auth.html" class="btn-plan">🚀 Anza Sasa - Jisajili</a>
+
+      <div class="subscription-note">
+        Baada ya miezi <strong>3</strong>, mfumo utajifunga mpaka utakapo lipia tena.<br>
+        Malipo ya kuendelea: <strong>50,000 TZS</strong> kwa miezi 3 mengine.
       </div>
     </div>
   </section>
-
   <!-- CTA -->
   <div class="cta-section">
     <h2>Anza Kupata Pesa<br>Leo Hii.</h2>

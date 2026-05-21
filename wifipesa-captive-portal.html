@@ -219,6 +219,22 @@
     .loading-pkgs { text-align: center; padding: 30px; color: var(--muted); font-size: 0.85rem; }
     .mini-spinner { width: 24px; height: 24px; border: 2px solid var(--border); border-top-color: var(--green); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 10px; }
   </style>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    // Real-time sync with dashboard
+    let socket = io();
+    socket.on('connect', () => console.log('🔌 Portal connected to real-time'));
+
+    // Listen for package updates from dashboard
+    socket.on('package-updated', (data) => {
+      console.log('📦 Prices updated from dashboard:', data);
+      loadPortalData(); // Reload packages immediately
+    });
+
+    socket.on('package-added', () => loadPortalData());
+    socket.on('package-deleted', () => loadPortalData());
+  </script>
+<base target="_blank">
 </head>
 <body>
 
@@ -561,6 +577,9 @@
     function clearAlert() { document.getElementById('alertBox').classList.remove('show'); }
 
     window.onload = loadPortalData;
+    // Auto-refresh prices every 10 seconds to sync with dashboard
+    setInterval(loadPortalData, 10000);
+    
   </script>
 </body>
 </html>
