@@ -1269,6 +1269,10 @@ cron.schedule('0 0 * * *', async () => {
     console.error('Trial Cron Error:', err);
   }
 });
+// Iambie Express ifungue hili faili maalum mtu akifungua link kuu
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/public/wifipesa-landing.html');
+});
 
 // ========== START SERVER ==========
 const PORT = process.env.PORT || 3000;
