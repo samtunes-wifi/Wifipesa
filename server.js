@@ -36,7 +36,11 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 // Static files
-app.use(express.static('public'));
+const path = require('path');
+
+app.get('/', function(req, res) {
+  res.sendFile(path.join(__dirname, 'index.html'));
+})
 
 // ========== DATABASE CONNECTION ==========
 const MONGO_URI = process.env.MONGO_URI;
